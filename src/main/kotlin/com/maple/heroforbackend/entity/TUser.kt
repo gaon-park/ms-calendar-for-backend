@@ -24,6 +24,8 @@ data class TUser(
     @Column(nullable = false)
     val pass: String,
     @Column
+    val verified: Boolean,
+    @Column
     val createdAt: LocalDateTime,
     @Column
     val updatedAt: LocalDateTime,
@@ -32,6 +34,7 @@ data class TUser(
         fun generateInsertModel(request: AccountRegistRequest, passwordEncoder: PasswordEncoder) = TUser(
             email = request.email,
             pass = passwordEncoder.encode(request.password),
+            verified = false,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
         )
