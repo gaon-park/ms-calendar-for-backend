@@ -4,7 +4,8 @@ import com.maple.heroforbackend.config.JwtTokenProvider
 import com.maple.heroforbackend.dto.request.AccountRegistRequest
 import com.maple.heroforbackend.dto.request.LoginRequest
 import com.maple.heroforbackend.dto.response.LoginResponse
-import com.maple.heroforbackend.exception.InvalidRequestException
+import com.maple.heroforbackend.exception.BaseException
+import com.maple.heroforbackend.code.BaseResponseCode
 import com.maple.heroforbackend.service.AccountService
 import com.maple.heroforbackend.service.LoginService
 import jakarta.validation.Valid
@@ -28,19 +29,18 @@ class AccountController(
     @PostMapping("/login")
     fun login(
         @Valid @RequestBody request: LoginRequest,
-        message: String?
     ): ResponseEntity<LoginResponse> = with(loginService.loadUserByUsername(request.email)) {
         if (this == null) {
-            throw InvalidRequestException("does not exist")
+            throw BaseException(BaseResponseCode.USER_NOT_FOUND)
         } else if (!passwordEncoder.matches(request.password, this.password)) {
-            throw InvalidRequestException("check your password")
+            throw BaseException(BaseResponseCode.INVALID_PASSWORD)
         } else {
             ResponseEntity.ok(
                 LoginResponse(
                     jwtTokenProvider.createToken(
                         this.username,
                         listOf("ROLE_USER")
-                    ), message
+                    )
                 )
             )
         }
@@ -53,14 +53,9 @@ class AccountController(
     fun regist(
         @Valid @RequestBody request: AccountRegistRequest
     ): ResponseEntity<LoginResponse> {
-        val message = if (accountService.insert(request).id != null) {
-            null
-        } else {
-            "fail to regist"
-        }
+        accountService.insert(request)
         return login(
-            LoginRequest(request.email, request.password),
-            message
+            LoginRequest(request.email, request.password)
         )
     }
 }
