@@ -7,5 +7,5 @@ import org.springframework.boot.runApplication
 class HeroForBackendApplication
 
 fun main(args: Array<String>) {
-	runApplication<HeroForBackendApplication>(*args)
+	runApplication<HeroForBackendApplication>(args = args)
 }
