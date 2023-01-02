@@ -10,4 +10,9 @@ class IndexController {
     fun index(): String {
         return "index"
     }
+
+    @GetMapping("/user")
+    fun userTest(): String {
+        return "index"
+    }
 }

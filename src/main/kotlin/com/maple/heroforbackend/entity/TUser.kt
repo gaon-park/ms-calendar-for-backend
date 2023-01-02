@@ -41,7 +41,7 @@ data class TUser(
     }
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority>? =
-        AuthorityUtils.createAuthorityList("USER")
+        AuthorityUtils.createAuthorityList("ROLE_USER")
 
     override fun getPassword(): String = pass
 

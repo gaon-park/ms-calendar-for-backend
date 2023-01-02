@@ -1,21 +1,43 @@
 package com.maple.heroforbackend.config
 
+import com.maple.heroforbackend.service.JwtAuthService
+import com.maple.heroforbackend.service.LoginService
 import jakarta.servlet.FilterChain
-import jakarta.servlet.ServletRequest
-import jakarta.servlet.ServletResponse
+import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.web.filter.GenericFilterBean
+import org.springframework.web.filter.OncePerRequestFilter
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 class JwtAuthenticationFilter(
-    private val jwtTokenProvider: JwtTokenProvider
-) : GenericFilterBean() {
-    override fun doFilter(request: ServletRequest?, response: ServletResponse?, chain: FilterChain?) {
-        val token = jwtTokenProvider.resolveToken(request as HttpServletRequest?)
-        // 유효한 토큰인가?
-        if (token != null && jwtTokenProvider.validateToken(token)) {
-            SecurityContextHolder.getContext().authentication = jwtTokenProvider.getAuthentication(token)
+    private val jwtAuthService: JwtAuthService,
+) : OncePerRequestFilter() {
+
+    companion object {
+        val EXCLUDE_URL = listOf(
+            "/static/**",
+            "/favicon.ico",
+            "/account/regist",
+            "/confirm-email",
+            "/index",
+            "/login"
+        )
+    }
+
+    override fun doFilterInternal(
+        request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain
+    ) {
+        val tJwtAuth = jwtAuthService.getValidatedAuthData(request, response)
+        if (tJwtAuth != null) {
+            SecurityContextHolder.getContext().authentication = jwtAuthService.getAuthentication(tJwtAuth.accessKey)
         }
-        chain?.doFilter(request, response)
+        filterChain.doFilter(request, response)
+    }
+
+    // filtering 제외 URL 설정
+    override fun shouldNotFilter(request: HttpServletRequest): Boolean {
+        return EXCLUDE_URL.any { exclude -> exclude.equals(request.servletPath, true) }
     }
 }
