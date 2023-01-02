@@ -25,12 +25,12 @@ data class TEmailToken(
     val expirationDate: LocalDateTime
 ) {
     companion object {
-        private const val EMAIL_TOKEN_EXPIRATION_TIME_VALUE = 5L
+        private const val EMAIL_TOKEN_EXPIRATION_TIME_VALUE = 2L
 
         fun generate(userId: Long) = TEmailToken(
             userId = userId,
             expired = false,
-            expirationDate = LocalDateTime.now().plusMinutes(EMAIL_TOKEN_EXPIRATION_TIME_VALUE)
+            expirationDate = LocalDateTime.now().plusHours(EMAIL_TOKEN_EXPIRATION_TIME_VALUE)
         )
     }
 

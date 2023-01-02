@@ -58,24 +58,34 @@ class AccountController(
      */
     @PostMapping("/account/regist")
     fun regist(
-        @Valid @RequestBody request: AccountRegistRequest,
-        response: HttpServletResponse
-    ): ResponseEntity<LoginResponse> {
+        @Valid @RequestBody request: AccountRegistRequest
+    ): ResponseEntity<String> {
         val user = accountService.insert(request)
         user.id?.let {
             emailTokenService.sendEmailToken(it, user.email)
         }
-        return login(LoginRequest(request.email, request.password), response)
+        return ResponseEntity.ok("ok")
     }
 
     /**
-     * 이메일 인증
+     * 이메일 인증 후, 로그인 상태 설정
      */
     @GetMapping("confirm-email")
     fun confirmEmail(
-        @Valid @RequestParam token: String
-    ): ResponseEntity<String> {
-        emailTokenService.verifyEmail(token)
-        return ResponseEntity.ok("success!")
+        @Valid @RequestParam token: String,
+        response: HttpServletResponse
+    ): ResponseEntity<LoginResponse> {
+        val user = emailTokenService.verifyEmail(token)
+        return with(loginService.loadUserByUsername(user.email)) {
+            ResponseEntity.ok(
+                LoginResponse(
+                    jwtAuthService.createToken(
+                        user.email,
+                        listOf("ROLE_USER"),
+                        response
+                    ).accessKey
+                )
+            )
+        }
     }
 }
