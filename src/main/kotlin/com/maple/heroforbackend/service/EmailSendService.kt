@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service
 @PropertySource("classpath:email.properties")
 class EmailSendService(
     private val mailSender: JavaMailSender,
+    @Value("\${owner-change-request-mail.path}")
+    private val ownerChangeRequestMailPath: String,
     @Value("\${auth-mail.path}")
     private val authMailPath: String,
     @Value("\${AdminMail.personal}")
@@ -33,6 +35,28 @@ class EmailSendService(
         var msg = EmailSendService::class.java.getResource(authMailPath)?.readText()
         // todo 도메인 프로퍼티화
         msg = msg?.replace("\${LINK_WITH_TOKEN}", "http://localhost:8080/confirm-email?token=${token.id}")
+
+        message.setText(msg, "utf-8", "html")
+        message.setFrom(InternetAddress(adminId, personal))
+
+        mailSender.send(message)
+    }
+
+    @Async
+    fun sendOwnerChangeRequestEmail(scheduleId: Long, to: String) {
+        val message = mailSender.createMimeMessage()
+        message.addRecipients(Message.RecipientType.TO, to)
+        message.subject = "이벤트 소유자 변경 요청"
+
+        var msg = EmailSendService::class.java.getResource(ownerChangeRequestMailPath)?.readText()
+        msg = msg?.replace(
+            "\${ACCEPT_LINK}",
+            "http://localhost:8080/user/calendar/schedule/${scheduleId}/owner-change/accept"
+        )
+        msg = msg?.replace(
+            "\${REFUSE_LINK}",
+            "http://localhost:8080/user/calendar/schedule/${scheduleId}/owner-change/refuse"
+        )
 
         message.setText(msg, "utf-8", "html")
         message.setFrom(InternetAddress(adminId, personal))

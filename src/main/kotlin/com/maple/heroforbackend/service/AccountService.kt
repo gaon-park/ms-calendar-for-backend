@@ -14,9 +14,11 @@ class AccountService(
     private val passwordEncoder: PasswordEncoder,
     private val tUserRepository: TUserRepository
 ) {
+    fun findByEmail(email: String): TUser? = tUserRepository.findByEmail(email)
+
     @Transactional
     fun insert(request: AccountRegistRequest): TUser {
-        if (tUserRepository.findByEmail(request.email) != null) {
+        if (findByEmail(request.email) != null) {
             throw BaseException(BaseResponseCode.DUPLICATE_EMAIL)
         }
         return tUserRepository.save(TUser.generateInsertModel(request, passwordEncoder))

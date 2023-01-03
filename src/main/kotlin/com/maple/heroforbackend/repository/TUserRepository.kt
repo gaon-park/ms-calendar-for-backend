@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository
 interface TUserRepository : JpaRepository<TUser, Long> {
     fun findByEmail(email: String): TUser?
     fun findByEmailAndVerified(email: String, verified: Boolean): TUser?
+    fun findByEmailIn(emails: List<String>): List<TUser>
 }
