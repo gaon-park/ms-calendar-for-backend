@@ -16,20 +16,19 @@ data class TJwtAuth(
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Column(length = 36)
     val id: String? = null,
-    @Column
     val expired: Boolean,
-    @Column
     val expirationDate: LocalDateTime,
-    @Column
     val accessKey: String,
+    val userPk: String,
 ) {
     companion object {
         private const val REFRESH_TOKEN_EXPIRATION_WEEKS_VALUE = 2L
 
-        fun generate(accessKey: String, now: LocalDateTime) = TJwtAuth(
+        fun generate(accessKey: String, now: LocalDateTime, userPk: String) = TJwtAuth(
             expired = false,
             expirationDate = now.plusWeeks(REFRESH_TOKEN_EXPIRATION_WEEKS_VALUE),
-            accessKey = accessKey
+            accessKey = accessKey,
+            userPk = userPk
         )
     }
 }

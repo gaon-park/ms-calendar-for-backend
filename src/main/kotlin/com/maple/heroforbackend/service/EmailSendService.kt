@@ -25,7 +25,7 @@ class EmailSendService(
      * 인증 메일 전송
      */
     @Async
-    fun sendEmail(token: TEmailToken, to: String) {
+    fun sendAuthEmail(token: TEmailToken, to: String) {
         val message = mailSender.createMimeMessage()
         message.addRecipients(Message.RecipientType.TO, to)
         message.subject = "회원가입 이메일 인증"

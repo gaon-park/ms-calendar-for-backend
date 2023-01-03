@@ -6,6 +6,7 @@ import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.AuthorityUtils
@@ -21,22 +22,21 @@ data class TUser(
     val id: Long? = null,
     @Column(nullable = false)
     val email: String,
+    val nickName: String,
     @Column(nullable = false)
     val pass: String,
-    @Column
     val verified: Boolean,
-    @Column
     val createdAt: LocalDateTime,
-    @Column
     val updatedAt: LocalDateTime,
 ) : UserDetails {
     companion object {
         fun generateInsertModel(request: AccountRegistRequest, passwordEncoder: PasswordEncoder) = TUser(
             email = request.email,
+            nickName = request.nickName ?: request.email,
             pass = passwordEncoder.encode(request.password),
             verified = false,
             createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now(),
+            updatedAt = LocalDateTime.now()
         )
     }
 

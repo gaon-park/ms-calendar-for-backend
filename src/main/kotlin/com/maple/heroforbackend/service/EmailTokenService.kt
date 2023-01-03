@@ -21,7 +21,7 @@ class EmailTokenService(
         val emailToken = TEmailToken.generate(userId)
         tEmailTokenRepository.save(emailToken)
 
-        emailSendService.sendEmail(emailToken, to)
+        emailSendService.sendAuthEmail(emailToken, to)
         return emailToken.id
     }
 

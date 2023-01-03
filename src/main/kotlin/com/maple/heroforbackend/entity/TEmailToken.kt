@@ -17,11 +17,8 @@ data class TEmailToken(
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Column(length = 36)
     val id: String? = null,
-    @Column
     val userId: Long,
-    @Column
     val expired: Boolean,
-    @Column
     val expirationDate: LocalDateTime
 ) {
     companion object {

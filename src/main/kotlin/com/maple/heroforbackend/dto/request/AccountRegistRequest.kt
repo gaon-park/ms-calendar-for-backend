@@ -11,4 +11,6 @@ data class AccountRegistRequest(
 
     @NotEmpty(message = "비밀번호 확인은 필수 항목입니다.")
     val confirmPassword: String,
+
+    val nickName: String?,
 )
