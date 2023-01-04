@@ -20,15 +20,13 @@ data class TScheduleMember(
     @ManyToOne
     @JoinColumn(name = "user_id")
     val user: TUser,
-    val isOwner: Boolean,
     val accepted: Boolean,
 ) {
     companion object {
-        fun initConvert(user: TUser, isOwner: Boolean, schedule: TSchedule) = TScheduleMember(
+        fun initConvert(user: TUser, schedule: TSchedule, accepted: Boolean) = TScheduleMember(
             schedule = schedule,
             user = user,
-            isOwner = isOwner,
-            accepted = isOwner
+            accepted = accepted
         )
     }
 }

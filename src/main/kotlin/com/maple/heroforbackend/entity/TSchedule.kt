@@ -20,16 +20,17 @@ data class TSchedule(
     val start: LocalDateTime,
     val end: LocalDateTime?,
     val allDay: Boolean,
-    val note: String,
+    val note: String?,
     val color: String?,
     val isPublic: Boolean,
     val waitingOwnerChange: Boolean,
+    val ownerId: Long?,
     val nextOwnerId: Long?,
     @OneToMany(mappedBy = "schedule")
     var members: List<TScheduleMember> = listOf(),
 ) {
     companion object {
-        fun convert(request: ScheduleAddRequest) = TSchedule(
+        fun convert(request: ScheduleAddRequest, ownerId: Long?) = TSchedule(
             title = request.title,
             start = request.start,
             end = request.end,
@@ -38,19 +39,7 @@ data class TSchedule(
             color = request.color,
             isPublic = request.isPublic ?: false,
             waitingOwnerChange = false,
-            nextOwnerId = null
-        )
-
-        fun convert(id: Long, request: ScheduleUpdateRequest) = TSchedule(
-            id = id,
-            title = request.title,
-            start = request.start,
-            end = request.end,
-            allDay = request.allDay ?: false,
-            note = request.note ?: "",
-            color = request.color,
-            isPublic = request.isPublic ?: false,
-            waitingOwnerChange = false,
+            ownerId = ownerId,
             nextOwnerId = null
         )
     }

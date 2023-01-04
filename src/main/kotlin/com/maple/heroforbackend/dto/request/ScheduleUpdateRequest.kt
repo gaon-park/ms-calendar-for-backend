@@ -13,8 +13,8 @@ data class ScheduleUpdateRequest(
     val start: LocalDateTime,
     @DateTimeFormat(pattern = "yyyy-MM-ddTHH:mm")
     val end: LocalDateTime?,
-    val allDay: Boolean?,
+    val allDay: Boolean,
     val note: String?,
     val color: String?,
-    val isPublic: Boolean?,
+    val isPublic: Boolean,
 )

@@ -21,7 +21,7 @@ class ScheduleService(
     private val tUserRepository: TUserRepository,
     private val emailSendService: EmailSendService,
 ) {
-    fun selectSchedule(scheduleId: Long): TSchedule {
+    fun selectById(scheduleId: Long): TSchedule {
         tScheduleRepository.findById(scheduleId).let {
             if (it.isPresent)
                 return it.get()
@@ -34,11 +34,11 @@ class ScheduleService(
      */
     @Transactional
     fun insert(owner: TUser, request: ScheduleAddRequest) {
-        val schedule = tScheduleRepository.save(TSchedule.convert(request))
-        val members = listOf(TScheduleMember.initConvert(owner, true, schedule))
+        val schedule = tScheduleRepository.save(TSchedule.convert(request, owner.id))
+        val members = listOf(TScheduleMember.initConvert(owner, schedule, true))
             .plus(
                 tUserRepository.findByEmailIn(request.members)
-                    .map { TScheduleMember.initConvert(it, false, schedule) }
+                    .map { TScheduleMember.initConvert(it, schedule, false) }
             )
         tScheduleMemberRepository.saveAll(members)
     }
@@ -48,8 +48,8 @@ class ScheduleService(
      */
     @Transactional
     fun delete(scheduleId: Long, requestUser: TUser) {
-        val schedule = selectSchedule(scheduleId)
-        if (schedule.members.firstOrNull { m -> m.isOwner && m.user.id == requestUser.id } != null) {
+        val schedule = selectById(scheduleId)
+        if (schedule.ownerId == requestUser.id) {
             tScheduleMemberRepository.deleteByScheduleId(scheduleId)
             tScheduleRepository.deleteById(scheduleId)
         } else if (schedule.members.firstOrNull { m -> m.user.id == requestUser.id } != null) {
@@ -64,14 +64,14 @@ class ScheduleService(
      */
     @Transactional
     fun updateMember(scheduleId: Long, requestUser: TUser, request: ScheduleMemberAddRequest) {
-        val schedule = selectSchedule(scheduleId)
+        val schedule = selectById(scheduleId)
         if (schedule.members.none { m -> m.user.id == requestUser.id }) {
             throw BaseException(BaseResponseCode.BAD_REQUEST)
         }
 
         // save new members
         tUserRepository.findByEmailIn(request.newMember)
-            .map { user -> TScheduleMember.initConvert(user, false, schedule) }
+            .map { user -> TScheduleMember.initConvert(user, schedule, false) }
             .let {
                 if (it.isNotEmpty()) {
                     tScheduleMemberRepository.saveAll(it)
@@ -85,15 +85,20 @@ class ScheduleService(
      */
     @Transactional
     fun changeOwnerRequest(scheduleId: Long, requestUser: TUser, nextOwnerEmail: String) {
-        val schedule = selectSchedule(scheduleId)
-        if (schedule.members.none { it.isOwner && it.user.id == requestUser.id }) {
+        val schedule = selectById(scheduleId)
+        if (schedule.ownerId == requestUser.id) {
             throw BaseException(BaseResponseCode.BAD_REQUEST)
         }
 
         val nextOwner =
             tUserRepository.findByEmail(nextOwnerEmail) ?: throw BaseException(BaseResponseCode.USER_NOT_FOUND)
         emailSendService.sendOwnerChangeRequestEmail(scheduleId, nextOwner.email)
-        changeJustOwnerRequestStatus(schedule, true, nextOwner.id)
+        tScheduleRepository.save(
+            schedule.copy(
+                nextOwnerId = nextOwner.id,
+                waitingOwnerChange = true
+            )
+        )
     }
 
     /**
@@ -102,20 +107,17 @@ class ScheduleService(
      */
     @Transactional
     fun changeOwner(scheduleId: Long, newOwner: TUser) {
-        val schedule = selectSchedule(scheduleId)
+        val schedule = selectById(scheduleId)
         if (!schedule.waitingOwnerChange || schedule.nextOwnerId != newOwner.id) {
             throw BaseException(BaseResponseCode.BAD_REQUEST)
         }
-        tScheduleMemberRepository.saveAll(
-            schedule.members.map {
-                when {
-                    (it.user.id != newOwner.id && it.isOwner) -> it.copy(isOwner = false)
-                    (it.user.id == newOwner.id) -> it.copy(isOwner = true)
-                    else -> it
-                }
-            }
+        tScheduleRepository.save(
+            schedule.copy(
+                ownerId = schedule.nextOwnerId,
+                nextOwnerId = null,
+                waitingOwnerChange = false,
+            )
         )
-        changeJustOwnerRequestStatus(schedule, false, null)
     }
 
     /**
@@ -123,20 +125,15 @@ class ScheduleService(
      */
     @Transactional
     fun changeOwnerRefuse(scheduleId: Long, newOwner: TUser) {
-        val schedule = selectSchedule(scheduleId)
+        val schedule = selectById(scheduleId)
         if (!schedule.waitingOwnerChange || schedule.nextOwnerId != newOwner.id) {
             throw BaseException(BaseResponseCode.BAD_REQUEST)
         }
-        changeJustOwnerRequestStatus(schedule, false, null)
-    }
-
-    /**
-     * 스케줄의 소유자 변경 요청 상태를 변경
-     */
-    @Transactional
-    fun changeJustOwnerRequestStatus(schedule: TSchedule, status: Boolean, nextOwnerId: Long?) {
         tScheduleRepository.save(
-            schedule.copy(waitingOwnerChange = status, nextOwnerId = nextOwnerId)
+            schedule.copy(
+                nextOwnerId = null,
+                waitingOwnerChange = false
+            )
         )
     }
 
@@ -145,11 +142,21 @@ class ScheduleService(
      */
     @Transactional
     fun update(scheduleId: Long, requestUser: TUser, request: ScheduleUpdateRequest) {
-        val schedule = selectSchedule(scheduleId)
+        val schedule = selectById(scheduleId)
         if (schedule.members.none { m -> m.user.id == requestUser.id }) {
             throw BaseException(BaseResponseCode.BAD_REQUEST)
         }
 
-        tScheduleRepository.save(TSchedule.convert(scheduleId, request))
+        tScheduleRepository.save(
+            schedule.copy(
+                title = request.title,
+                start = request.start,
+                end = request.end,
+                allDay = request.allDay,
+                note = request.note,
+                color = request.color,
+                isPublic = request.isPublic
+            )
+        )
     }
 }
