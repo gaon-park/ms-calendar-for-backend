@@ -70,7 +70,7 @@ class AccountController(
     /**
      * 이메일 인증 후, 로그인 상태 설정
      */
-    @GetMapping("confirm-email")
+    @GetMapping("/confirm-email")
     fun confirmEmail(
         @Valid @RequestParam token: String,
         response: HttpServletResponse
