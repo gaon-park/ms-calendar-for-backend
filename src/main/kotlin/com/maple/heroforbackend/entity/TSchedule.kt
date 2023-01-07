@@ -42,18 +42,5 @@ data class TSchedule(
             ownerId = ownerId,
             nextOwnerId = null
         )
-
-        fun sample() = TSchedule(
-            title = "",
-            start = LocalDateTime.now(),
-            end = null,
-            allDay = false,
-            note = null,
-            color = null,
-            isPublic = false,
-            waitingOwnerChange = false,
-            ownerId = null,
-            nextOwnerId = null
-        )
     }
 }
