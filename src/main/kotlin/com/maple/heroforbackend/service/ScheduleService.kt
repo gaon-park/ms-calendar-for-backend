@@ -35,11 +35,17 @@ class ScheduleService(
     @Transactional
     fun insert(owner: TUser, request: ScheduleAddRequest) {
         val schedule = tScheduleRepository.save(TSchedule.convert(request, owner.id))
-        val members = listOf(TScheduleMember.initConvert(owner, schedule, true))
-            .plus(
-                tUserRepository.findByEmailIn(request.members)
-                    .map { TScheduleMember.initConvert(it, schedule, false) }
-            )
+        val members = mutableListOf(TScheduleMember.initConvert(owner, schedule, true))
+
+        val searchMember = request.members.filter { it != owner.email }
+        if (searchMember.isNotEmpty()) {
+            val partyMembers = tUserRepository.findByEmailIn(searchMember)
+                .map { TScheduleMember.initConvert(it, schedule, false) }
+            if (partyMembers.isEmpty()) {
+                throw BaseException(BaseResponseCode.USER_NOT_FOUND)
+            }
+            members.addAll(partyMembers)
+        }
         tScheduleMemberRepository.saveAll(members)
     }
 
