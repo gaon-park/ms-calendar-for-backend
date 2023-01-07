@@ -17,10 +17,10 @@ class AccountService(
     fun findByEmail(email: String): TUser? = tUserRepository.findByEmail(email)
 
     @Transactional
-    fun insert(request: AccountRegistRequest): TUser {
+    fun save(request: AccountRegistRequest): TUser {
         if (findByEmail(request.email) != null) {
             throw BaseException(BaseResponseCode.DUPLICATE_EMAIL)
         }
-        return tUserRepository.save(TUser.generateInsertModel(request, passwordEncoder))
+        return tUserRepository.save(TUser.generateSaveModel(request, passwordEncoder))
     }
 }

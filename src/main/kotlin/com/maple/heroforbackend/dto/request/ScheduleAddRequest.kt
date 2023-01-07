@@ -15,7 +15,6 @@ data class ScheduleAddRequest(
     val end: LocalDateTime?,
     val allDay: Boolean?,
     val note: String?,
-    val color: String?,
     val isPublic: Boolean?,
     val members: List<String> = listOf(),
 )

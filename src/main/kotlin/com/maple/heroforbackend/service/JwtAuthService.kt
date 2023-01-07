@@ -53,7 +53,7 @@ class JwtAuthService(
             .signWith(secretKey)
             .compact()
 
-        // refresh token insert to db
+        // refresh token save to db
         val tUser = tUserRepository.findByEmail(userPk) ?: throw BaseException(BaseResponseCode.USER_NOT_FOUND)
         val tJwtAuth =
             TJwtAuth.generate(
@@ -63,7 +63,7 @@ class JwtAuthService(
             )
         tJwtAuthRepository.save(tJwtAuth)
 
-        // refresh token insert to httpOnly cookie
+        // refresh token save to httpOnly cookie
         setRefreshTokenToCookie(tJwtAuth, response)
 
         return tJwtAuth

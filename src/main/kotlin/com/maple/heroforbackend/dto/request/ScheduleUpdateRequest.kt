@@ -15,6 +15,5 @@ data class ScheduleUpdateRequest(
     val end: LocalDateTime?,
     val allDay: Boolean,
     val note: String?,
-    val color: String?,
     val isPublic: Boolean,
 )

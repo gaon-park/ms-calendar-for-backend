@@ -33,9 +33,10 @@ class AccountServiceTest : BehaviorSpec() {
             email = "do.judo1224@gmail.com",
             password = "qwer1234",
             confirmPassword = "qwer1234",
-            nickName = null
+            nickName = null,
+            isPublic = null
         )
-        val user = TUser.generateInsertModel(addRequest, passwordEncoder).copy(id = 0)
+        val user = TUser.generateSaveModel(addRequest, passwordEncoder).copy(id = 0)
 
         // method: findByEmail
         Given("이메일을 통해 유저를 검색하는데") {
@@ -55,12 +56,12 @@ class AccountServiceTest : BehaviorSpec() {
             }
         }
 
-        // method: insert
+        // method: save
         Given("유저 등록 요청이 들어왔을 때") {
             When("등록된 유저의 이메일과 중복된다면") {
                 every { tUserRepository.findByEmail(any()) } answers { user }
                 val exception = shouldThrow<BaseException> {
-                    service.insert(addRequest)
+                    service.save(addRequest)
                 }
                 Then("DUPLICATE_EMAIL 예외가 발생한다") {
                     exception.errorCode shouldBe BaseResponseCode.DUPLICATE_EMAIL
@@ -69,7 +70,7 @@ class AccountServiceTest : BehaviorSpec() {
             }
             When("등록된 유저의 이메일과 중복되지 않는다면") {
                 every { tUserRepository.findByEmail(any()) } answers { null }
-                val result = service.insert(addRequest)
+                val result = service.save(addRequest)
                 Then("DB에 저장된다") {
                     tUserSlot.isCaptured shouldBe true
                     tUserSlot.captured.email shouldBe addRequest.email

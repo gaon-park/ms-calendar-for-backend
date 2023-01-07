@@ -8,6 +8,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
+import org.hibernate.annotations.GenericGenerator
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.userdetails.UserDetails
@@ -28,15 +29,23 @@ data class TUser(
     val verified: Boolean,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
+    @OneToMany(mappedBy = "key.requester")
+    val friends: List<TFriendShip> = listOf(),
+    val isPublic: Boolean,
+    @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    @Column(length = 36)
+    val privateCode: String? = null,
 ) : UserDetails {
     companion object {
-        fun generateInsertModel(request: AccountRegistRequest, passwordEncoder: PasswordEncoder) = TUser(
+        fun generateSaveModel(request: AccountRegistRequest, passwordEncoder: PasswordEncoder) = TUser(
             email = request.email,
             nickName = request.nickName ?: request.email,
             pass = passwordEncoder.encode(request.password),
             verified = false,
             createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now()
+            updatedAt = LocalDateTime.now(),
+            isPublic = request.isPublic ?: false
         )
     }
 

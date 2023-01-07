@@ -41,7 +41,8 @@ class EmailTokenServiceTest : BehaviorSpec() {
             pass = "",
             verified = false,
             createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now()
+            updatedAt = LocalDateTime.now(),
+            isPublic = false
         )
 
         // method: verifyEmail

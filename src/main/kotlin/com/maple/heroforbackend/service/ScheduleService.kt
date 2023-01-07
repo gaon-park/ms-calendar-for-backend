@@ -1,6 +1,7 @@
 package com.maple.heroforbackend.service
 
 import com.maple.heroforbackend.code.BaseResponseCode
+import com.maple.heroforbackend.dto.request.GetSchedulesRequest
 import com.maple.heroforbackend.dto.request.ScheduleAddRequest
 import com.maple.heroforbackend.dto.request.ScheduleMemberAddRequest
 import com.maple.heroforbackend.dto.request.ScheduleUpdateRequest
@@ -21,7 +22,7 @@ class ScheduleService(
     private val tUserRepository: TUserRepository,
     private val emailSendService: EmailSendService,
 ) {
-    fun selectById(scheduleId: Long): TSchedule {
+    fun findById(scheduleId: Long): TSchedule {
         tScheduleRepository.findById(scheduleId).let {
             if (it.isPresent)
                 return it.get()
@@ -33,7 +34,7 @@ class ScheduleService(
      * 스케줄 입력
      */
     @Transactional
-    fun insert(owner: TUser, request: ScheduleAddRequest) {
+    fun save(owner: TUser, request: ScheduleAddRequest) {
         val schedule = tScheduleRepository.save(TSchedule.convert(request, owner.id))
         val members = mutableListOf(TScheduleMember.initConvert(owner, schedule, true))
 
@@ -54,7 +55,7 @@ class ScheduleService(
      */
     @Transactional
     fun delete(scheduleId: Long, requestUser: TUser) {
-        val schedule = selectById(scheduleId)
+        val schedule = findById(scheduleId)
         if (schedule.ownerId == requestUser.id) {
             tScheduleMemberRepository.deleteByScheduleId(scheduleId)
             tScheduleRepository.deleteById(scheduleId)
@@ -70,7 +71,7 @@ class ScheduleService(
      */
     @Transactional
     fun updateMember(scheduleId: Long, requestUser: TUser, request: ScheduleMemberAddRequest) {
-        val schedule = selectById(scheduleId)
+        val schedule = findById(scheduleId)
         if (schedule.members.none { m -> m.user.id == requestUser.id }) {
             throw BaseException(BaseResponseCode.BAD_REQUEST)
         }
@@ -98,7 +99,7 @@ class ScheduleService(
      */
     @Transactional
     fun changeOwnerRequest(scheduleId: Long, requestUser: TUser, nextOwnerEmail: String) {
-        val schedule = selectById(scheduleId)
+        val schedule = findById(scheduleId)
         if (schedule.ownerId != requestUser.id) {
             throw BaseException(BaseResponseCode.BAD_REQUEST)
         }
@@ -120,7 +121,7 @@ class ScheduleService(
      */
     @Transactional
     fun changeOwnerAccept(scheduleId: Long, newOwner: TUser) {
-        val schedule = selectById(scheduleId)
+        val schedule = findById(scheduleId)
         if (!schedule.waitingOwnerChange || schedule.nextOwnerId != newOwner.id) {
             throw BaseException(BaseResponseCode.BAD_REQUEST)
         }
@@ -138,7 +139,7 @@ class ScheduleService(
      */
     @Transactional
     fun changeOwnerRefuse(scheduleId: Long, newOwner: TUser) {
-        val schedule = selectById(scheduleId)
+        val schedule = findById(scheduleId)
         if (!schedule.waitingOwnerChange || schedule.nextOwnerId != newOwner.id) {
             throw BaseException(BaseResponseCode.BAD_REQUEST)
         }
@@ -155,7 +156,7 @@ class ScheduleService(
      */
     @Transactional
     fun update(scheduleId: Long, requestUser: TUser, request: ScheduleUpdateRequest) {
-        val schedule = selectById(scheduleId)
+        val schedule = findById(scheduleId)
         if (schedule.members.none { m -> m.user.id == requestUser.id }) {
             throw BaseException(BaseResponseCode.BAD_REQUEST)
         }
@@ -167,9 +168,16 @@ class ScheduleService(
                 end = request.end,
                 allDay = request.allDay,
                 note = request.note,
-                color = request.color,
                 isPublic = request.isPublic
             )
         )
     }
+
+//    /**
+//     * 스케줄 검색
+//     */
+//    fun findSchedules(request: GetSchedulesRequest) {
+//        // email 검색: 전체 검색(우선 검색)
+//        // nickName 검색: 친구 검색
+//    }
 }

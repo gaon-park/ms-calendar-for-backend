@@ -54,13 +54,13 @@ class AccountController(
     }
 
     /**
-     * 데이터 INSERT 후, 인증 메일 발송
+     * 데이터 save 후, 인증 메일 발송
      */
     @PostMapping("/account/regist")
     fun regist(
         @Valid @RequestBody request: AccountRegistRequest
     ): ResponseEntity<String> {
-        val user = accountService.insert(request)
+        val user = accountService.save(request)
         user.id?.let {
             emailTokenService.sendEmailToken(it, user.email)
         }

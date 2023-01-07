@@ -36,7 +36,7 @@ class UserCalendarController(
         @Valid @RequestBody data: ScheduleAddRequest
     ): ResponseEntity<String> {
         accountService.findByEmail(jwtAuthService.getUserName(request))?.let {
-            scheduleService.insert(it, data)
+            scheduleService.save(it, data)
         }
         return ResponseEntity.ok("ok")
     }

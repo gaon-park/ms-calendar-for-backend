@@ -14,6 +14,8 @@ data class AccountRegistRequest(
     val confirmPassword: String,
 
     val nickName: String?,
+
+    val isPublic: Boolean?,
 ) {
     @AssertTrue
     fun isConfirmPassword() = confirmPassword == password

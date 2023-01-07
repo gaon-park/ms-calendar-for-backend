@@ -40,11 +40,11 @@ class AccountControllerTest : DescribeSpec() {
         val passwordEncoder = mockk<PasswordEncoder>()
         val jwtAuthService = mockk<JwtAuthService>(relaxed = true)
 
-        val userInsertSlot: CapturingSlot<AccountRegistRequest> = slot()
+        val userSaveSlot: CapturingSlot<AccountRegistRequest> = slot()
         val emailSlot: CapturingSlot<String> = slot()
 
         afterContainer {
-            userInsertSlot.clear()
+            userSaveSlot.clear()
             emailSlot.clear()
         }
 
@@ -65,9 +65,10 @@ class AccountControllerTest : DescribeSpec() {
             email = "do.judo1224@gmail.com",
             password = "qwer1234",
             confirmPassword = "qwer1234",
-            nickName = null
+            nickName = null,
+            isPublic = null
         )
-        val user = TUser.generateInsertModel(addRequest, passwordEncoder).copy(id = 0)
+        val user = TUser.generateSaveModel(addRequest, passwordEncoder).copy(id = 0)
 
         describe("post: /login") {
             val perform = { request: LoginRequest ->
@@ -151,7 +152,8 @@ class AccountControllerTest : DescribeSpec() {
                         email = "",
                         password = "",
                         confirmPassword = "",
-                        nickName = null
+                        nickName = null,
+                        isPublic = null
                     )
                 )
                 it("BAD_REQUEST 예외 발생") {
@@ -168,7 +170,8 @@ class AccountControllerTest : DescribeSpec() {
                         email = "do.judo1224@gmail.com",
                         password = "qwer",
                         confirmPassword = "1234",
-                        nickName = null
+                        nickName = null,
+                        isPublic = null
                     )
                 )
                 it("BAD_REQUEST 예외 발생") {
@@ -180,7 +183,7 @@ class AccountControllerTest : DescribeSpec() {
                 }
             }
             context("정상 AccountRegistRequest 이지만, 등록정보 있음") {
-                every { accountService.insert(any()) } throws BaseException(BaseResponseCode.DUPLICATE_EMAIL)
+                every { accountService.save(any()) } throws BaseException(BaseResponseCode.DUPLICATE_EMAIL)
                 val result = perform(addRequest)
                 it("DUPLICATE_EMAIL 예외 발생") {
                     result.andExpect {
@@ -194,13 +197,13 @@ class AccountControllerTest : DescribeSpec() {
                 }
             }
             context("정상 AccountRegistRequest 이고 등록정보 없음") {
-                every { accountService.insert(capture(userInsertSlot)) } returns user
+                every { accountService.save(capture(userSaveSlot)) } returns user
                 every { emailTokenService.sendEmailToken(any(), capture(emailSlot)) } returns ""
                 val result = perform(addRequest)
                 it("데이터 저장 후 인증 메일 발송") {
                     emailSlot.isCaptured shouldBe true
                     emailSlot.captured shouldBe user.email
-                    userInsertSlot.isCaptured shouldBe true
+                    userSaveSlot.isCaptured shouldBe true
                     result.andExpect {
                         it.response.status shouldBe HttpStatus.OK.value()
                     }

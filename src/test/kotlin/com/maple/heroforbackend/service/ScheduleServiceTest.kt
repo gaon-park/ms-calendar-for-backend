@@ -62,7 +62,8 @@ class ScheduleServiceTest : BehaviorSpec() {
             pass = "",
             verified = true,
             createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now()
+            updatedAt = LocalDateTime.now(),
+            isPublic = false
         )
         val members = listOf(
             owner, TUser(
@@ -72,7 +73,8 @@ class ScheduleServiceTest : BehaviorSpec() {
                 pass = "",
                 verified = true,
                 createdAt = LocalDateTime.now(),
-                updatedAt = LocalDateTime.now()
+                updatedAt = LocalDateTime.now(),
+                isPublic = false
             ), TUser(
                 id = 2,
                 email = "helloproud68@naver.com",
@@ -80,7 +82,8 @@ class ScheduleServiceTest : BehaviorSpec() {
                 pass = "",
                 verified = true,
                 createdAt = LocalDateTime.now(),
-                updatedAt = LocalDateTime.now()
+                updatedAt = LocalDateTime.now(),
+                isPublic = false
             )
         )
         val addRequest = ScheduleAddRequest(
@@ -89,7 +92,6 @@ class ScheduleServiceTest : BehaviorSpec() {
             end = null,
             allDay = false,
             note = null,
-            color = null,
             isPublic = null,
             members = emptyList()
         )
@@ -131,7 +133,7 @@ class ScheduleServiceTest : BehaviorSpec() {
             )
         } just Runs
 
-        // method: insert
+        // method: save
         Given("owner 를 제외한 멤버가 없는 상황에서") {
             every {
                 tUserRepository.findByEmailIn(any())
@@ -139,7 +141,7 @@ class ScheduleServiceTest : BehaviorSpec() {
                 emptyList()
             }
             When("개인 스케줄 입력을 요청하면") {
-                service.insert(owner, addRequest)
+                service.save(owner, addRequest)
                 Then("1명의 스케줄 입력이 이루어진다") {
                     tScheduleSlot.captured.title shouldBe addRequest.title
                     tScheduleMemberSlot.captured.size shouldBe 1
@@ -149,7 +151,7 @@ class ScheduleServiceTest : BehaviorSpec() {
 
             When("파티 스케줄 입력을 요청하면") {
                 val exception = shouldThrow<BaseException> {
-                    service.insert(owner, addRequest.copy(members = listOf(members[1].email)))
+                    service.save(owner, addRequest.copy(members = listOf(members[1].email)))
                 }
                 Then("USER_NOT_FOUND 예외가 발생한다") {
                     tScheduleMemberSlot.isCaptured shouldBe false
@@ -158,7 +160,7 @@ class ScheduleServiceTest : BehaviorSpec() {
             }
         }
 
-        // method: insert
+        // method: save
         Given("owner 를 제외한 멤버가 있는 상황에서") {
             every {
                 tUserRepository.findByEmailIn(capture(emailSlot))
@@ -168,7 +170,7 @@ class ScheduleServiceTest : BehaviorSpec() {
 
             When("파티 스케줄을 입력하면(owner not in members)") {
                 val curReq = addRequest.copy(members = listOf(members[1].email, members[2].email))
-                service.insert(owner, curReq)
+                service.save(owner, curReq)
                 Then("스케줄과 request.members 데이터가 모두 입력된다") {
                     tScheduleSlot.isCaptured shouldBe true
                     tScheduleSlot.captured.title shouldBe curReq.title
@@ -180,7 +182,7 @@ class ScheduleServiceTest : BehaviorSpec() {
 
             When("파티 스케줄을 입력하면(owner in members)") {
                 val curReq = addRequest.copy(members = listOf(members[0].email, members[1].email, members[2].email))
-                service.insert(owner, curReq)
+                service.save(owner, curReq)
                 Then("스케줄과 request.members 데이터가 모두 입력된다") {
                     tScheduleSlot.isCaptured shouldBe true
                     tScheduleSlot.captured.title shouldBe curReq.title
@@ -192,12 +194,12 @@ class ScheduleServiceTest : BehaviorSpec() {
             }
         }
 
-        // method: selectById
+        // method: findById
         Given("스케줄 검색을 요청받은 상황에서") {
             When("scheduleId 가 존재하지 않는 스케줄의 id 이면") {
                 every { tScheduleRepository.findById(any()) } answers { Optional.ofNullable(null) }
                 val exception = shouldThrow<BaseException> {
-                    service.selectById(1)
+                    service.findById(1)
                 }
                 Then("NOT_FOUND 예외가 발생한다") {
                     exception.errorCode shouldBe BaseResponseCode.NOT_FOUND
@@ -205,7 +207,7 @@ class ScheduleServiceTest : BehaviorSpec() {
             }
             When("scheduleId 가 존재하는 스케줄의 id 이면") {
                 every { tScheduleRepository.findById(any()) } answers { Optional.ofNullable(schedule) }
-                val res = service.selectById(schedule.id!!)
+                val res = service.findById(schedule.id!!)
                 Then("해당 스케줄 객체를 반환한다") {
                     res.id shouldBe schedules[0].id
                 }
@@ -472,7 +474,6 @@ class ScheduleServiceTest : BehaviorSpec() {
                 end = null,
                 allDay = false,
                 note = null,
-                color = null,
                 isPublic = true
             )
             When("스케줄이 존재하지 않으면") {

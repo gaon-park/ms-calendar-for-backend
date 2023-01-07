@@ -49,7 +49,8 @@ class UserScheduleControllerTest : DescribeSpec() {
             pass = "",
             verified = false,
             createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now()
+            updatedAt = LocalDateTime.now(),
+            isPublic = false,
         )
 
         afterContainer {
@@ -64,7 +65,7 @@ class UserScheduleControllerTest : DescribeSpec() {
             .defaultResponseCharacterEncoding<StandaloneMockMvcBuilder>(StandardCharsets.UTF_8)
             .build()
 
-        every { scheduleService.insert(any(), capture(tScheduleSlot)) } just Runs
+        every { scheduleService.save(any(), capture(tScheduleSlot)) } just Runs
 
         describe("post: /schedule") {
             val perform = { request: ScheduleAddRequest ->
@@ -81,7 +82,6 @@ class UserScheduleControllerTest : DescribeSpec() {
                     ScheduleAddRequest(
                         "",
                         LocalDateTime.now(),
-                        null,
                         null,
                         null,
                         null,
@@ -107,10 +107,9 @@ class UserScheduleControllerTest : DescribeSpec() {
                         null,
                         null,
                         null,
-                        null,
                     )
                 )
-                it("db insert 가 일어나지 않음") {
+                it("db save 가 일어나지 않음") {
                     tScheduleSlot.isCaptured shouldBe false
                     result.andExpect {
                         it.response.status shouldBe HttpStatus.OK.value()
@@ -128,10 +127,9 @@ class UserScheduleControllerTest : DescribeSpec() {
                         null,
                         null,
                         null,
-                        null,
                     )
                 )
-                it("db insert") {
+                it("db save") {
                     tScheduleSlot.isCaptured shouldBe true
                     result.andExpect {
                         it.response.status shouldBe HttpStatus.OK.value()
@@ -405,7 +403,6 @@ class UserScheduleControllerTest : DescribeSpec() {
                 end = null,
                 allDay = false,
                 note = null,
-                color = null,
                 isPublic = false
             )
             context("비정상 requestBody") {
