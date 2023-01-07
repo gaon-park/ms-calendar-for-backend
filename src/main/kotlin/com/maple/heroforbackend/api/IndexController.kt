@@ -1,14 +1,15 @@
 package com.maple.heroforbackend.api
 
-import org.springframework.stereotype.Controller
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RestController
 
-@Controller
+@RestController
 @Suppress("FunctionOnlyReturningConstant")
 class IndexController {
-    @GetMapping
-    fun index(): String {
-        return "index"
+    @GetMapping("/index")
+    fun index(): ResponseEntity<String> {
+        return ResponseEntity.ok("ok")
     }
 
     @GetMapping("/user")

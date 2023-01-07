@@ -28,5 +28,11 @@ data class TScheduleMember(
             user = user,
             accepted = accepted
         )
+
+        fun sample() = TScheduleMember(
+            schedule = TSchedule.sample(),
+            user = TUser.sample(),
+            accepted = false
+        )
     }
 }

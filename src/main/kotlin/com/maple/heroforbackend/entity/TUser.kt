@@ -38,6 +38,15 @@ data class TUser(
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now()
         )
+
+        fun sample() = TUser(
+            email = "do.judo1224@gmail.com",
+            nickName = "",
+            pass = "",
+            verified = false,
+            createdAt = LocalDateTime.now(),
+            updatedAt = LocalDateTime.now()
+        )
     }
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority>? =
