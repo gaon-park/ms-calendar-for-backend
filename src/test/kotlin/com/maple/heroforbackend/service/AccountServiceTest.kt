@@ -1,4 +1,4 @@
-package com.maple.heroforbackend
+package com.maple.heroforbackend.service
 
 import com.maple.heroforbackend.code.BaseResponseCode
 import com.maple.heroforbackend.dto.request.AccountRegistRequest

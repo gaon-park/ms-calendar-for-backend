@@ -1,4 +1,4 @@
-package com.maple.heroforbackend
+package com.maple.heroforbackend.service
 
 import com.maple.heroforbackend.code.BaseResponseCode
 import com.maple.heroforbackend.dto.request.ScheduleAddRequest
@@ -11,8 +11,6 @@ import com.maple.heroforbackend.exception.BaseException
 import com.maple.heroforbackend.repository.TScheduleMemberRepository
 import com.maple.heroforbackend.repository.TScheduleRepository
 import com.maple.heroforbackend.repository.TUserRepository
-import com.maple.heroforbackend.service.EmailSendService
-import com.maple.heroforbackend.service.ScheduleService
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
