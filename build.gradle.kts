@@ -40,6 +40,7 @@ dependencies {
 	implementation("org.json:json:20220924")
 	implementation("com.fasterxml.jackson.core:jackson-core:2.13.4")
 	implementation("com.fasterxml.jackson.core:jackson-databind:2.13.4")
+	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.1")
 	implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.4")
 
 	compileOnly("org.projectlombok:lombok")

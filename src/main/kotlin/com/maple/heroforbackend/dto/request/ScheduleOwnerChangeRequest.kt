@@ -1,8 +1,8 @@
 package com.maple.heroforbackend.dto.request
 
-import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.NotEmpty
 
 data class ScheduleOwnerChangeRequest(
-    @NotNull
+    @field:NotEmpty
     val nextOwnerEmail: String
 )

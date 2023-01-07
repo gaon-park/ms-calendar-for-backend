@@ -60,7 +60,7 @@ class UserCalendarController(
     /**
      * 스케줄 수정(멤버 추가)
      */
-    @PutMapping("/schedule/{scheduleId}")
+    @PutMapping("/schedule/members/{scheduleId}")
     fun putScheduleMember(
         request: HttpServletRequest,
         @PathVariable(name = "scheduleId") scheduleId: Long,
