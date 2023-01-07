@@ -37,7 +37,7 @@ class ScheduleService(
         val schedule = tScheduleRepository.save(TSchedule.convert(request, owner.id))
         val members = mutableListOf(TScheduleMember.initConvert(owner, schedule, true))
 
-        val searchMember = request.members.filter { it != owner.email }
+        val searchMember = request.members.filter { it != owner.email }.toSet().toList()
         if (searchMember.isNotEmpty()) {
             val partyMembers = tUserRepository.findByEmailIn(searchMember)
                 .map { TScheduleMember.initConvert(it, schedule, false) }
@@ -74,15 +74,22 @@ class ScheduleService(
         if (schedule.members.none { m -> m.user.id == requestUser.id }) {
             throw BaseException(BaseResponseCode.BAD_REQUEST)
         }
+        val newMembers = request.newMember.toSet().toList().filter { email ->
+            schedule.members.count { m ->
+                m.user.email == email
+            } == 0
+        }
 
         // save new members
-        tUserRepository.findByEmailIn(request.newMember)
-            .map { user -> TScheduleMember.initConvert(user, schedule, false) }
-            .let {
-                if (it.isNotEmpty()) {
-                    tScheduleMemberRepository.saveAll(it)
+        if (newMembers.isNotEmpty()) {
+            tUserRepository.findByEmailIn(newMembers)
+                .map { user -> TScheduleMember.initConvert(user, schedule, false) }
+                .let {
+                    if (it.isNotEmpty()) {
+                        tScheduleMemberRepository.saveAll(it)
+                    }
                 }
-            }
+        }
     }
 
     /**
@@ -92,12 +99,12 @@ class ScheduleService(
     @Transactional
     fun changeOwnerRequest(scheduleId: Long, requestUser: TUser, nextOwnerEmail: String) {
         val schedule = selectById(scheduleId)
-        if (schedule.ownerId == requestUser.id) {
+        if (schedule.ownerId != requestUser.id) {
             throw BaseException(BaseResponseCode.BAD_REQUEST)
         }
 
-        val nextOwner =
-            tUserRepository.findByEmail(nextOwnerEmail) ?: throw BaseException(BaseResponseCode.USER_NOT_FOUND)
+        val nextOwner = tUserRepository.findByEmailAndVerified(nextOwnerEmail, true)
+            ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
         emailSendService.sendOwnerChangeRequestEmail(scheduleId, nextOwner.email)
         tScheduleRepository.save(
             schedule.copy(
@@ -112,7 +119,7 @@ class ScheduleService(
      * 스케줄을 소유자 변경 요청 상태에서 완료로 변경
      */
     @Transactional
-    fun changeOwner(scheduleId: Long, newOwner: TUser) {
+    fun changeOwnerAccept(scheduleId: Long, newOwner: TUser) {
         val schedule = selectById(scheduleId)
         if (!schedule.waitingOwnerChange || schedule.nextOwnerId != newOwner.id) {
             throw BaseException(BaseResponseCode.BAD_REQUEST)

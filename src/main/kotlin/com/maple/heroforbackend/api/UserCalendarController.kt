@@ -2,6 +2,7 @@ package com.maple.heroforbackend.api
 
 import com.maple.heroforbackend.dto.request.ScheduleAddRequest
 import com.maple.heroforbackend.dto.request.ScheduleMemberAddRequest
+import com.maple.heroforbackend.dto.request.ScheduleOwnerChangeRequest
 import com.maple.heroforbackend.dto.request.ScheduleUpdateRequest
 import com.maple.heroforbackend.service.AccountService
 import com.maple.heroforbackend.service.JwtAuthService
@@ -71,6 +72,18 @@ class UserCalendarController(
         return ResponseEntity.ok("ok")
     }
 
+    @PutMapping("/schedule/{scheduleId}/owner-change")
+    fun ownerChangeRequest(
+        request: HttpServletRequest,
+        @PathVariable(name = "scheduleId") scheduleId: Long,
+        @Valid @RequestBody requestBody: ScheduleOwnerChangeRequest
+    ): ResponseEntity<String> {
+        accountService.findByEmail(jwtAuthService.getUserName(request))?.let {
+            scheduleService.changeOwnerRequest(scheduleId, it, requestBody.nextOwnerEmail)
+        }
+        return ResponseEntity.ok("ok")
+    }
+
     /**
      * 스케줄 소유자 변경 요청 수락
      */
@@ -80,7 +93,7 @@ class UserCalendarController(
         @PathVariable(name = "scheduleId") scheduleId: Long,
     ): ResponseEntity<String> {
         accountService.findByEmail(jwtAuthService.getUserName(request))?.let {
-            scheduleService.changeOwner(scheduleId, it)
+            scheduleService.changeOwnerAccept(scheduleId, it)
         }
         return ResponseEntity.ok("ok")
     }
