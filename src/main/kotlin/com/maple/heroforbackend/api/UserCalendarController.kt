@@ -1,9 +1,11 @@
 package com.maple.heroforbackend.api
 
+import com.maple.heroforbackend.code.BaseResponseCode
 import com.maple.heroforbackend.dto.request.ScheduleAddRequest
 import com.maple.heroforbackend.dto.request.ScheduleMemberAddRequest
 import com.maple.heroforbackend.dto.request.ScheduleOwnerChangeRequest
 import com.maple.heroforbackend.dto.request.ScheduleUpdateRequest
+import com.maple.heroforbackend.exception.BaseException
 import com.maple.heroforbackend.service.AccountService
 import com.maple.heroforbackend.service.JwtAuthService
 import com.maple.heroforbackend.service.ScheduleService
@@ -37,8 +39,9 @@ class UserCalendarController(
     ): ResponseEntity<String> {
         accountService.findByEmail(jwtAuthService.getUserName(request))?.let {
             scheduleService.save(it, data)
+            return ResponseEntity.ok("ok")
         }
-        return ResponseEntity.ok("ok")
+        throw BaseException(BaseResponseCode.BAD_REQUEST)
     }
 
     /**
@@ -53,8 +56,9 @@ class UserCalendarController(
     ): ResponseEntity<String> {
         accountService.findByEmail(jwtAuthService.getUserName(request))?.let {
             scheduleService.delete(scheduleId, it)
+            return ResponseEntity.ok("ok")
         }
-        return ResponseEntity.ok("ok")
+        throw BaseException(BaseResponseCode.BAD_REQUEST)
     }
 
     /**
@@ -68,8 +72,9 @@ class UserCalendarController(
     ): ResponseEntity<String> {
         accountService.findByEmail(jwtAuthService.getUserName(request))?.let {
             scheduleService.updateMember(scheduleId, it, requestBody)
+            return ResponseEntity.ok("ok")
         }
-        return ResponseEntity.ok("ok")
+        throw BaseException(BaseResponseCode.BAD_REQUEST)
     }
 
     @PutMapping("/schedule/{scheduleId}/owner-change")
@@ -80,8 +85,9 @@ class UserCalendarController(
     ): ResponseEntity<String> {
         accountService.findByEmail(jwtAuthService.getUserName(request))?.let {
             scheduleService.changeOwnerRequest(scheduleId, it, requestBody.nextOwnerEmail)
+            return ResponseEntity.ok("ok")
         }
-        return ResponseEntity.ok("ok")
+        throw BaseException(BaseResponseCode.BAD_REQUEST)
     }
 
     /**
@@ -94,8 +100,9 @@ class UserCalendarController(
     ): ResponseEntity<String> {
         accountService.findByEmail(jwtAuthService.getUserName(request))?.let {
             scheduleService.changeOwnerAccept(scheduleId, it)
+            return ResponseEntity.ok("ok")
         }
-        return ResponseEntity.ok("ok")
+        throw BaseException(BaseResponseCode.BAD_REQUEST)
     }
 
     /**
@@ -108,8 +115,9 @@ class UserCalendarController(
     ): ResponseEntity<String> {
         accountService.findByEmail(jwtAuthService.getUserName(request))?.let {
             scheduleService.changeOwnerRefuse(scheduleId, it)
+            return ResponseEntity.ok("ok")
         }
-        return ResponseEntity.ok("ok")
+        throw BaseException(BaseResponseCode.BAD_REQUEST)
     }
 
     /**
@@ -123,7 +131,8 @@ class UserCalendarController(
     ): ResponseEntity<String> {
         accountService.findByEmail(jwtAuthService.getUserName(request))?.let {
             scheduleService.update(scheduleId, it, requestBody)
+            return ResponseEntity.ok("ok")
         }
-        return ResponseEntity.ok("ok")
+        throw BaseException(BaseResponseCode.BAD_REQUEST)
     }
 }

@@ -35,7 +35,7 @@ class EmailTokenServiceTest : BehaviorSpec() {
         }
 
         val user = TUser(
-            id = 0,
+            id = "0",
             email = "do.judo1224@gmail.com",
             nickName = "do.judo1224@gmail.com",
             pass = "",
@@ -69,7 +69,7 @@ class EmailTokenServiceTest : BehaviorSpec() {
                         any(),
                         any()
                     )
-                } returns TEmailToken(null, 0, false, LocalDateTime.now().plusHours(1))
+                } returns TEmailToken(null, "0", false, LocalDateTime.now().plusHours(1))
                 every { tUserRepository.findById(any()) } returns Optional.ofNullable(null)
                 val exception = shouldThrow<BaseException> {
                     service.verifyEmail("")
@@ -85,7 +85,7 @@ class EmailTokenServiceTest : BehaviorSpec() {
                         any(),
                         any()
                     )
-                } returns TEmailToken(null, 0, false, LocalDateTime.now().plusHours(1))
+                } returns TEmailToken(null, "0", false, LocalDateTime.now().plusHours(1))
                 every { tUserRepository.findById(any()) } returns Optional.of(user)
                 every { tUserRepository.save(capture(tUserSlot)) } answers {
                     this.value

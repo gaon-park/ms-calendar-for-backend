@@ -41,7 +41,7 @@ class ScheduleServiceTest : BehaviorSpec() {
         val idSlot: CapturingSlot<Long> = slot()
         val idSlotForDeleteSchedule: CapturingSlot<Long> = slot()
         val idSlotForDeleteByScheduleId: CapturingSlot<Long> = slot()
-        val idSlotForDeleteScheduleIdAndUserId: CapturingSlot<Long> = slot()
+        val idSlotForDeleteScheduleIdAndUserId: CapturingSlot<String> = slot()
         val slotForSendEmail: CapturingSlot<String> = slot()
 
         afterContainer {
@@ -56,7 +56,7 @@ class ScheduleServiceTest : BehaviorSpec() {
         }
 
         val owner = TUser(
-            id = 0,
+            id = "0",
             email = "do.judo1224@gmail.com",
             nickName = "do.judo1224@gmail.com",
             pass = "",
@@ -67,7 +67,7 @@ class ScheduleServiceTest : BehaviorSpec() {
         )
         val members = listOf(
             owner, TUser(
-                id = 1,
+                id = "1",
                 email = "helloproud25@naver.com",
                 nickName = "helloproud25@naver.com",
                 pass = "",
@@ -76,7 +76,7 @@ class ScheduleServiceTest : BehaviorSpec() {
                 updatedAt = LocalDateTime.now(),
                 isPublic = false
             ), TUser(
-                id = 2,
+                id = "2",
                 email = "helloproud68@naver.com",
                 nickName = "helloproud68@naver.com",
                 pass = "",

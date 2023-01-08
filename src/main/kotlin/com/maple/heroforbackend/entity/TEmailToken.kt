@@ -17,14 +17,14 @@ data class TEmailToken(
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Column(length = 36)
     val id: String? = null,
-    val userId: Long,
+    val userId: String,
     val expired: Boolean,
     val expirationDate: LocalDateTime
 ) {
     companion object {
         private const val EMAIL_TOKEN_EXPIRATION_TIME_VALUE = 2L
 
-        fun generate(userId: Long) = TEmailToken(
+        fun generate(userId: String) = TEmailToken(
             userId = userId,
             expired = false,
             expirationDate = LocalDateTime.now().plusHours(EMAIL_TOKEN_EXPIRATION_TIME_VALUE)

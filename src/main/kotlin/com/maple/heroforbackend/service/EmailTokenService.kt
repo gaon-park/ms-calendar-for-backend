@@ -17,7 +17,7 @@ class EmailTokenService(
     private val tUserRepository: TUserRepository,
 ) {
 
-    fun sendEmailToken(userId: Long, to: String): String? {
+    fun sendEmailToken(userId: String, to: String): String? {
         val emailToken = TEmailToken.generate(userId)
         tEmailTokenRepository.save(emailToken)
 

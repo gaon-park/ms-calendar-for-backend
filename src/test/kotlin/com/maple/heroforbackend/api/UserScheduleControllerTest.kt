@@ -43,7 +43,7 @@ class UserScheduleControllerTest : DescribeSpec() {
         val baseUri = "/user/calendar"
 
         val user = TUser(
-            id = 0,
+            id = "0",
             email = "do.judo1224@gmail.com",
             nickName = "do.judo1224@gmail.com",
             pass = "",
@@ -109,10 +109,17 @@ class UserScheduleControllerTest : DescribeSpec() {
                         null,
                     )
                 )
-                it("db save 가 일어나지 않음") {
+                it("BAD_REQUEST 예외 발생") {
                     tScheduleSlot.isCaptured shouldBe false
                     result.andExpect {
-                        it.response.status shouldBe HttpStatus.OK.value()
+                        it.resolvedException?.javaClass shouldBeSameInstanceAs
+                                BaseException::class.java
+                        it.response.contentAsString shouldBe jsonMapper().registerModule(JavaTimeModule())
+                            .writeValueAsString(
+                                ErrorResponse.convert(
+                                    BaseResponseCode.BAD_REQUEST
+                                )
+                            )
                     }
                 }
             }

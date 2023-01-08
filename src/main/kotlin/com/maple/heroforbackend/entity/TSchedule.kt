@@ -23,13 +23,13 @@ data class TSchedule(
     val note: String?,
     val isPublic: Boolean,
     val waitingOwnerChange: Boolean,
-    val ownerId: Long?,
-    val nextOwnerId: Long?,
+    val ownerId: String?,
+    val nextOwnerId: String?,
     @OneToMany(mappedBy = "schedule")
     var members: List<TScheduleMember> = listOf(),
 ) {
     companion object {
-        fun convert(request: ScheduleAddRequest, ownerId: Long?) = TSchedule(
+        fun convert(request: ScheduleAddRequest, ownerId: String?) = TSchedule(
             title = request.title,
             start = request.start,
             end = request.end,

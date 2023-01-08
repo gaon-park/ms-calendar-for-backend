@@ -36,7 +36,7 @@ class AccountServiceTest : BehaviorSpec() {
             nickName = null,
             isPublic = null
         )
-        val user = TUser.generateSaveModel(addRequest, passwordEncoder).copy(id = 0)
+        val user = TUser.generateSaveModel(addRequest, passwordEncoder).copy(id = "0")
 
         // method: findByEmail
         Given("이메일을 통해 유저를 검색하는데") {

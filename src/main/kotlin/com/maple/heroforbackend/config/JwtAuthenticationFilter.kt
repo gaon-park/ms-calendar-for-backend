@@ -1,15 +1,11 @@
 package com.maple.heroforbackend.config
 
 import com.maple.heroforbackend.service.JwtAuthService
-import com.maple.heroforbackend.service.LoginService
 import jakarta.servlet.FilterChain
-import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
-import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
 
 class JwtAuthenticationFilter(
     private val jwtAuthService: JwtAuthService,
@@ -17,12 +13,13 @@ class JwtAuthenticationFilter(
 
     companion object {
         val EXCLUDE_URL = listOf(
-            "/static/**",
+            "/static/",
             "/favicon.ico",
             "/account/regist",
             "/confirm-email",
             "/index",
-            "/login"
+            "/login",
+            "/search/",
         )
     }
 
@@ -38,6 +35,8 @@ class JwtAuthenticationFilter(
 
     // filtering 제외 URL 설정
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
-        return EXCLUDE_URL.any { exclude -> exclude.equals(request.servletPath, true) }
+        return EXCLUDE_URL.any { exclude ->
+            request.servletPath.startsWith(exclude)
+        }
     }
 }

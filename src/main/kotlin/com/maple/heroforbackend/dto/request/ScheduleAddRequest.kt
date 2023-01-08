@@ -16,5 +16,6 @@ data class ScheduleAddRequest(
     val allDay: Boolean?,
     val note: String?,
     val isPublic: Boolean?,
+    // 이메일
     val members: List<String> = listOf(),
 )

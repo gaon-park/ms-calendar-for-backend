@@ -7,6 +7,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface TScheduleMemberRepository : JpaRepository<TScheduleMember, Long> {
     fun deleteByScheduleId(scheduleId: Long)
-    fun deleteByScheduleIdAndUserId(scheduleId: Long, userId: Long)
-    fun findByUserId(userId: Long): List<TScheduleMember>
+    fun deleteByScheduleIdAndUserId(scheduleId: Long, userId: String)
 }

@@ -68,7 +68,7 @@ class AccountControllerTest : DescribeSpec() {
             nickName = null,
             isPublic = null
         )
-        val user = TUser.generateSaveModel(addRequest, passwordEncoder).copy(id = 0)
+        val user = TUser.generateSaveModel(addRequest, passwordEncoder).copy(id = "aa")
 
         describe("post: /login") {
             val perform = { request: LoginRequest ->

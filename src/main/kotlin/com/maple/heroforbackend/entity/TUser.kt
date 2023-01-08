@@ -19,8 +19,10 @@ import java.time.LocalDateTime
 @Table(name = "t_user")
 data class TUser(
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    @Column(length = 36, nullable = false)
+    val id: String? = null,
     @Column(nullable = false)
     val email: String,
     val nickName: String,
@@ -31,11 +33,7 @@ data class TUser(
     val updatedAt: LocalDateTime,
     @OneToMany(mappedBy = "key.requester")
     val friends: List<TFriendShip> = listOf(),
-    val isPublic: Boolean,
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    @Column(length = 36)
-    val privateCode: String? = null,
+    val isPublic: Boolean
 ) : UserDetails {
     companion object {
         fun generateSaveModel(request: AccountRegistRequest, passwordEncoder: PasswordEncoder) = TUser(
