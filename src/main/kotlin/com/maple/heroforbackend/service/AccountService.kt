@@ -23,4 +23,7 @@ class AccountService(
         }
         return tUserRepository.save(TUser.generateSaveModel(request, passwordEncoder))
     }
+
+    fun findPublicByEmailOrNickName(user: String): List<TUser> =
+        tUserRepository.findByEmailOrNickNameAndIsPublic(user, true)
 }
