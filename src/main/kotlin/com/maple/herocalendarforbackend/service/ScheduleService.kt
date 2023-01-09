@@ -174,4 +174,40 @@ class ScheduleService(
             )
         )
     }
+
+    /**
+     * 스케줄 추가 요청 수락
+     */
+    @Transactional
+    fun scheduleAccept(scheduleId: Long, requester: TUser) {
+        val schedule = findById(scheduleId)
+        tScheduleMemberRepository.findById(TScheduleMember.ScheduleKey(schedule, requester)).let {
+            if (!it.isPresent) {
+                throw BaseException(BaseResponseCode.BAD_REQUEST)
+            }
+
+            val entity = it.get()
+            if (entity.acceptedStatus != AcceptedStatus.ACCEPTED) {
+                tScheduleMemberRepository.save(entity.copy(acceptedStatus = AcceptedStatus.ACCEPTED))
+            }
+        }
+    }
+
+    /**
+     * 스케줄 추가 요청 거절
+     */
+    @Transactional
+    fun scheduleRefuse(scheduleId: Long, requester: TUser) {
+        val schedule = findById(scheduleId)
+        tScheduleMemberRepository.findById(TScheduleMember.ScheduleKey(schedule, requester)).let {
+            if (!it.isPresent) {
+                throw BaseException(BaseResponseCode.BAD_REQUEST)
+            }
+
+            val entity = it.get()
+            if (entity.acceptedStatus != AcceptedStatus.REFUSED) {
+                tScheduleMemberRepository.save(entity.copy(acceptedStatus = AcceptedStatus.REFUSED))
+            }
+        }
+    }
 }

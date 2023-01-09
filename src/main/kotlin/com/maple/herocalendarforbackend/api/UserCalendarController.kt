@@ -137,4 +137,34 @@ class UserCalendarController(
         }
         throw BaseException(BaseResponseCode.BAD_REQUEST)
     }
+
+    /**
+     * 스케줄 추가 요청 수락
+     */
+    @PutMapping("/accept")
+    fun scheduleAccept(
+        request: HttpServletRequest,
+        @Valid @RequestBody requestBody: ScheduleRequest
+    ): ResponseEntity<String> {
+        accountService.findByEmail(jwtAuthService.getUserName(request))?.let {
+            scheduleService.scheduleAccept(requestBody.scheduleId, it)
+            return ResponseEntity.ok("ok")
+        }
+        throw BaseException(BaseResponseCode.BAD_REQUEST)
+    }
+
+    /**
+     * 스케줄 추가 요청 거절
+     */
+    @PutMapping("/refuse")
+    fun scheduleRefuse(
+        request: HttpServletRequest,
+        @Valid @RequestBody requestBody: ScheduleRequest
+    ): ResponseEntity<String> {
+        accountService.findByEmail(jwtAuthService.getUserName(request))?.let {
+            scheduleService.scheduleRefuse(requestBody.scheduleId, it)
+            return ResponseEntity.ok("ok")
+        }
+        throw BaseException(BaseResponseCode.BAD_REQUEST)
+    }
 }
