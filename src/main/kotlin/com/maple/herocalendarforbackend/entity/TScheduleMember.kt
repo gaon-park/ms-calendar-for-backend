@@ -1,6 +1,10 @@
 package com.maple.herocalendarforbackend.entity
 
+import com.maple.herocalendarforbackend.code.AcceptedStatus
+import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -20,13 +24,14 @@ data class TScheduleMember(
     @ManyToOne
     @JoinColumn(name = "user_id")
     val user: TUser,
-    val accepted: Boolean,
+    @Enumerated(value = EnumType.STRING)
+    val acceptedStatus: AcceptedStatus
 ) {
     companion object {
-        fun initConvert(user: TUser, schedule: TSchedule, accepted: Boolean) = TScheduleMember(
+        fun initConvert(user: TUser, schedule: TSchedule, acceptedStatus: AcceptedStatus) = TScheduleMember(
             schedule = schedule,
             user = user,
-            accepted = accepted
+            acceptedStatus = acceptedStatus
         )
     }
 }

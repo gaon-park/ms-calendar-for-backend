@@ -1,5 +1,6 @@
 package com.maple.herocalendarforbackend.service
 
+import com.maple.herocalendarforbackend.code.AcceptedStatus
 import com.maple.herocalendarforbackend.code.BaseResponseCode
 import com.maple.herocalendarforbackend.dto.request.ScheduleAddRequest
 import com.maple.herocalendarforbackend.dto.request.ScheduleMemberAddRequest
@@ -35,12 +36,12 @@ class ScheduleService(
     @Transactional
     fun save(owner: TUser, request: ScheduleAddRequest) {
         val schedule = tScheduleRepository.save(TSchedule.convert(request, owner.id))
-        val members = mutableListOf(TScheduleMember.initConvert(owner, schedule, true))
+        val members = mutableListOf(TScheduleMember.initConvert(owner, schedule, AcceptedStatus.ACCEPTED))
 
         val searchMember = request.members.filter { it != owner.email }.toSet().toList()
         if (searchMember.isNotEmpty()) {
             val partyMembers = tUserRepository.findByEmailIn(searchMember)
-                .map { TScheduleMember.initConvert(it, schedule, false) }
+                .map { TScheduleMember.initConvert(it, schedule, AcceptedStatus.WAITING) }
             if (partyMembers.isEmpty()) {
                 throw BaseException(BaseResponseCode.USER_NOT_FOUND)
             }
@@ -69,8 +70,8 @@ class ScheduleService(
      * 멤버 추가
      */
     @Transactional
-    fun updateMember(scheduleId: Long, requestUser: TUser, request: ScheduleMemberAddRequest) {
-        val schedule = findById(scheduleId)
+    fun updateMember(requestUser: TUser, request: ScheduleMemberAddRequest) {
+        val schedule = findById(request.scheduleId)
         if (schedule.members.none { m -> m.user.id == requestUser.id }) {
             throw BaseException(BaseResponseCode.BAD_REQUEST)
         }
@@ -83,7 +84,7 @@ class ScheduleService(
         // save new members
         if (newMembers.isNotEmpty()) {
             tUserRepository.findByEmailIn(newMembers)
-                .map { user -> TScheduleMember.initConvert(user, schedule, false) }
+                .map { user -> TScheduleMember.initConvert(user, schedule, AcceptedStatus.WAITING) }
                 .let {
                     if (it.isNotEmpty()) {
                         tScheduleMemberRepository.saveAll(it)
@@ -154,8 +155,8 @@ class ScheduleService(
      * 스케줄 갱신
      */
     @Transactional
-    fun update(scheduleId: Long, requestUser: TUser, request: ScheduleUpdateRequest) {
-        val schedule = findById(scheduleId)
+    fun update(requestUser: TUser, request: ScheduleUpdateRequest) {
+        val schedule = findById(request.scheduleId)
         if (schedule.members.none { m -> m.user.id == requestUser.id }) {
             throw BaseException(BaseResponseCode.BAD_REQUEST)
         }
@@ -171,12 +172,4 @@ class ScheduleService(
             )
         )
     }
-
-//    /**
-//     * 스케줄 검색
-//     */
-//    fun findSchedules(request: GetSchedulesRequest) {
-//        // email 검색: 전체 검색(우선 검색)
-//        // nickName 검색: 친구 검색
-//    }
 }

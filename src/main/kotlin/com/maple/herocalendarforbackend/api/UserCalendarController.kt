@@ -4,6 +4,7 @@ import com.maple.herocalendarforbackend.code.BaseResponseCode
 import com.maple.herocalendarforbackend.dto.request.ScheduleAddRequest
 import com.maple.herocalendarforbackend.dto.request.ScheduleMemberAddRequest
 import com.maple.herocalendarforbackend.dto.request.ScheduleOwnerChangeRequest
+import com.maple.herocalendarforbackend.dto.request.ScheduleRequest
 import com.maple.herocalendarforbackend.dto.request.ScheduleUpdateRequest
 import com.maple.herocalendarforbackend.exception.BaseException
 import com.maple.herocalendarforbackend.service.AccountService
@@ -19,10 +20,11 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/user/calendar")
+@RequestMapping("/user/schedule")
 class UserCalendarController(
     private val jwtAuthService: JwtAuthService,
     private val accountService: AccountService,
@@ -32,13 +34,13 @@ class UserCalendarController(
     /**
      * 스케줄 입력
      */
-    @PostMapping("/schedule")
+    @PostMapping
     fun addSchedule(
         request: HttpServletRequest,
-        @Valid @RequestBody data: ScheduleAddRequest
+        @Valid @RequestBody requestBody: ScheduleAddRequest
     ): ResponseEntity<String> {
         accountService.findByEmail(jwtAuthService.getUserName(request))?.let {
-            scheduleService.save(it, data)
+            scheduleService.save(it, requestBody)
             return ResponseEntity.ok("ok")
         }
         throw BaseException(BaseResponseCode.BAD_REQUEST)
@@ -46,16 +48,16 @@ class UserCalendarController(
 
     /**
      * 스케줄 삭제
-     * 0. 주최자인 경우, 파티 전체 삭제
+     * 0. 소유자인 경우, 파티 전체 삭제
      * 1. 참석자인 경우, 파티 탈주로 간주
      */
-    @DeleteMapping("/schedule/{scheduleId}")
+    @DeleteMapping
     fun deleteSchedule(
         request: HttpServletRequest,
-        @PathVariable(name = "scheduleId") scheduleId: Long,
+        @Valid @RequestBody requestBody: ScheduleRequest
     ): ResponseEntity<String> {
         accountService.findByEmail(jwtAuthService.getUserName(request))?.let {
-            scheduleService.delete(scheduleId, it)
+            scheduleService.delete(requestBody.scheduleId, it)
             return ResponseEntity.ok("ok")
         }
         throw BaseException(BaseResponseCode.BAD_REQUEST)
@@ -64,27 +66,28 @@ class UserCalendarController(
     /**
      * 스케줄 수정(멤버 추가)
      */
-    @PutMapping("/schedule/members/{scheduleId}")
+    @PutMapping("/members")
     fun putScheduleMember(
         request: HttpServletRequest,
-        @PathVariable(name = "scheduleId") scheduleId: Long,
         @Valid @RequestBody requestBody: ScheduleMemberAddRequest
     ): ResponseEntity<String> {
         accountService.findByEmail(jwtAuthService.getUserName(request))?.let {
-            scheduleService.updateMember(scheduleId, it, requestBody)
+            scheduleService.updateMember(it, requestBody)
             return ResponseEntity.ok("ok")
         }
         throw BaseException(BaseResponseCode.BAD_REQUEST)
     }
 
-    @PutMapping("/schedule/{scheduleId}/owner-change")
+    /**
+     * 소유자 수정 요청
+     */
+    @PostMapping("/owner-change")
     fun ownerChangeRequest(
         request: HttpServletRequest,
-        @PathVariable(name = "scheduleId") scheduleId: Long,
         @Valid @RequestBody requestBody: ScheduleOwnerChangeRequest
     ): ResponseEntity<String> {
         accountService.findByEmail(jwtAuthService.getUserName(request))?.let {
-            scheduleService.changeOwnerRequest(scheduleId, it, requestBody.nextOwnerEmail)
+            scheduleService.changeOwnerRequest(requestBody.scheduleId, it, requestBody.nextOwnerEmail)
             return ResponseEntity.ok("ok")
         }
         throw BaseException(BaseResponseCode.BAD_REQUEST)
@@ -93,13 +96,13 @@ class UserCalendarController(
     /**
      * 스케줄 소유자 변경 요청 수락
      */
-    @GetMapping("/schedule/{scheduleId}/owner-change/accept")
+    @PutMapping("/owner-change/accept")
     fun ownerChangeAccept(
         request: HttpServletRequest,
-        @PathVariable(name = "scheduleId") scheduleId: Long,
+        @Valid @RequestBody requestBody: ScheduleRequest
     ): ResponseEntity<String> {
         accountService.findByEmail(jwtAuthService.getUserName(request))?.let {
-            scheduleService.changeOwnerAccept(scheduleId, it)
+            scheduleService.changeOwnerAccept(requestBody.scheduleId, it)
             return ResponseEntity.ok("ok")
         }
         throw BaseException(BaseResponseCode.BAD_REQUEST)
@@ -108,13 +111,13 @@ class UserCalendarController(
     /**
      * 스케줄 소유자 변경 요청 거절
      */
-    @GetMapping("/schedule/{scheduleId}/owner-change/refuse")
+    @PutMapping("/owner-change/refuse")
     fun ownerChangeRefuse(
         request: HttpServletRequest,
-        @PathVariable(name = "scheduleId") scheduleId: Long,
+        @Valid @RequestBody requestBody: ScheduleRequest
     ): ResponseEntity<String> {
         accountService.findByEmail(jwtAuthService.getUserName(request))?.let {
-            scheduleService.changeOwnerRefuse(scheduleId, it)
+            scheduleService.changeOwnerRefuse(requestBody.scheduleId, it)
             return ResponseEntity.ok("ok")
         }
         throw BaseException(BaseResponseCode.BAD_REQUEST)
@@ -123,14 +126,13 @@ class UserCalendarController(
     /**
      * 스케줄 수정(누구든 참석자인 경우 조정 가능)
      */
-    @PutMapping("/schedule/{scheduleId}")
+    @PutMapping
     fun putSchedule(
         request: HttpServletRequest,
-        @PathVariable(name = "scheduleId") scheduleId: Long,
         @Valid @RequestBody requestBody: ScheduleUpdateRequest,
     ): ResponseEntity<String> {
         accountService.findByEmail(jwtAuthService.getUserName(request))?.let {
-            scheduleService.update(scheduleId, it, requestBody)
+            scheduleService.update(it, requestBody)
             return ResponseEntity.ok("ok")
         }
         throw BaseException(BaseResponseCode.BAD_REQUEST)

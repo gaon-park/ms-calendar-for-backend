@@ -6,6 +6,8 @@ import org.springframework.format.annotation.DateTimeFormat
 import java.time.LocalDateTime
 
 data class ScheduleUpdateRequest(
+    @field:NotNull
+    val scheduleId: Long,
     @field:NotEmpty(message = "타이틀을 필수 항목입니다.")
     val title: String,
     @field:NotNull(message = "시작 날짜는 필수 항목입니다.")

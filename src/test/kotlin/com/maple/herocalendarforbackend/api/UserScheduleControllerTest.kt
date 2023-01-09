@@ -7,6 +7,7 @@ import com.maple.herocalendarforbackend.code.BaseResponseCode
 import com.maple.herocalendarforbackend.dto.request.ScheduleAddRequest
 import com.maple.herocalendarforbackend.dto.request.ScheduleMemberAddRequest
 import com.maple.herocalendarforbackend.dto.request.ScheduleOwnerChangeRequest
+import com.maple.herocalendarforbackend.dto.request.ScheduleRequest
 import com.maple.herocalendarforbackend.dto.request.ScheduleUpdateRequest
 import com.maple.herocalendarforbackend.dto.response.ErrorResponse
 import com.maple.herocalendarforbackend.entity.TUser
@@ -40,7 +41,7 @@ class UserScheduleControllerTest : DescribeSpec() {
         val scheduleService = mockk<ScheduleService>()
 
         val tScheduleSlot: CapturingSlot<ScheduleAddRequest> = slot()
-        val baseUri = "/user/calendar"
+        val baseUri = "/user/schedule"
 
         val user = TUser(
             id = "0",
@@ -67,10 +68,10 @@ class UserScheduleControllerTest : DescribeSpec() {
 
         every { scheduleService.save(any(), capture(tScheduleSlot)) } just Runs
 
-        describe("post: /schedule") {
+        describe("스케줄 입력") {
             val perform = { request: ScheduleAddRequest ->
                 mockMvc.perform(
-                    MockMvcRequestBuilders.post("$baseUri/schedule")
+                    MockMvcRequestBuilders.post(baseUri)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .content(jsonMapper().registerModule(JavaTimeModule()).writeValueAsString(request))
@@ -145,14 +146,15 @@ class UserScheduleControllerTest : DescribeSpec() {
             }
         }
 
-        describe("delete: /schedule/{scheduleId}") {
+        describe("스케줄 삭제") {
             every { accountService.findByEmail(any()) } returns user
             every { jwtAuthService.getUserName(any()) } returns ""
             val perform = {
                 mockMvc.perform(
-                    MockMvcRequestBuilders.delete("$baseUri/schedule/0")
+                    MockMvcRequestBuilders.delete(baseUri)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
+                        .content(jsonMapper().writeValueAsString(ScheduleRequest(100)))
                         .accept(MediaType.APPLICATION_JSON)
                 )
             }
@@ -199,25 +201,24 @@ class UserScheduleControllerTest : DescribeSpec() {
             }
         }
 
-        describe("put: /schedule/members/{scheduleId} - 스케줄 멤버 추가") {
+        describe("스케줄 멤버 추가") {
             every { accountService.findByEmail(any()) } returns user
             every { jwtAuthService.getUserName(any()) } returns ""
             val perform = { request: ScheduleMemberAddRequest ->
                 mockMvc.perform(
-                    MockMvcRequestBuilders.put("$baseUri/schedule/members/0")
+                    MockMvcRequestBuilders.put("$baseUri/members")
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .content(jsonMapper().registerModule(JavaTimeModule()).writeValueAsString(request))
                         .accept(MediaType.APPLICATION_JSON)
                 )
             }
-            val req = ScheduleMemberAddRequest(listOf())
+            val req = ScheduleMemberAddRequest(100, listOf())
             context("요청자!=멤버") {
                 every {
                     scheduleService.updateMember(
                         any(),
                         any(),
-                        any()
                     )
                 } throws BaseException(BaseResponseCode.BAD_REQUEST)
                 val result = perform(req)
@@ -235,7 +236,7 @@ class UserScheduleControllerTest : DescribeSpec() {
                 }
             }
             context("요청자==멤버") {
-                every { scheduleService.updateMember(any(), any(), any()) } just Runs
+                every { scheduleService.updateMember(any(), any()) } just Runs
                 val result = perform(req)
                 it("정상 Response") {
                     result.andExpect {
@@ -245,12 +246,12 @@ class UserScheduleControllerTest : DescribeSpec() {
             }
         }
 
-        describe("put: /schedule/{scheduleId}/owner-change") {
+        describe("소유자 수정 요청") {
             every { accountService.findByEmail(any()) } returns user
             every { jwtAuthService.getUserName(any()) } returns ""
             val perform = { request: ScheduleOwnerChangeRequest ->
                 mockMvc.perform(
-                    MockMvcRequestBuilders.put("$baseUri/schedule/0/owner-change")
+                    MockMvcRequestBuilders.post("$baseUri/owner-change")
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .content(jsonMapper().registerModule(JavaTimeModule()).writeValueAsString(request))
@@ -258,7 +259,7 @@ class UserScheduleControllerTest : DescribeSpec() {
                 )
             }
             context("비정상 requestBody") {
-                val result = perform(ScheduleOwnerChangeRequest(""))
+                val result = perform(ScheduleOwnerChangeRequest(100, ""))
                 it("BAD_REQUEST 예외 발생") {
                     result.andExpect {
                         it.resolvedException?.javaClass shouldBeSameInstanceAs
@@ -275,7 +276,7 @@ class UserScheduleControllerTest : DescribeSpec() {
                         any()
                     )
                 } throws BaseException(BaseResponseCode.BAD_REQUEST)
-                val result = perform(ScheduleOwnerChangeRequest("aa"))
+                val result = perform(ScheduleOwnerChangeRequest(100, "aa"))
                 it("BAD_REQUEST 예외 발생") {
                     result.andExpect {
                         it.resolvedException?.javaClass shouldBeSameInstanceAs BaseException::class.java
@@ -297,7 +298,7 @@ class UserScheduleControllerTest : DescribeSpec() {
                         any()
                     )
                 } just Runs
-                val result = perform(ScheduleOwnerChangeRequest("aa"))
+                val result = perform(ScheduleOwnerChangeRequest(100, "aa"))
                 it("정상 Response") {
                     result.andExpect {
                         it.response.status shouldBe HttpStatus.OK.value()
@@ -306,14 +307,15 @@ class UserScheduleControllerTest : DescribeSpec() {
             }
         }
 
-        describe("get: /schedule/{scheduleId}/owner-change/accept") {
+        describe("스케줄 소유자 변경 요청 수락") {
             every { accountService.findByEmail(any()) } returns user
             every { jwtAuthService.getUserName(any()) } returns ""
             val perform = {
                 mockMvc.perform(
-                    MockMvcRequestBuilders.get("$baseUri/schedule/0/owner-change/accept")
+                    MockMvcRequestBuilders.put("$baseUri/owner-change/accept")
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
+                        .content(jsonMapper().writeValueAsString(ScheduleRequest(100)))
                         .accept(MediaType.APPLICATION_JSON)
                 )
             }
@@ -349,14 +351,15 @@ class UserScheduleControllerTest : DescribeSpec() {
             }
         }
 
-        describe("get: /schedule/{scheduleId}/owner-change/refuse") {
+        describe("스케줄 소유자 변경 요청 거절") {
             every { accountService.findByEmail(any()) } returns user
             every { jwtAuthService.getUserName(any()) } returns ""
             val perform = {
                 mockMvc.perform(
-                    MockMvcRequestBuilders.get("$baseUri/schedule/0/owner-change/refuse")
+                    MockMvcRequestBuilders.put("$baseUri/owner-change/refuse")
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
+                        .content(jsonMapper().writeValueAsString(ScheduleRequest(100)))
                         .accept(MediaType.APPLICATION_JSON)
                 )
             }
@@ -392,12 +395,12 @@ class UserScheduleControllerTest : DescribeSpec() {
             }
         }
 
-        describe("put: /schedule/{scheduleId} - 스케줄 수정") {
+        describe("스케줄 수정(누구든 참석자인 경우 조정 가능)") {
             every { accountService.findByEmail(any()) } returns user
             every { jwtAuthService.getUserName(any()) } returns ""
             val perform = { request: ScheduleUpdateRequest ->
                 mockMvc.perform(
-                    MockMvcRequestBuilders.put("$baseUri/schedule/0")
+                    MockMvcRequestBuilders.put(baseUri)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .content(jsonMapper().registerModule(JavaTimeModule()).writeValueAsString(request))
@@ -405,6 +408,7 @@ class UserScheduleControllerTest : DescribeSpec() {
                 )
             }
             val request = ScheduleUpdateRequest(
+                scheduleId = 100,
                 title = "title",
                 start = LocalDateTime.now(),
                 end = null,
@@ -427,7 +431,6 @@ class UserScheduleControllerTest : DescribeSpec() {
                     scheduleService.update(
                         any(),
                         any(),
-                        any()
                     )
                 } throws BaseException(BaseResponseCode.BAD_REQUEST)
                 val result = perform(request)
@@ -449,7 +452,6 @@ class UserScheduleControllerTest : DescribeSpec() {
                     scheduleService.update(
                         any(),
                         any(),
-                        any()
                     )
                 } just Runs
                 val result = perform(request)

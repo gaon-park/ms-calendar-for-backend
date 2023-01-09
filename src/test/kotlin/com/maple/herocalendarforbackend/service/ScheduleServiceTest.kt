@@ -1,5 +1,6 @@
 package com.maple.herocalendarforbackend.service
 
+import com.maple.herocalendarforbackend.code.AcceptedStatus
 import com.maple.herocalendarforbackend.code.BaseResponseCode
 import com.maple.herocalendarforbackend.dto.request.ScheduleAddRequest
 import com.maple.herocalendarforbackend.dto.request.ScheduleMemberAddRequest
@@ -99,9 +100,9 @@ class ScheduleServiceTest : BehaviorSpec() {
         schedule = schedule.copy(
             members = listOf(
                 TScheduleMember(
-                    id = null, schedule = schedule, user = members[0], accepted = true
+                    id = null, schedule = schedule, user = members[0], acceptedStatus = AcceptedStatus.WAITING
                 ), TScheduleMember(
-                    id = null, schedule = schedule, user = members[1], accepted = false
+                    id = null, schedule = schedule, user = members[1], acceptedStatus = AcceptedStatus.WAITING
                 )
             )
         )
@@ -252,7 +253,7 @@ class ScheduleServiceTest : BehaviorSpec() {
             When("스케줄이 존재하지 않으면") {
                 every { tScheduleRepository.findById(any()) } answers { Optional.ofNullable(null) }
                 val exception = shouldThrow<BaseException> {
-                    service.updateMember(100, owner, ScheduleMemberAddRequest())
+                    service.updateMember(owner, ScheduleMemberAddRequest(100))
                 }
                 Then("NOT_FOUND 예외가 발생한다") {
                     exception.errorCode shouldBe BaseResponseCode.NOT_FOUND
@@ -263,7 +264,7 @@ class ScheduleServiceTest : BehaviorSpec() {
             every { tScheduleRepository.findById(any()) } answers { Optional.ofNullable(schedule) }
             When("스케줄이 존재하지만 (요청자!=멤버)이면") {
                 val exception = shouldThrow<BaseException> {
-                    service.updateMember(schedule.id!!, members[2], ScheduleMemberAddRequest())
+                    service.updateMember(members[2], ScheduleMemberAddRequest(100))
                 }
                 Then("BAD_REQUEST 예외가 발생한다") {
                     exception.errorCode shouldBe BaseResponseCode.BAD_REQUEST
@@ -271,7 +272,7 @@ class ScheduleServiceTest : BehaviorSpec() {
                 }
             }
             When("요청자가 멤버이고 해당 스케줄이 존재하지만, 추가멤버가 기존멤버로만 이루어져있으면") {
-                service.updateMember(schedule.id!!, owner, ScheduleMemberAddRequest(listOf(owner.email)))
+                service.updateMember(owner, ScheduleMemberAddRequest(100, listOf(owner.email)))
                 Then("DB 등록이 일어나지 않는다") {
                     tScheduleMemberSlot.isCaptured shouldBe false
                 }
@@ -283,7 +284,7 @@ class ScheduleServiceTest : BehaviorSpec() {
                     listOf(members[2])
                 }
 
-                service.updateMember(schedule.id!!, owner, ScheduleMemberAddRequest(members.map { it.email }))
+                service.updateMember(owner, ScheduleMemberAddRequest(100, members.map { it.email }))
                 Then("DB에 신규멤버만이 등록된다") {
                     tScheduleMemberSlot.isCaptured shouldBe true
                     tScheduleMemberSlot.captured.size shouldBe 1
@@ -297,7 +298,7 @@ class ScheduleServiceTest : BehaviorSpec() {
                     emptyList()
                 }
 
-                service.updateMember(schedule.id!!, owner, ScheduleMemberAddRequest(members.map { it.email }))
+                service.updateMember(owner, ScheduleMemberAddRequest(100, members.map { it.email }))
                 Then("DB 등록이 일어나지 않는다") {
                     tScheduleMemberSlot.isCaptured shouldBe false
                 }
@@ -469,6 +470,7 @@ class ScheduleServiceTest : BehaviorSpec() {
         // method: update
         Given("스케줄 갱신 요청을 받은 상황에서") {
             val updateRequest = ScheduleUpdateRequest(
+                scheduleId = 100,
                 title = "updated",
                 start = LocalDateTime.now(),
                 end = null,
@@ -479,7 +481,7 @@ class ScheduleServiceTest : BehaviorSpec() {
             When("스케줄이 존재하지 않으면") {
                 every { tScheduleRepository.findById(any()) } answers { Optional.ofNullable(null) }
                 val exception = shouldThrow<BaseException> {
-                    service.update(100, owner, updateRequest)
+                    service.update(owner, updateRequest)
                 }
                 Then("NOT_FOUND 예외가 발생한다") {
                     exception.errorCode shouldBe BaseResponseCode.NOT_FOUND
@@ -490,7 +492,7 @@ class ScheduleServiceTest : BehaviorSpec() {
             every { tScheduleRepository.findById(any()) } answers { Optional.ofNullable(schedule) }
             When("스케줄이 존재하지만, 요청자!=멤버라면") {
                 val exception = shouldThrow<BaseException> {
-                    service.update(0, members[2], updateRequest)
+                    service.update(members[2], updateRequest)
                 }
                 Then("BAD_REQUEST 예외가 발생한다") {
                     exception.errorCode shouldBe BaseResponseCode.BAD_REQUEST
@@ -498,7 +500,7 @@ class ScheduleServiceTest : BehaviorSpec() {
                 }
             }
             When("스케줄이 존재하고 요청자==멤버라면") {
-                service.update(0, members[1], updateRequest)
+                service.update(members[1], updateRequest)
                 Then("스케줄 내용이 변경된다") {
                     tScheduleSlot.isCaptured shouldBe true
                     tScheduleSlot.captured.title shouldBe "updated"
