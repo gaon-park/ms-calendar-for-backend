@@ -1,6 +1,7 @@
 package com.maple.heroforbackend.service
 
 import com.maple.heroforbackend.entity.TEmailToken
+import com.maple.heroforbackend.entity.TUser
 import jakarta.mail.Message
 import jakarta.mail.internet.InternetAddress
 import org.springframework.beans.factory.annotation.Value
@@ -17,6 +18,8 @@ class EmailSendService(
     private val ownerChangeRequestMailPath: String,
     @Value("\${auth-mail.path}")
     private val authMailPath: String,
+    @Value("\${add-friend.path}")
+    private val addFriendMailPath: String,
     @Value("\${AdminMail.personal}")
     private val personal: String,
     @Value("\${AdminMail.id}")
@@ -56,6 +59,32 @@ class EmailSendService(
         msg = msg?.replace(
             "\${REFUSE_LINK}",
             "http://localhost:8080/user/calendar/schedule/${scheduleId}/owner-change/refuse"
+        )
+
+        message.setText(msg, "utf-8", "html")
+        message.setFrom(InternetAddress(adminId, personal))
+
+        mailSender.send(message)
+    }
+
+    @Async
+    fun sendFriendRequestEmail(requester: TUser, to: String) {
+        val message = mailSender.createMimeMessage()
+        message.addRecipients(Message.RecipientType.TO, to)
+        message.subject = "친구 요청"
+
+        var msg = EmailSendService::class.java.getResource(addFriendMailPath)?.readText()
+        msg = msg?.replace(
+            "\${REQUESTER}",
+            requester.nickName
+        )
+        msg = msg?.replace(
+            "\${ACCEPT_LINK}",
+            "http://localhost:8080/user/friend/accept?from=${requester.id}"
+        )
+        msg = msg?.replace(
+            "\${REFUSE_LINK}",
+            "http://localhost:8080/user/friend/refuse?from=${requester.id}"
         )
 
         message.setText(msg, "utf-8", "html")

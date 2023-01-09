@@ -1,7 +1,6 @@
 package com.maple.heroforbackend.service
 
 import com.maple.heroforbackend.code.BaseResponseCode
-import com.maple.heroforbackend.dto.request.GetSchedulesRequest
 import com.maple.heroforbackend.dto.request.ScheduleAddRequest
 import com.maple.heroforbackend.dto.request.ScheduleMemberAddRequest
 import com.maple.heroforbackend.dto.request.ScheduleUpdateRequest
