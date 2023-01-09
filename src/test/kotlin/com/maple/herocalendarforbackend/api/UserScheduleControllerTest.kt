@@ -462,5 +462,121 @@ class UserScheduleControllerTest : DescribeSpec() {
                 }
             }
         }
+
+        describe("스케줄 추가 요청 수락") {
+            every { accountService.findByEmail(any()) } returns user
+            every { jwtAuthService.getUserName(any()) } returns ""
+            val perform = { request: ScheduleRequest ->
+                mockMvc.perform(
+                    MockMvcRequestBuilders.put("$baseUri/accept")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .content(jsonMapper().registerModule(JavaTimeModule()).writeValueAsString(request))
+                        .accept(MediaType.APPLICATION_JSON)
+                )
+            }
+            context("없는 스케줄의 아이디") {
+                every { scheduleService.scheduleAccept(any(), any()) } throws BaseException(BaseResponseCode.NOT_FOUND)
+                val result = perform(ScheduleRequest(100))
+                it("NOT_FOUND 예외 발생") {
+                    result.andExpect {
+                        it.resolvedException?.javaClass shouldBeSameInstanceAs BaseException::class.java
+                        it.response.status shouldBe BaseResponseCode.NOT_FOUND.httpStatus.value()
+                        it.response.contentAsString shouldBe jsonMapper().registerModule(JavaTimeModule())
+                            .writeValueAsString(
+                                ErrorResponse.convert(
+                                    BaseResponseCode.NOT_FOUND
+                                )
+                            )
+                    }
+                }
+            }
+            context("있는 스케줄, 멤버가 아닌 유저로부터의 요청") {
+                every { scheduleService.scheduleAccept(any(), any()) } throws
+                        BaseException(BaseResponseCode.BAD_REQUEST)
+                val result = perform(ScheduleRequest(100))
+                it("BAD_REQUEST 예외 발생") {
+                    result.andExpect {
+                        it.resolvedException?.javaClass shouldBeSameInstanceAs BaseException::class.java
+                        it.response.status shouldBe BaseResponseCode.BAD_REQUEST.httpStatus.value()
+                        it.response.contentAsString shouldBe jsonMapper().registerModule(JavaTimeModule())
+                            .writeValueAsString(
+                                ErrorResponse.convert(
+                                    BaseResponseCode.BAD_REQUEST
+                                )
+                            )
+                    }
+                }
+            }
+            context("정상 요청") {
+                every { scheduleService.scheduleAccept(any(), any()) } just Runs
+                val result = perform(ScheduleRequest(100))
+                it("정상 Response") {
+                    result.andExpect {
+                        it.response.status shouldBe HttpStatus.OK.value()
+                    }
+                }
+            }
+        }
+
+        describe("스케줄 추가 요청 거절") {
+            every { accountService.findByEmail(any()) } returns user
+            every { jwtAuthService.getUserName(any()) } returns ""
+            val perform = { request: ScheduleRequest ->
+                mockMvc.perform(
+                    MockMvcRequestBuilders.put("$baseUri/refuse")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .content(jsonMapper().registerModule(JavaTimeModule()).writeValueAsString(request))
+                        .accept(MediaType.APPLICATION_JSON)
+                )
+            }
+            context("없는 스케줄의 아이디") {
+                every { scheduleService.scheduleRefuse(any(), any()) } throws BaseException(BaseResponseCode.NOT_FOUND)
+                val result = perform(ScheduleRequest(100))
+                it("NOT_FOUND 예외 발생") {
+                    result.andExpect {
+                        it.resolvedException?.javaClass shouldBeSameInstanceAs BaseException::class.java
+                        it.response.status shouldBe BaseResponseCode.NOT_FOUND.httpStatus.value()
+                        it.response.contentAsString shouldBe jsonMapper().registerModule(JavaTimeModule())
+                            .writeValueAsString(
+                                ErrorResponse.convert(
+                                    BaseResponseCode.NOT_FOUND
+                                )
+                            )
+                    }
+                }
+            }
+            context("있는 스케줄, 멤버가 아닌 유저로부터의 요청") {
+                every {
+                    scheduleService.scheduleRefuse(
+                        any(),
+                        any()
+                    )
+                } throws BaseException(BaseResponseCode.BAD_REQUEST)
+                val result = perform(ScheduleRequest(100))
+                it("BAD_REQUEST 예외 발생") {
+                    result.andExpect {
+                        it.resolvedException?.javaClass shouldBeSameInstanceAs BaseException::class.java
+                        it.response.status shouldBe BaseResponseCode.BAD_REQUEST.httpStatus.value()
+                        it.response.contentAsString shouldBe jsonMapper().registerModule(JavaTimeModule())
+                            .writeValueAsString(
+                                ErrorResponse.convert(
+                                    BaseResponseCode.BAD_REQUEST
+                                )
+                            )
+                    }
+                }
+            }
+            context("정상 요청") {
+                every { scheduleService.scheduleRefuse(any(), any()) } just Runs
+                val result = perform(ScheduleRequest(100))
+                it("정상 Response") {
+                    result.andExpect {
+                        it.response.status shouldBe HttpStatus.OK.value()
+                    }
+                }
+            }
+        }
     }
 }

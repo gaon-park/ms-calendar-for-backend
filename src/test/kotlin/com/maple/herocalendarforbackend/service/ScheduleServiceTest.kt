@@ -38,6 +38,7 @@ class ScheduleServiceTest : BehaviorSpec() {
 
         val tScheduleSlot: CapturingSlot<TSchedule> = slot()
         val tScheduleMemberSlot: CapturingSlot<List<TScheduleMember>> = slot()
+        val tScheduleMemSlot: CapturingSlot<TScheduleMember> = slot()
         val emailSlot: CapturingSlot<List<String>> = slot()
         val idSlot: CapturingSlot<Long> = slot()
         val idSlotForDeleteSchedule: CapturingSlot<Long> = slot()
@@ -48,6 +49,7 @@ class ScheduleServiceTest : BehaviorSpec() {
         afterContainer {
             tScheduleSlot.clear()
             tScheduleMemberSlot.clear()
+            tScheduleMemSlot.clear()
             emailSlot.clear()
             idSlot.clear()
             idSlotForDeleteSchedule.clear()
@@ -124,6 +126,12 @@ class ScheduleServiceTest : BehaviorSpec() {
             tScheduleMemberRepository.saveAll(capture(tScheduleMemberSlot))
         } answers {
             tScheduleMemberSlot.captured
+        }
+
+        every {
+            tScheduleMemberRepository.save(capture(tScheduleMemSlot))
+        } answers {
+            tScheduleMemSlot.captured
         }
 
         every {
@@ -507,6 +515,88 @@ class ScheduleServiceTest : BehaviorSpec() {
                     tScheduleSlot.isCaptured shouldBe true
                     tScheduleSlot.captured.title shouldBe "updated"
                     tScheduleSlot.captured.isPublic shouldBe true
+                }
+            }
+        }
+
+        // method: scheduleAccept
+        Given("스케줄 추가 요청을 수락하려는 상황에서") {
+            When("스케줄이 존재하지 않으면") {
+                every { tScheduleRepository.findById(any()) } answers { Optional.ofNullable(null) }
+                val exception = shouldThrow<BaseException> {
+                    service.scheduleAccept(100, members[0])
+                }
+                Then("NOT_FOUND 예외가 발생한다") {
+                    exception.errorCode shouldBe BaseResponseCode.NOT_FOUND
+                    tScheduleSlot.isCaptured shouldBe false
+                }
+            }
+            When("스케줄은 존재하지만, 요청자!=멤버라면") {
+                every { tScheduleRepository.findById(any()) } returns Optional.of(schedule)
+                every { tScheduleMemberRepository.findById(any()) } returns Optional.ofNullable(null)
+                val exception = shouldThrow<BaseException> {
+                    service.scheduleAccept(100, members[0])
+                }
+                Then("BAD_REQUEST 예외가 발생한다") {
+                    exception.errorCode shouldBe BaseResponseCode.BAD_REQUEST
+                    tScheduleSlot.isCaptured shouldBe false
+                }
+            }
+            When("스케줄이 존재, 요청자==멤버라면") {
+                every { tScheduleRepository.findById(any()) } returns Optional.of(schedule)
+                every { tScheduleMemberRepository.findById(any()) } returns Optional.of(
+                    TScheduleMember(
+                        TScheduleMember.ScheduleKey(
+                            schedule,
+                            members[0]
+                        ), AcceptedStatus.WAITING
+                    )
+                )
+                service.scheduleAccept(100, members[0])
+                Then("DB 저장") {
+                    tScheduleMemSlot.isCaptured shouldBe true
+                    tScheduleMemSlot.captured.acceptedStatus shouldBe AcceptedStatus.ACCEPTED
+                }
+            }
+        }
+
+        // method: scheduleRefuse
+        Given("스케줄 추가 요청을 거절하려는 상황에서") {
+            When("스케줄이 존재하지 않으면") {
+                every { tScheduleRepository.findById(any()) } answers { Optional.ofNullable(null) }
+                val exception = shouldThrow<BaseException> {
+                    service.scheduleRefuse(100, members[0])
+                }
+                Then("NOT_FOUND 예외가 발생한다") {
+                    exception.errorCode shouldBe BaseResponseCode.NOT_FOUND
+                    tScheduleSlot.isCaptured shouldBe false
+                }
+            }
+            When("스케줄은 존재하지만, 요청자!=멤버라면") {
+                every { tScheduleRepository.findById(any()) } returns Optional.of(schedule)
+                every { tScheduleMemberRepository.findById(any()) } returns Optional.ofNullable(null)
+                val exception = shouldThrow<BaseException> {
+                    service.scheduleRefuse(100, members[0])
+                }
+                Then("BAD_REQUEST 예외가 발생한다") {
+                    exception.errorCode shouldBe BaseResponseCode.BAD_REQUEST
+                    tScheduleSlot.isCaptured shouldBe false
+                }
+            }
+            When("스케줄이 존재, 요청자==멤버라면") {
+                every { tScheduleRepository.findById(any()) } returns Optional.of(schedule)
+                every { tScheduleMemberRepository.findById(any()) } returns Optional.of(
+                    TScheduleMember(
+                        TScheduleMember.ScheduleKey(
+                            schedule,
+                            members[0]
+                        ), AcceptedStatus.WAITING
+                    )
+                )
+                service.scheduleRefuse(100, members[0])
+                Then("DB 저장") {
+                    tScheduleMemSlot.isCaptured shouldBe true
+                    tScheduleMemSlot.captured.acceptedStatus shouldBe AcceptedStatus.REFUSED
                 }
             }
         }
