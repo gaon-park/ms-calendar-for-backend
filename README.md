@@ -1,13 +1,8 @@
 # hero-for-backend
 
-## tools
-| tools 	| version 	|
-|---	|---	|
-| springboot 	| 3.0.2 	|
-| spring-security 	|  	|
-| spring-validation 	|  	|
-| jwt 	|  	|
-| mysql 	| latest 	|
+웹 캘린더 서버 만들기
 
-## api
-add swagger
+0. 회원 기반
+1. 개인/공유 스케줄
+2. 회원 검색
+3. 친구 맺기
