@@ -57,10 +57,12 @@ class ScheduleService(
     fun delete(scheduleId: Long, requestUser: TUser) {
         val schedule = findById(scheduleId)
         if (schedule.ownerId == requestUser.id) {
-            tScheduleMemberRepository.deleteByScheduleId(scheduleId)
+            tScheduleMemberRepository.deleteByScheduleKeyScheduleId(scheduleId)
             tScheduleRepository.deleteById(scheduleId)
-        } else if (schedule.members.firstOrNull { m -> m.user.id == requestUser.id } != null) {
-            tScheduleMemberRepository.deleteByScheduleIdAndUserId(scheduleId, requestUser.id!!)
+        } else if (schedule.members.firstOrNull { m -> m.scheduleKey.user.id == requestUser.id } != null) {
+            tScheduleMemberRepository.deleteByScheduleKey(
+                TScheduleMember.ScheduleKey(schedule, requestUser)
+            )
         } else {
             throw BaseException(BaseResponseCode.BAD_REQUEST)
         }
@@ -72,12 +74,12 @@ class ScheduleService(
     @Transactional
     fun updateMember(requestUser: TUser, request: ScheduleMemberAddRequest) {
         val schedule = findById(request.scheduleId)
-        if (schedule.members.none { m -> m.user.id == requestUser.id }) {
+        if (schedule.members.none { m -> m.scheduleKey.user.id == requestUser.id }) {
             throw BaseException(BaseResponseCode.BAD_REQUEST)
         }
         val newMembers = request.newMember.toSet().toList().filter { email ->
             schedule.members.count { m ->
-                m.user.email == email
+                m.scheduleKey.user.email == email
             } == 0
         }
 
@@ -157,7 +159,7 @@ class ScheduleService(
     @Transactional
     fun update(requestUser: TUser, request: ScheduleUpdateRequest) {
         val schedule = findById(request.scheduleId)
-        if (schedule.members.none { m -> m.user.id == requestUser.id }) {
+        if (schedule.members.none { m -> m.scheduleKey.user.id == requestUser.id }) {
             throw BaseException(BaseResponseCode.BAD_REQUEST)
         }
 

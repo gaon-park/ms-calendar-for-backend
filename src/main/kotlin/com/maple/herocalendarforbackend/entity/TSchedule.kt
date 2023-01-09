@@ -24,7 +24,7 @@ data class TSchedule(
     val waitingOwnerChange: Boolean,
     val ownerId: String?,
     val nextOwnerId: String?,
-    @OneToMany(mappedBy = "schedule")
+    @OneToMany(mappedBy = "scheduleKey.schedule")
     var members: List<TScheduleMember> = listOf(),
 ) {
     companion object {

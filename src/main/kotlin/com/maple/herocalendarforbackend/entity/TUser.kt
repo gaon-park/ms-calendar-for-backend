@@ -32,6 +32,8 @@ data class TUser(
     val updatedAt: LocalDateTime,
     @OneToMany(mappedBy = "key.requester")
     val friends: List<TFriendship> = listOf(),
+    @OneToMany(mappedBy = "scheduleKey.user")
+    val scheduleMembers: List<TScheduleMember> = listOf(),
     val isPublic: Boolean
 ) : UserDetails {
     companion object {

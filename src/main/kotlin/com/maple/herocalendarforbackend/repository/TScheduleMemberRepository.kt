@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface TScheduleMemberRepository : JpaRepository<TScheduleMember, Long> {
-    fun deleteByScheduleId(scheduleId: Long)
-    fun deleteByScheduleIdAndUserId(scheduleId: Long, userId: String)
+interface TScheduleMemberRepository : JpaRepository<TScheduleMember, TScheduleMember.ScheduleKey> {
+    fun deleteByScheduleKeyScheduleId(scheduleId: Long)
+    fun deleteByScheduleKey(key: TScheduleMember.ScheduleKey)
 }

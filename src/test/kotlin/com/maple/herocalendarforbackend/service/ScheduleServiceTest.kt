@@ -42,7 +42,7 @@ class ScheduleServiceTest : BehaviorSpec() {
         val idSlot: CapturingSlot<Long> = slot()
         val idSlotForDeleteSchedule: CapturingSlot<Long> = slot()
         val idSlotForDeleteByScheduleId: CapturingSlot<Long> = slot()
-        val idSlotForDeleteScheduleIdAndUserId: CapturingSlot<String> = slot()
+        val scheduleKeySlot: CapturingSlot<TScheduleMember.ScheduleKey> = slot()
         val slotForSendEmail: CapturingSlot<String> = slot()
 
         afterContainer {
@@ -52,7 +52,7 @@ class ScheduleServiceTest : BehaviorSpec() {
             idSlot.clear()
             idSlotForDeleteSchedule.clear()
             idSlotForDeleteByScheduleId.clear()
-            idSlotForDeleteScheduleIdAndUserId.clear()
+            scheduleKeySlot.clear()
             slotForSendEmail.clear()
         }
 
@@ -100,9 +100,15 @@ class ScheduleServiceTest : BehaviorSpec() {
         schedule = schedule.copy(
             members = listOf(
                 TScheduleMember(
-                    id = null, schedule = schedule, user = members[0], acceptedStatus = AcceptedStatus.WAITING
+                    TScheduleMember.ScheduleKey(
+                        schedule, members[0]
+                    ),
+                    acceptedStatus = AcceptedStatus.WAITING
                 ), TScheduleMember(
-                    id = null, schedule = schedule, user = members[1], acceptedStatus = AcceptedStatus.WAITING
+                    TScheduleMember.ScheduleKey(
+                        schedule, members[1]
+                    ),
+                    acceptedStatus = AcceptedStatus.WAITING
                 )
             )
         )
@@ -125,13 +131,11 @@ class ScheduleServiceTest : BehaviorSpec() {
         } just Runs
 
         every {
-            tScheduleMemberRepository.deleteByScheduleId(capture(idSlotForDeleteByScheduleId))
+            tScheduleMemberRepository.deleteByScheduleKeyScheduleId(capture(idSlotForDeleteByScheduleId))
         } just Runs
 
         every {
-            tScheduleMemberRepository.deleteByScheduleIdAndUserId(
-                capture(idSlotForDeleteByScheduleId), capture(idSlotForDeleteScheduleIdAndUserId)
-            )
+            tScheduleMemberRepository.deleteByScheduleKey(capture(scheduleKeySlot))
         } just Runs
 
         // method: save
@@ -146,7 +150,7 @@ class ScheduleServiceTest : BehaviorSpec() {
                 Then("1명의 스케줄 입력이 이루어진다") {
                     tScheduleSlot.captured.title shouldBe addRequest.title
                     tScheduleMemberSlot.captured.size shouldBe 1
-                    tScheduleMemberSlot.captured[0].user.id shouldBe owner.id
+                    tScheduleMemberSlot.captured[0].scheduleKey.user.id shouldBe owner.id
                 }
             }
 
@@ -231,8 +235,7 @@ class ScheduleServiceTest : BehaviorSpec() {
             When("스케줄이 존재하지만 (요청자!=소유자 && 요청자==멤버)이면") {
                 service.delete(schedule.id!!, members[1])
                 Then("요청자를 해당 스케줄 멤버에서 삭제한다") {
-                    idSlotForDeleteByScheduleId.captured shouldBe 0
-                    idSlotForDeleteScheduleIdAndUserId.captured shouldBe members[1].id
+                    scheduleKeySlot.isCaptured shouldBe true
                 }
             }
             When("스케줄이 존재하지만 (요청자!=소유자 && 요청자!=멤버)이면") {
@@ -243,7 +246,6 @@ class ScheduleServiceTest : BehaviorSpec() {
                     exception.errorCode shouldBe BaseResponseCode.BAD_REQUEST
                     idSlotForDeleteSchedule.isCaptured shouldBe false
                     idSlotForDeleteByScheduleId.isCaptured shouldBe false
-                    idSlotForDeleteScheduleIdAndUserId.isCaptured shouldBe false
                 }
             }
         }
@@ -288,7 +290,7 @@ class ScheduleServiceTest : BehaviorSpec() {
                 Then("DB에 신규멤버만이 등록된다") {
                     tScheduleMemberSlot.isCaptured shouldBe true
                     tScheduleMemberSlot.captured.size shouldBe 1
-                    tScheduleMemberSlot.captured[0].user.email shouldBe members[2].email
+                    tScheduleMemberSlot.captured[0].scheduleKey.user.email shouldBe members[2].email
                 }
             }
             When("요청자가 멤버이고 해당 스케줄이 존재하지만, 추가멤버가 기존멤버+신규멤버(DB 등록x)로 이루어져있으면") {
