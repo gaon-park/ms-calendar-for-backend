@@ -70,7 +70,7 @@ class AccountServiceTest : BehaviorSpec() {
             }
             When("등록된 유저의 이메일과 중복되지 않는다면") {
                 every { tUserRepository.findByEmail(any()) } answers { null }
-                val result = service.save(addRequest)
+                service.save(addRequest)
                 Then("DB에 저장된다") {
                     tUserSlot.isCaptured shouldBe true
                     tUserSlot.captured.email shouldBe addRequest.email
