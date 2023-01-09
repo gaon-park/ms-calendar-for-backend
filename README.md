@@ -1,4 +1,4 @@
-# hero-for-backend
+# hero-calendar-for-backend
 
 웹 캘린더 서버 만들기
 
