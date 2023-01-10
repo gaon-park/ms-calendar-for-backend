@@ -1,6 +1,8 @@
 package com.maple.herocalendarforbackend.service
 
+import com.maple.herocalendarforbackend.code.AcceptedStatus
 import com.maple.herocalendarforbackend.code.BaseResponseCode
+import com.maple.herocalendarforbackend.dto.request.FriendAddRequest
 import com.maple.herocalendarforbackend.entity.TFriendship
 import com.maple.herocalendarforbackend.entity.TUser
 import com.maple.herocalendarforbackend.exception.BaseException
@@ -26,8 +28,12 @@ class FriendshipService(
         }
     }
 
+    /**
+     * 친구 요청 보내기
+     */
     @Transactional
-    fun friendRequest(requester: TUser, respondentId: String) {
+    fun friendRequest(requester: TUser, request: FriendAddRequest) {
+        val respondentId = request.personalKey
         if (requester.id.equals(respondentId)) {
             throw BaseException(BaseResponseCode.BAD_REQUEST)
         }
@@ -41,23 +47,35 @@ class FriendshipService(
                 )
             )
         )?.also { e ->
-            // 요청자가 응답자에게 이미 친구 신청을 받은 상태인 경우
-            if (e.key.requester.id == respondentId) {
+            // 요청자가 응답자에게 이미 친구 신청을 받은 상태인 경우(이전에 거절한 것도 포함)
+            if (e.key.requester.id == respondentId && e.acceptedStatus != AcceptedStatus.ACCEPTED) {
                 // 친구 관계를 수락
-                tFriendshipRepository.save(e.copy(acceptedAt = LocalDateTime.now()))
+                tFriendshipRepository.save(
+                    e.copy(
+                        acceptedStatus = AcceptedStatus.ACCEPTED,
+                        updatedAt = LocalDateTime.now()
+                    )
+                )
             }
-            // 이미 요청후, 응답 대기중인 경우
-            else if (e.key.requester.id != respondentId && e.acceptedAt == null) {
+            // 이미 요청후, 응답 대기중/거절 당한 경우 (애써 대기중이라 말해준다)
+            else if (e.key.requester.id != respondentId && listOf(
+                    AcceptedStatus.WAITING,
+                    AcceptedStatus.REFUSED
+                ).contains(e.acceptedStatus)
+            ) {
                 throw BaseException(BaseResponseCode.WAITING_FOR_RESPONDENT)
             }
         } ?: run {
-            // 아무런 관계가 없음(이전에 요청했어도 거절당해서 초기화됨)
+            // 아무런 관계가 없음
             // 요청
             emailSendService.sendFriendRequestEmail(requester, respondent.email)
-            tFriendshipRepository.save(TFriendship.generateSaveModel(requester, respondent))
+            tFriendshipRepository.save(TFriendship.generateSaveModel(requester, respondent, request.note))
         }
     }
 
+    /**
+     * 친구 요청 수락
+     */
     @Transactional
     fun friendRequestAccept(requesterId: String, respondent: TUser) {
         val requester = findUserById(requesterId)
@@ -66,10 +84,18 @@ class FriendshipService(
                 throw BaseException(BaseResponseCode.BAD_REQUEST)
             }
 
-            tFriendshipRepository.save(it.get().copy(acceptedAt = LocalDateTime.now()))
+            val entity = it.get()
+            if (entity.acceptedStatus != AcceptedStatus.ACCEPTED) {
+                tFriendshipRepository.save(
+                    it.get().copy(acceptedStatus = AcceptedStatus.ACCEPTED, updatedAt = LocalDateTime.now())
+                )
+            }
         }
     }
 
+    /**
+     * 친구 요청 거절
+     */
     @Transactional
     fun friendRequestRefuse(requesterId: String, respondent: TUser) {
         val requester = findUserById(requesterId)
@@ -78,7 +104,12 @@ class FriendshipService(
                 throw BaseException(BaseResponseCode.BAD_REQUEST)
             }
 
-            tFriendshipRepository.delete(it.get())
+            val entity = it.get()
+            if (entity.acceptedStatus != AcceptedStatus.REFUSED) {
+                tFriendshipRepository.save(
+                    it.get().copy(acceptedStatus = AcceptedStatus.REFUSED, updatedAt = LocalDateTime.now())
+                )
+            }
         }
     }
 }

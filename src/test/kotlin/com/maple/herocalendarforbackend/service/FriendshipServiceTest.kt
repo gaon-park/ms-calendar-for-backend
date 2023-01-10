@@ -1,6 +1,8 @@
 package com.maple.herocalendarforbackend.service
 
+import com.maple.herocalendarforbackend.code.AcceptedStatus
 import com.maple.herocalendarforbackend.code.BaseResponseCode
+import com.maple.herocalendarforbackend.dto.request.FriendAddRequest
 import com.maple.herocalendarforbackend.entity.TFriendship
 import com.maple.herocalendarforbackend.entity.TUser
 import com.maple.herocalendarforbackend.exception.BaseException
@@ -67,7 +69,7 @@ class FriendshipServiceTest : BehaviorSpec() {
         Given("친구 요청을 보내는데") {
             When("본인이 본인에게 요청한다면") {
                 val exception = shouldThrow<BaseException> {
-                    service.friendRequest(requester, requester.id!!)
+                    service.friendRequest(requester, FriendAddRequest(requester.id!!, null))
                 }
                 Then("BAD_REQUEST 예외 발생") {
                     exception.errorCode shouldBe BaseResponseCode.BAD_REQUEST
@@ -76,7 +78,7 @@ class FriendshipServiceTest : BehaviorSpec() {
             When("요청 대상을 찾을 수 없다면") {
                 every { tUserRepository.findById(any()) } returns Optional.ofNullable(null)
                 val exception = shouldThrow<BaseException> {
-                    service.friendRequest(requester, respondent.id!!)
+                    service.friendRequest(requester, FriendAddRequest(respondent.id!!, null))
                 }
                 Then("USER_NOT_FOUND 예외 발생") {
                     exception.errorCode shouldBe BaseResponseCode.USER_NOT_FOUND
@@ -88,9 +90,9 @@ class FriendshipServiceTest : BehaviorSpec() {
                         TFriendship(
                             TFriendship.Key(
                                 respondent, requester
-                            ), LocalDateTime.now(), null
+                            ), "", AcceptedStatus.WAITING, LocalDateTime.now(), LocalDateTime.now()
                         )
-                service.friendRequest(requester, respondent.id!!)
+                service.friendRequest(requester, FriendAddRequest(respondent.id!!, null))
                 Then("친구 관계를 수락") {
                     keySlot.isCaptured shouldBe true
                     keySlot.captured[0].requester.id shouldBe requester.id
@@ -100,7 +102,7 @@ class FriendshipServiceTest : BehaviorSpec() {
                         it.requester.id shouldBe respondent.id
                         it.respondent.id shouldBe requester.id
                     }
-                    friendshipSlot.captured.acceptedAt shouldNotBe null
+                    friendshipSlot.captured.acceptedStatus shouldBe AcceptedStatus.ACCEPTED
                 }
             }
             When("이미 요청자가 요청후, 응답을 대기중인 상태라면") {
@@ -109,10 +111,10 @@ class FriendshipServiceTest : BehaviorSpec() {
                         TFriendship(
                             TFriendship.Key(
                                 requester, respondent
-                            ), LocalDateTime.now(), null
+                            ), "", AcceptedStatus.WAITING, LocalDateTime.now(), LocalDateTime.now()
                         )
                 val exception = shouldThrow<BaseException> {
-                    service.friendRequest(requester, respondent.id!!)
+                    service.friendRequest(requester, FriendAddRequest(respondent.id!!, null))
                 }
                 Then("WAITING_FOR_RESPONDENT 예외 발생") {
                     exception.errorCode shouldBe BaseResponseCode.WAITING_FOR_RESPONDENT
@@ -122,14 +124,14 @@ class FriendshipServiceTest : BehaviorSpec() {
                 every { tUserRepository.findById(any()) } returns Optional.of(respondent)
                 every { tFriendshipRepository.findByKeyIn(capture(keySlot)) } returns null
                 every { emailSendService.sendFriendRequestEmail(any(), any()) } just Runs
-                service.friendRequest(requester, respondent.id!!)
+                service.friendRequest(requester, FriendAddRequest(respondent.id!!, null))
                 Then("요청을 진행") {
                     friendshipSlot.isCaptured shouldBe true
                     friendshipSlot.captured.key.also {
                         it.requester.id shouldBe requester.id
                         it.respondent.id shouldBe respondent.id
                     }
-                    friendshipSlot.captured.acceptedAt shouldBe null
+                    friendshipSlot.captured.acceptedStatus shouldBe AcceptedStatus.WAITING
                 }
             }
         }
@@ -161,7 +163,7 @@ class FriendshipServiceTest : BehaviorSpec() {
                     TFriendship(
                         TFriendship.Key(
                             requester, respondent
-                        ), LocalDateTime.now(), null
+                        ), "", AcceptedStatus.WAITING, LocalDateTime.now(), LocalDateTime.now()
                     )
                 )
                 service.friendRequestAccept(requester.id!!, respondent)
@@ -171,7 +173,7 @@ class FriendshipServiceTest : BehaviorSpec() {
                         it.requester.id shouldBe requester.id
                         it.respondent.id shouldBe respondent.id
                     }
-                    friendshipSlot.captured.acceptedAt shouldNotBe null
+                    friendshipSlot.captured.acceptedStatus shouldBe AcceptedStatus.ACCEPTED
                 }
             }
         }
@@ -202,16 +204,17 @@ class FriendshipServiceTest : BehaviorSpec() {
                     TFriendship(
                         TFriendship.Key(
                             requester, respondent
-                        ), LocalDateTime.now(), null
+                        ), "", AcceptedStatus.WAITING, LocalDateTime.now(), LocalDateTime.now()
                     )
                 )
                 service.friendRequestRefuse(requester.id!!, respondent)
-                Then("데이터 삭제 처리") {
+                Then("거절 처리") {
                     friendshipSlot.isCaptured shouldBe true
                     friendshipSlot.captured.key.also {
                         it.requester.id shouldBe requester.id
                         it.respondent.id shouldBe respondent.id
                     }
+                    friendshipSlot.captured.acceptedStatus shouldBe AcceptedStatus.REFUSED
                 }
             }
         }

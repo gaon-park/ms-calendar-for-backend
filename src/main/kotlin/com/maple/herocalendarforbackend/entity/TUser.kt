@@ -31,9 +31,9 @@ data class TUser(
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
     @OneToMany(mappedBy = "key.requester")
-    val friends: List<TFriendship> = listOf(),
-    @OneToMany(mappedBy = "scheduleKey.user")
-    val scheduleMembers: List<TScheduleMember> = listOf(),
+    val friendReq: List<TFriendship> = listOf(),
+    @OneToMany(mappedBy = "key.respondent")
+    val friendRes: List<TFriendship> = listOf(),
     val isPublic: Boolean
 ) : UserDetails {
     companion object {
@@ -53,7 +53,7 @@ data class TUser(
 
     override fun getPassword(): String = pass
 
-    override fun getUsername(): String = email
+    override fun getUsername(): String = id!!
 
     override fun isAccountNonExpired(): Boolean = true
 

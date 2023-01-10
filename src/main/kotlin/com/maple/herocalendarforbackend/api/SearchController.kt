@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.security.Principal
 
 @RestController
 @RequestMapping("/search")
@@ -34,11 +35,11 @@ class SearchController(
      */
     @GetMapping("/friends")
     fun findFriends(
-        request: HttpServletRequest
+        principal: Principal
     ): ResponseEntity<List<UserResponse>> {
-        accountService.findByEmail(jwtAuthService.getUserName(request))?.let {
+        accountService.findById(principal.name).let {
             return ResponseEntity.ok(
-                it.friends.map { f ->
+                it.friendReq.plus(it.friendReq).map { f ->
                     UserResponse(
                         email = if (f.key.requester.id == it.id) f.key.respondent.email else it.email,
                         nickName = if (f.key.requester.id == it.id) f.key.respondent.nickName else it.nickName
@@ -46,6 +47,5 @@ class SearchController(
                 }
             )
         }
-        return ResponseEntity.ok(emptyList())
     }
 }

@@ -4,5 +4,6 @@ import jakarta.validation.constraints.NotEmpty
 
 data class FriendAddRequest(
     @field:NotEmpty
-    val personalKey: String
+    val personalKey: String,
+    val note: String?
 )

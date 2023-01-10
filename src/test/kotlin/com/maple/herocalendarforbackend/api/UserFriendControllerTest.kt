@@ -67,7 +67,8 @@ class UserFriendControllerTest : DescribeSpec() {
             context("비정상 데이터") {
                 val result = perform(
                     FriendAddRequest(
-                        personalKey = ""
+                        personalKey = "",
+                        null
                     )
                 )
                 it("BAD_REQUEST 예외 발생") {
@@ -83,7 +84,8 @@ class UserFriendControllerTest : DescribeSpec() {
                 every { jwtAuthService.getUserName(any()) } returns ""
                 val result = perform(
                     FriendAddRequest(
-                        personalKey = "aa"
+                        personalKey = "aa",
+                        null
                     )
                 )
                 it("BAD_REQUEST 예외 발생") {
@@ -105,7 +107,8 @@ class UserFriendControllerTest : DescribeSpec() {
                 every { friendshipService.friendRequest(any(), any()) } just Runs
                 val result = perform(
                     FriendAddRequest(
-                        personalKey = "aa"
+                        personalKey = "aa",
+                        null
                     )
                 )
                 it("정상 종료") {

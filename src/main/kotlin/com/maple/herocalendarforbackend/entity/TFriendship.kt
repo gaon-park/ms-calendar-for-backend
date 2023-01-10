@@ -1,5 +1,6 @@
 package com.maple.herocalendarforbackend.entity
 
+import com.maple.herocalendarforbackend.code.AcceptedStatus
 import jakarta.persistence.Embeddable
 import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity
@@ -13,14 +14,18 @@ import java.time.LocalDateTime
 data class TFriendship(
     @EmbeddedId
     val key: Key,
+    val note: String,
+    val acceptedStatus: AcceptedStatus,
     val createdAt: LocalDateTime,
-    val acceptedAt: LocalDateTime?
+    val updatedAt: LocalDateTime,
 ) {
     companion object {
-        fun generateSaveModel(requester: TUser, respondent: TUser) = TFriendship(
+        fun generateSaveModel(requester: TUser, respondent: TUser, note: String?) = TFriendship(
             key = Key(requester, respondent),
+            note = note ?: "",
+            acceptedStatus = AcceptedStatus.WAITING,
             createdAt = LocalDateTime.now(),
-            acceptedAt = null
+            updatedAt = LocalDateTime.now()
         )
     }
 

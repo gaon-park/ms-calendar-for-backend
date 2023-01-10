@@ -105,12 +105,16 @@ class ScheduleServiceTest : BehaviorSpec() {
                     TScheduleMember.ScheduleKey(
                         schedule, members[0]
                     ),
-                    acceptedStatus = AcceptedStatus.WAITING
+                    acceptedStatus = AcceptedStatus.WAITING,
+                    createdAt = LocalDateTime.now(),
+                    updatedAt = LocalDateTime.now()
                 ), TScheduleMember(
                     TScheduleMember.ScheduleKey(
                         schedule, members[1]
                     ),
-                    acceptedStatus = AcceptedStatus.WAITING
+                    acceptedStatus = AcceptedStatus.WAITING,
+                    createdAt = LocalDateTime.now(),
+                    updatedAt = LocalDateTime.now()
                 )
             )
         )
@@ -549,7 +553,9 @@ class ScheduleServiceTest : BehaviorSpec() {
                         TScheduleMember.ScheduleKey(
                             schedule,
                             members[0]
-                        ), AcceptedStatus.WAITING
+                        ), AcceptedStatus.WAITING,
+                        createdAt = LocalDateTime.now(),
+                        updatedAt = LocalDateTime.now()
                     )
                 )
                 service.scheduleAccept(100, members[0])
@@ -590,7 +596,9 @@ class ScheduleServiceTest : BehaviorSpec() {
                         TScheduleMember.ScheduleKey(
                             schedule,
                             members[0]
-                        ), AcceptedStatus.WAITING
+                        ), AcceptedStatus.WAITING,
+                        createdAt = LocalDateTime.now(),
+                        updatedAt = LocalDateTime.now()
                     )
                 )
                 service.scheduleRefuse(100, members[0])

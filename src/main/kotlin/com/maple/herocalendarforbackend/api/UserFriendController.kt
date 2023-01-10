@@ -1,62 +1,52 @@
 package com.maple.herocalendarforbackend.api
 
-import com.maple.herocalendarforbackend.code.BaseResponseCode
 import com.maple.herocalendarforbackend.dto.request.FriendAddRequest
-import com.maple.herocalendarforbackend.exception.BaseException
+import com.maple.herocalendarforbackend.dto.request.FriendRequest
 import com.maple.herocalendarforbackend.service.AccountService
 import com.maple.herocalendarforbackend.service.FriendshipService
-import com.maple.herocalendarforbackend.service.JwtAuthService
-import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.security.Principal
 
 @RestController
 @RequestMapping("/user/friend")
 class UserFriendController(
-    private val jwtAuthService: JwtAuthService,
     private val accountService: AccountService,
     private val friendshipService: FriendshipService
 ) {
 
     @PostMapping("/add")
     fun addFriend(
-        request: HttpServletRequest,
+        principal: Principal,
         @Valid @RequestBody requestBody: FriendAddRequest
-    ): ResponseEntity<String> {
-        accountService.findByEmail(jwtAuthService.getUserName(request))?.let {
-            friendshipService.friendRequest(it, requestBody.personalKey)
-            return ResponseEntity.ok("ok")
+    ): ResponseEntity<String> =
+        accountService.findById(principal.name).let {
+            friendshipService.friendRequest(it, requestBody)
+            ResponseEntity.ok("ok")
         }
-        throw BaseException(BaseResponseCode.BAD_REQUEST)
-    }
 
     @GetMapping("/accept")
     fun friendRequestAccept(
-        request: HttpServletRequest,
-        @RequestParam(name = "from") requesterId: String
-    ): ResponseEntity<String> {
-        accountService.findByEmail(jwtAuthService.getUserName(request))?.let {
-            friendshipService.friendRequestAccept(requesterId, it)
-            return ResponseEntity.ok("ok")
+        principal: Principal,
+        @Valid @RequestBody requestBody: FriendRequest
+    ): ResponseEntity<String> =
+        accountService.findById(principal.name).let {
+            friendshipService.friendRequestAccept(requestBody.personalKey, it)
+            ResponseEntity.ok("ok")
         }
-        throw BaseException(BaseResponseCode.BAD_REQUEST)
-    }
 
     @GetMapping("/refuse")
     fun friendRequestRefuse(
-        request: HttpServletRequest,
-        @RequestParam(name = "from") requesterId: String
-    ): ResponseEntity<String> {
-        accountService.findByEmail(jwtAuthService.getUserName(request))?.let {
-            friendshipService.friendRequestRefuse(requesterId, it)
+        principal: Principal,
+        @Valid @RequestBody requestBody: FriendRequest
+    ): ResponseEntity<String> =
+        accountService.findById(principal.name).let {
+            friendshipService.friendRequestRefuse(requestBody.personalKey, it)
             return ResponseEntity.ok("ok")
         }
-        throw BaseException(BaseResponseCode.BAD_REQUEST)
-    }
 }

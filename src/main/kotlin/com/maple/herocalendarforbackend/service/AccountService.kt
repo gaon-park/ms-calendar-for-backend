@@ -14,6 +14,11 @@ class AccountService(
     private val passwordEncoder: PasswordEncoder,
     private val tUserRepository: TUserRepository
 ) {
+    fun findById(id: String): TUser {
+        val op = tUserRepository.findById(id)
+        if (op.isPresent) return op.get()
+        throw BaseException(BaseResponseCode.NOT_FOUND)
+    }
     fun findByEmail(email: String): TUser? = tUserRepository.findByEmail(email)
 
     @Transactional

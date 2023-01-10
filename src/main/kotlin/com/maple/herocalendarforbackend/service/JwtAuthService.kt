@@ -54,12 +54,12 @@ class JwtAuthService(
             .compact()
 
         // refresh token save to db
-        val tUser = tUserRepository.findByEmail(userPk) ?: throw BaseException(BaseResponseCode.USER_NOT_FOUND)
+        val tUser = tUserRepository.findById(userPk)
         val tJwtAuth =
             TJwtAuth.generate(
                 accessToken,
                 LocalDateTime.ofInstant(now.toInstant(), ZoneId.systemDefault()),
-                tUser.email
+                userPk
             )
         tJwtAuthRepository.save(tJwtAuth)
 
@@ -112,7 +112,9 @@ class JwtAuthService(
             if (validateAccessToken(access)) {
                 result = tJwtAuthRepository.findByAccessKey(access)
             }
-        } catch (exception: ExpiredJwtException) {
+        }
+        // access token 만료
+        catch (exception: ExpiredJwtException) {
             val refresh = request.cookies.firstOrNull { it.name == "X-AUTH-REFRESH-TOKEN" }?.value ?: ""
             val tJwtAuthOptional = tJwtAuthRepository.findById(refresh)
             if (tJwtAuthOptional.isPresent) {
