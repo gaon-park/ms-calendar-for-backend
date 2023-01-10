@@ -10,6 +10,6 @@ class LoginService(
     private val tUserRepository: TUserRepository
 ) : UserDetailsService {
     override fun loadUserByUsername(username: String?): UserDetails? = username?.let {
-        tUserRepository.findByIdAndVerified(it, true)
+        tUserRepository.findByEmailAndVerified(it, true)
     }
 }

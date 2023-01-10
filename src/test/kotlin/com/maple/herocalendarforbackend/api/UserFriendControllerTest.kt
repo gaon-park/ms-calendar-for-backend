@@ -30,7 +30,6 @@ import java.time.LocalDateTime
 
 class UserFriendControllerTest : DescribeSpec() {
     init {
-        val jwtAuthService = mockk<JwtAuthService>()
         val accountService = mockk<AccountService>()
         val friendshipService = mockk<FriendshipService>()
 
@@ -48,7 +47,7 @@ class UserFriendControllerTest : DescribeSpec() {
 
         val mockMvc: MockMvc = MockMvcBuilders.standaloneSetup(
             UserFriendController(
-                jwtAuthService, accountService, friendshipService
+                accountService, friendshipService
             )
         ).setControllerAdvice(ExceptionHandler())
             .defaultResponseCharacterEncoding<StandaloneMockMvcBuilder>(StandardCharsets.UTF_8)
@@ -80,8 +79,6 @@ class UserFriendControllerTest : DescribeSpec() {
                 }
             }
             context("정상 데이터, 로그아웃/유효하지 않은 토큰") {
-                every { accountService.findByEmail(any()) } returns null
-                every { jwtAuthService.getUserName(any()) } returns ""
                 val result = perform(
                     FriendAddRequest(
                         personalKey = "aa",
@@ -102,8 +99,6 @@ class UserFriendControllerTest : DescribeSpec() {
                 }
             }
             context("정상 요청") {
-                every { accountService.findByEmail(any()) } returns user
-                every { jwtAuthService.getUserName(any()) } returns ""
                 every { friendshipService.friendRequest(any(), any()) } just Runs
                 val result = perform(
                     FriendAddRequest(
@@ -130,8 +125,6 @@ class UserFriendControllerTest : DescribeSpec() {
                 )
             }
             context("로그아웃/유효하지 않은 토큰") {
-                every { accountService.findByEmail(any()) } returns null
-                every { jwtAuthService.getUserName(any()) } returns ""
                 val result = perform("")
                 it("BAD_REQUEST 예외 발생") {
                     result.andExpect {
@@ -147,8 +140,6 @@ class UserFriendControllerTest : DescribeSpec() {
                 }
             }
             context("정상 요청") {
-                every { accountService.findByEmail(any()) } returns user
-                every { jwtAuthService.getUserName(any()) } returns ""
                 every { friendshipService.friendRequestAccept(any(), any()) } just Runs
                 val result = perform("aa")
                 it("정상 종료") {
@@ -170,8 +161,6 @@ class UserFriendControllerTest : DescribeSpec() {
                 )
             }
             context("로그아웃/유효하지 않은 토큰") {
-                every { accountService.findByEmail(any()) } returns null
-                every { jwtAuthService.getUserName(any()) } returns ""
                 val result = perform("")
                 it("BAD_REQUEST 예외 발생") {
                     result.andExpect {
@@ -187,8 +176,6 @@ class UserFriendControllerTest : DescribeSpec() {
                 }
             }
             context("정상 요청") {
-                every { accountService.findByEmail(any()) } returns user
-                every { jwtAuthService.getUserName(any()) } returns ""
                 every { friendshipService.friendRequestRefuse(any(), any()) } just Runs
                 val result = perform("aa")
                 it("정상 종료") {

@@ -30,14 +30,13 @@ class EmailTokenService(
             ?: throw BaseException(BaseResponseCode.INVALID_AUTH_TOKEN)
 
     @Transactional
-    fun verifyEmail(token: String): TUser {
+    fun verifyEmail(token: String) {
         val tEmailToken = findByIdAndExpirationDateAfterAndExpired(token)
         val user = tUserRepository.findById(tEmailToken.userId)
 
         if (user.isPresent) {
             val userData = tUserRepository.save(user.get().copy(verified = true))
             tEmailTokenRepository.save(tEmailToken.setTokenToUsed())
-            return userData
         } else {
             throw BaseException(BaseResponseCode.INVALID_AUTH_TOKEN)
         }

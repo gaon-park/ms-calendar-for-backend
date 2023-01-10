@@ -36,7 +36,6 @@ import java.time.LocalDateTime
 
 class UserScheduleControllerTest : DescribeSpec() {
     init {
-        val jwtAuthService = mockk<JwtAuthService>()
         val accountService = mockk<AccountService>()
         val scheduleService = mockk<ScheduleService>()
 
@@ -60,7 +59,7 @@ class UserScheduleControllerTest : DescribeSpec() {
 
         val mockMvc: MockMvc = MockMvcBuilders.standaloneSetup(
             UserCalendarController(
-                jwtAuthService, accountService, scheduleService
+                accountService, scheduleService
             )
         ).setControllerAdvice(ExceptionHandler())
             .defaultResponseCharacterEncoding<StandaloneMockMvcBuilder>(StandardCharsets.UTF_8)
@@ -98,8 +97,6 @@ class UserScheduleControllerTest : DescribeSpec() {
                 }
             }
             context("정상 ScheduleAddRequest 이지만 헤더에 토큰 정보가 없거나 등록되지 않은 유저(common context)") {
-                every { accountService.findByEmail(any()) } returns null
-                every { jwtAuthService.getUserName(any()) } returns ""
                 val result = perform(
                     ScheduleAddRequest(
                         "title",
@@ -125,8 +122,6 @@ class UserScheduleControllerTest : DescribeSpec() {
                 }
             }
             context("정상 요청") {
-                every { accountService.findByEmail(any()) } returns user
-                every { jwtAuthService.getUserName(any()) } returns ""
                 val result = perform(
                     ScheduleAddRequest(
                         "title",
@@ -147,8 +142,6 @@ class UserScheduleControllerTest : DescribeSpec() {
         }
 
         describe("스케줄 삭제") {
-            every { accountService.findByEmail(any()) } returns user
-            every { jwtAuthService.getUserName(any()) } returns ""
             val perform = {
                 mockMvc.perform(
                     MockMvcRequestBuilders.delete(baseUri)
@@ -202,8 +195,6 @@ class UserScheduleControllerTest : DescribeSpec() {
         }
 
         describe("스케줄 멤버 추가") {
-            every { accountService.findByEmail(any()) } returns user
-            every { jwtAuthService.getUserName(any()) } returns ""
             val perform = { request: ScheduleMemberAddRequest ->
                 mockMvc.perform(
                     MockMvcRequestBuilders.put("$baseUri/members")
@@ -247,8 +238,6 @@ class UserScheduleControllerTest : DescribeSpec() {
         }
 
         describe("소유자 수정 요청") {
-            every { accountService.findByEmail(any()) } returns user
-            every { jwtAuthService.getUserName(any()) } returns ""
             val perform = { request: ScheduleOwnerChangeRequest ->
                 mockMvc.perform(
                     MockMvcRequestBuilders.post("$baseUri/owner-change")
@@ -308,8 +297,6 @@ class UserScheduleControllerTest : DescribeSpec() {
         }
 
         describe("스케줄 소유자 변경 요청 수락") {
-            every { accountService.findByEmail(any()) } returns user
-            every { jwtAuthService.getUserName(any()) } returns ""
             val perform = {
                 mockMvc.perform(
                     MockMvcRequestBuilders.put("$baseUri/owner-change/accept")
@@ -352,8 +339,6 @@ class UserScheduleControllerTest : DescribeSpec() {
         }
 
         describe("스케줄 소유자 변경 요청 거절") {
-            every { accountService.findByEmail(any()) } returns user
-            every { jwtAuthService.getUserName(any()) } returns ""
             val perform = {
                 mockMvc.perform(
                     MockMvcRequestBuilders.put("$baseUri/owner-change/refuse")
@@ -396,8 +381,6 @@ class UserScheduleControllerTest : DescribeSpec() {
         }
 
         describe("스케줄 수정(누구든 참석자인 경우 조정 가능)") {
-            every { accountService.findByEmail(any()) } returns user
-            every { jwtAuthService.getUserName(any()) } returns ""
             val perform = { request: ScheduleUpdateRequest ->
                 mockMvc.perform(
                     MockMvcRequestBuilders.put(baseUri)
@@ -464,8 +447,6 @@ class UserScheduleControllerTest : DescribeSpec() {
         }
 
         describe("스케줄 추가 요청 수락") {
-            every { accountService.findByEmail(any()) } returns user
-            every { jwtAuthService.getUserName(any()) } returns ""
             val perform = { request: ScheduleRequest ->
                 mockMvc.perform(
                     MockMvcRequestBuilders.put("$baseUri/accept")
@@ -520,8 +501,6 @@ class UserScheduleControllerTest : DescribeSpec() {
         }
 
         describe("스케줄 추가 요청 거절") {
-            every { accountService.findByEmail(any()) } returns user
-            every { jwtAuthService.getUserName(any()) } returns ""
             val perform = { request: ScheduleRequest ->
                 mockMvc.perform(
                     MockMvcRequestBuilders.put("$baseUri/refuse")

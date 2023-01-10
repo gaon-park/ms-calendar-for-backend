@@ -9,15 +9,18 @@ import com.maple.herocalendarforbackend.code.BaseResponseCode
 import com.maple.herocalendarforbackend.service.AccountService
 import com.maple.herocalendarforbackend.service.EmailTokenService
 import com.maple.herocalendarforbackend.service.LoginService
+import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.security.Principal
 
 @RestController
 class AccountController(
@@ -43,14 +46,26 @@ class AccountController(
         } else {
             ResponseEntity.ok(
                 LoginResponse(
-                    jwtAuthService.createToken(
-                        this.username,
-                        listOf("ROLE_USER"),
+                    jwtAuthService.firstTokenForLogin(
+                        request.email,
+                        SecurityContextHolder.getContext().authentication.authorities.mapNotNull {
+                            "ROLE_${it.authority}"
+                        },
                         response
-                    ).accessKey
+                    )
                 )
             )
         }
+    }
+
+    /**
+     * refresh token 으로 access token 재발급
+     */
+    @GetMapping("/reissue/access-token")
+    fun accessTokenReIssue(request: HttpServletRequest): ResponseEntity<LoginResponse> {
+        return ResponseEntity.ok(
+            LoginResponse(request.getAttribute("accessToken").toString())
+        )
     }
 
     /**
@@ -68,24 +83,14 @@ class AccountController(
     }
 
     /**
-     * 이메일 인증 후, 로그인 상태 설정
+     * 이메일 인증 완료 설정
      */
     @GetMapping("/confirm-email")
     fun confirmEmail(
         @Valid @RequestParam token: String,
         response: HttpServletResponse
-    ): ResponseEntity<LoginResponse> {
-        val user = emailTokenService.verifyEmail(token)
-        return with(loginService.loadUserByUsername(user.email)) {
-            ResponseEntity.ok(
-                LoginResponse(
-                    jwtAuthService.createToken(
-                        user.email,
-                        listOf("ROLE_USER"),
-                        response
-                    ).accessKey
-                )
-            )
-        }
+    ): ResponseEntity<String> {
+        emailTokenService.verifyEmail(token)
+        return ResponseEntity.ok("인증 성공! 이제 로그인할 수 있습니다!")
     }
 }
