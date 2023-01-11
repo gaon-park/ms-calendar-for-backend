@@ -115,4 +115,17 @@ class FriendshipService(
             }
         }
     }
+
+    /**
+     * 친구 목록
+     */
+    fun findFriends(userId: String): List<TUser> {
+        return tFriendshipRepository.findByUserId(userId).map {
+            if (userId == it.key.requester.id) {
+                it.key.respondent
+            } else {
+                it.key.requester
+            }
+        }
+    }
 }

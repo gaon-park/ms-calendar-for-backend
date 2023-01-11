@@ -212,5 +212,21 @@ class ScheduleService(
         } ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
     }
 
+    /**
+     * 스케줄 목록
+     */
+    fun findSchedules(userId: String, data: ScheduleGetRequest): List<TSchedule> {
+        val now = LocalDate.now()
+        // todo 한 페이지에 보이는 캘린더 시작일, 종료일로 설정
+        val from = data.from ?: LocalDate.of(
+            now.year, now.month, 1
+        )
+        val to = data.to ?: LocalDate.of(
+            now.year, now.month, 31
+        )
+        from.format(DateTimeFormatter.ISO_DATE)
+        to.format(DateTimeFormatter.ISO_DATE)
+
+        return tScheduleRepository.findByFromToAndUserId(userId, from, to)
     }
 }
