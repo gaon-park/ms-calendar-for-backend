@@ -15,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
 import java.security.SignatureException
 
+@Suppress("TooGenericExceptionCaught")
 class JwtAuthenticationFilter(
     private val jwtAuthService: JwtAuthService,
 ) : OncePerRequestFilter() {
@@ -40,7 +41,7 @@ class JwtAuthenticationFilter(
                 request.setAttribute("accessToken", token)
                 SecurityContextHolder.getContext().authentication = jwtAuthService.getAuthentication(token)
             } else {
-                val token = jwtAuthService.getValidatedAuthData(request, response)
+                val token = jwtAuthService.getValidatedAuthData(request)
                 SecurityContextHolder.getContext().authentication = jwtAuthService.getAuthentication(token)
             }
             filterChain.doFilter(request, response)
@@ -70,8 +71,6 @@ class JwtAuthenticationFilter(
         response.contentType = MediaType.APPLICATION_JSON_VALUE
         try {
             response.writer.write(jsonMapper().writeValueAsString(baseResponseCode))
-        } catch (exception: IOException) {
-            exception.printStackTrace()
-        }
+        } catch (_: IOException) { }
     }
 }

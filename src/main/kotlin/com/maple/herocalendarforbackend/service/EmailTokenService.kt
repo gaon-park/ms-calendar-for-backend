@@ -2,7 +2,6 @@ package com.maple.herocalendarforbackend.service
 
 import com.maple.herocalendarforbackend.code.BaseResponseCode
 import com.maple.herocalendarforbackend.entity.TEmailToken
-import com.maple.herocalendarforbackend.entity.TUser
 import com.maple.herocalendarforbackend.exception.BaseException
 import com.maple.herocalendarforbackend.repository.TEmailTokenRepository
 import com.maple.herocalendarforbackend.repository.TUserRepository
@@ -27,7 +26,7 @@ class EmailTokenService(
 
     fun findByIdAndExpirationDateAfterAndExpired(token: String): TEmailToken =
         tEmailTokenRepository.findByIdAndExpirationDateAfterAndExpired(token, LocalDateTime.now(), false)
-            ?: throw BaseException(BaseResponseCode.INVALID_AUTH_TOKEN)
+            ?: throw BaseException(BaseResponseCode.INVALID_TOKEN)
 
     @Transactional
     fun verifyEmail(token: String) {
@@ -35,10 +34,10 @@ class EmailTokenService(
         val user = tUserRepository.findById(tEmailToken.userId)
 
         if (user.isPresent) {
-            val userData = tUserRepository.save(user.get().copy(verified = true))
-            tEmailTokenRepository.save(tEmailToken.setTokenToUsed())
+            tUserRepository.save(user.get().copy(verified = true))
+            tEmailTokenRepository.delete(tEmailToken)
         } else {
-            throw BaseException(BaseResponseCode.INVALID_AUTH_TOKEN)
+            throw BaseException(BaseResponseCode.INVALID_TOKEN)
         }
     }
 }

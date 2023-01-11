@@ -30,6 +30,4 @@ data class TEmailToken(
             expirationDate = LocalDateTime.now().plusHours(EMAIL_TOKEN_EXPIRATION_TIME_VALUE)
         )
     }
-
-    fun setTokenToUsed() = this.copy(expired = true)
 }

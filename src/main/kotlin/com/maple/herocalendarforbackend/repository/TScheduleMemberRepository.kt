@@ -10,4 +10,6 @@ interface TScheduleMemberRepository : JpaRepository<TScheduleMember, TScheduleMe
     fun deleteByScheduleKeyScheduleId(scheduleId: Long)
     fun deleteByScheduleKey(key: TScheduleMember.ScheduleKey)
     fun findByScheduleKeyUserIdAndAcceptedStatus(userId: String, acceptedStatus: AcceptedStatus): List<TScheduleMember>
+    fun findByScheduleKeyScheduleId(scheduleId: Long): List<TScheduleMember>
+    fun findByScheduleKeyScheduleIdAndScheduleKeyUserId(scheduleId: Long, userId: String): TScheduleMember?
 }

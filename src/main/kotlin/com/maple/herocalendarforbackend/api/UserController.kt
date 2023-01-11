@@ -13,7 +13,7 @@ import java.security.Principal
 @RestController
 @RequestMapping("/user")
 class UserController(
-    private val alertService: AlertService
+    private val alertService: AlertService,
 ) {
 
     /**

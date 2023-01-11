@@ -100,7 +100,7 @@ class JwtAuthService(
             newAuth = createToken(it, listOf("ROLE_USER"), response)
             tJwtAuthRepository.delete(tJwtAuth)
         }
-        return newAuth ?: throw BaseException(BaseResponseCode.INVALID_AUTH_TOKEN)
+        return newAuth ?: throw BaseException(BaseResponseCode.INVALID_TOKEN)
     }
 
     /**
@@ -113,7 +113,7 @@ class JwtAuthService(
             .build()
             .parseClaimsJws(jwtToken)
         return if (!claims.body.expiration.before(Date())) claims.body.subject
-        else throw BaseException(BaseResponseCode.INVALID_AUTH_TOKEN)
+        else throw BaseException(BaseResponseCode.INVALID_TOKEN)
     }
 
     /**
@@ -128,7 +128,7 @@ class JwtAuthService(
      * 검증된 데이터 반환
      */
     @Suppress("SwallowedException")
-    fun getValidatedAuthData(request: HttpServletRequest, response: HttpServletResponse): String {
+    fun getValidatedAuthData(request: HttpServletRequest): String {
         return request.getHeader("X-AUTH-ACCESS-TOKEN") ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
     }
 
@@ -147,7 +147,7 @@ class JwtAuthService(
                 return reIssue(tJwtAuth, response)
             }
         }
-        throw BaseException(BaseResponseCode.INVALID_AUTH_TOKEN)
+        throw BaseException(BaseResponseCode.INVALID_TOKEN)
     }
 
     private fun setRefreshTokenToCookie(tJwtAuth: TJwtAuth, response: HttpServletResponse) {

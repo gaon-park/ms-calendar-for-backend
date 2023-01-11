@@ -7,7 +7,6 @@ enum class BaseResponseCode(
     val message: String,
 ) {
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
-    INVALID_AUTH_TOKEN(HttpStatus.UNAUTHORIZED, "권한 정보가 없는 토큰입니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
     DUPLICATE_EMAIL(HttpStatus.BAD_REQUEST, "이미 등록된 이메일입니다."),
     INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "잘못된 비밀번호입니다."),

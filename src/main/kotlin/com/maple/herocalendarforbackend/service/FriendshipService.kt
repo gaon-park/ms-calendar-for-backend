@@ -32,11 +32,12 @@ class FriendshipService(
      * 친구 요청 보내기
      */
     @Transactional
-    fun friendRequest(requester: TUser, request: FriendAddRequest) {
+    fun friendRequest(requesterId: String, request: FriendAddRequest) {
         val respondentId = request.personalKey
-        if (requester.id.equals(respondentId)) {
+        if (requesterId == respondentId) {
             throw BaseException(BaseResponseCode.BAD_REQUEST)
         }
+        val requester = findUserById(requesterId)
         val respondent = findUserById(respondentId)
         tFriendshipRepository.findByKeyIn(
             listOf(
@@ -77,8 +78,9 @@ class FriendshipService(
      * 친구 요청 수락
      */
     @Transactional
-    fun friendRequestAccept(requesterId: String, respondent: TUser) {
-        val requester = findUserById(requesterId)
+    fun friendRequestAccept(opponentId: String, loginUserId: String) {
+        val requester = findUserById(opponentId)
+        val respondent = findUserById(loginUserId)
         tFriendshipRepository.findById(TFriendship.Key(requester, respondent)).let {
             if (it.isEmpty) {
                 throw BaseException(BaseResponseCode.BAD_REQUEST)
@@ -97,8 +99,9 @@ class FriendshipService(
      * 친구 요청 거절
      */
     @Transactional
-    fun friendRequestRefuse(requesterId: String, respondent: TUser) {
-        val requester = findUserById(requesterId)
+    fun friendRequestRefuse(opponentId: String, loginUserId: String) {
+        val requester = findUserById(opponentId)
+        val respondent = findUserById(loginUserId)
         tFriendshipRepository.findById(TFriendship.Key(requester, respondent)).let {
             if (it.isEmpty) {
                 throw BaseException(BaseResponseCode.BAD_REQUEST)

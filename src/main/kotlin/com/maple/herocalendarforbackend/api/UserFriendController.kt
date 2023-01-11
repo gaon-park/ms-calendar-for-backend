@@ -2,6 +2,7 @@ package com.maple.herocalendarforbackend.api
 
 import com.maple.herocalendarforbackend.dto.request.FriendAddRequest
 import com.maple.herocalendarforbackend.dto.request.FriendRequest
+import com.maple.herocalendarforbackend.dto.response.UserResponse
 import com.maple.herocalendarforbackend.service.AccountService
 import com.maple.herocalendarforbackend.service.FriendshipService
 import jakarta.validation.Valid
@@ -16,37 +17,57 @@ import java.security.Principal
 @RestController
 @RequestMapping("/user/friend")
 class UserFriendController(
-    private val accountService: AccountService,
     private val friendshipService: FriendshipService
 ) {
 
+    /**
+     * 친구 요청 보내기
+     */
     @PostMapping("/add")
     fun addFriend(
         principal: Principal,
         @Valid @RequestBody requestBody: FriendAddRequest
-    ): ResponseEntity<String> =
-        accountService.findById(principal.name).let {
-            friendshipService.friendRequest(it, requestBody)
-            ResponseEntity.ok("ok")
-        }
+    ): ResponseEntity<String> {
+        friendshipService.friendRequest(principal.name, requestBody)
+        return ResponseEntity.ok("ok")
+    }
 
+    /**
+     * 친구 요청 수락
+     */
     @GetMapping("/accept")
     fun friendRequestAccept(
         principal: Principal,
         @Valid @RequestBody requestBody: FriendRequest
-    ): ResponseEntity<String> =
-        accountService.findById(principal.name).let {
-            friendshipService.friendRequestAccept(requestBody.personalKey, it)
-            ResponseEntity.ok("ok")
-        }
+    ): ResponseEntity<String> {
+        friendshipService.friendRequestAccept(requestBody.personalKey, principal.name)
+        return ResponseEntity.ok("ok")
+    }
 
+    /**
+     * 친구 요청 거절
+     */
     @GetMapping("/refuse")
     fun friendRequestRefuse(
         principal: Principal,
         @Valid @RequestBody requestBody: FriendRequest
-    ): ResponseEntity<String> =
-        accountService.findById(principal.name).let {
-            friendshipService.friendRequestRefuse(requestBody.personalKey, it)
-            return ResponseEntity.ok("ok")
-        }
+    ): ResponseEntity<String> {
+        friendshipService.friendRequestRefuse(requestBody.personalKey, principal.name)
+        return ResponseEntity.ok("ok")
+    }
+
+
+    /**
+     * 로그인 유저의 친구 리스트
+     */
+    @GetMapping
+    fun findFriends(
+        principal: Principal
+    ): ResponseEntity<List<UserResponse>> {
+        return ResponseEntity.ok(
+            friendshipService.findFriends(principal.name).map {
+                UserResponse(it.email, it.nickName)
+            }
+        )
+    }
 }

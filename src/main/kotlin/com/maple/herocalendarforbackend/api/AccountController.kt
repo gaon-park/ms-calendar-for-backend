@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import java.security.Principal
 
 @RestController
 class AccountController(
@@ -88,7 +87,6 @@ class AccountController(
     @GetMapping("/confirm-email")
     fun confirmEmail(
         @Valid @RequestParam token: String,
-        response: HttpServletResponse
     ): ResponseEntity<String> {
         emailTokenService.verifyEmail(token)
         return ResponseEntity.ok("인증 성공! 이제 로그인할 수 있습니다!")

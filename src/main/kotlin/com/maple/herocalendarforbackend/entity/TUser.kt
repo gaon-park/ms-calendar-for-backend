@@ -5,7 +5,6 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
-import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import org.hibernate.annotations.GenericGenerator
 import org.springframework.security.core.GrantedAuthority
@@ -30,10 +29,6 @@ data class TUser(
     val verified: Boolean,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
-    @OneToMany(mappedBy = "key.requester")
-    val friendReq: List<TFriendship> = listOf(),
-    @OneToMany(mappedBy = "key.respondent")
-    val friendRes: List<TFriendship> = listOf(),
     val isPublic: Boolean
 ) : UserDetails {
     companion object {
