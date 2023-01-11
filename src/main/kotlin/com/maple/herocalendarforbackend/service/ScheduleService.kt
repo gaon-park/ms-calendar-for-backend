@@ -6,9 +6,11 @@ import com.maple.herocalendarforbackend.dto.request.ScheduleAddRequest
 import com.maple.herocalendarforbackend.dto.request.ScheduleGetRequest
 import com.maple.herocalendarforbackend.dto.request.ScheduleMemberAddRequest
 import com.maple.herocalendarforbackend.dto.request.ScheduleUpdateRequest
+import com.maple.herocalendarforbackend.dto.response.ScheduleMemberResponse
+import com.maple.herocalendarforbackend.dto.response.ScheduleResponse
+import com.maple.herocalendarforbackend.dto.response.UserResponse
 import com.maple.herocalendarforbackend.entity.TSchedule
 import com.maple.herocalendarforbackend.entity.TScheduleMember
-import com.maple.herocalendarforbackend.entity.TUser
 import com.maple.herocalendarforbackend.exception.BaseException
 import com.maple.herocalendarforbackend.repository.TScheduleMemberRepository
 import com.maple.herocalendarforbackend.repository.TScheduleRepository
@@ -228,5 +230,24 @@ class ScheduleService(
         to.format(DateTimeFormatter.ISO_DATE)
 
         return tScheduleRepository.findByFromToAndUserId(userId, from, to)
+    }
+
+    /**
+     * 스케줄 목록(controller 가 호출)
+     */
+    fun findSchedulesAndConvertToResponse(userId: String, data: ScheduleGetRequest): List<ScheduleResponse> {
+        val schedules = findSchedules(userId, data)
+        val scheduleGroup = schedules.associateBy { it.id }
+        val members = tScheduleMemberRepository.findByScheduleKeyScheduleIdIn(schedules.mapNotNull { it.id })
+        val memberGroup: Map<Long?, List<TScheduleMember>> = members.groupBy { it.scheduleKey.schedule.id }
+        return memberGroup.mapNotNull { group ->
+            val participants = group.value.map { ScheduleMemberResponse.convert(it) }
+            scheduleGroup[group.key]?.let {
+                ScheduleResponse.convert(
+                    data = it,
+                    members = participants
+                )
+            }
+        }
     }
 }

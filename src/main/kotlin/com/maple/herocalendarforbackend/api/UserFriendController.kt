@@ -3,7 +3,6 @@ package com.maple.herocalendarforbackend.api
 import com.maple.herocalendarforbackend.dto.request.FriendAddRequest
 import com.maple.herocalendarforbackend.dto.request.FriendRequest
 import com.maple.herocalendarforbackend.dto.response.UserResponse
-import com.maple.herocalendarforbackend.service.AccountService
 import com.maple.herocalendarforbackend.service.FriendshipService
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity

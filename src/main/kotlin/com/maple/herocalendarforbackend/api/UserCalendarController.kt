@@ -6,6 +6,7 @@ import com.maple.herocalendarforbackend.dto.request.ScheduleMemberAddRequest
 import com.maple.herocalendarforbackend.dto.request.ScheduleOwnerChangeRequest
 import com.maple.herocalendarforbackend.dto.request.ScheduleRequest
 import com.maple.herocalendarforbackend.dto.request.ScheduleUpdateRequest
+import com.maple.herocalendarforbackend.dto.response.ScheduleResponse
 import com.maple.herocalendarforbackend.service.ScheduleService
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
@@ -141,12 +142,11 @@ class UserCalendarController(
     fun getSchedules(
         principal: Principal,
         @Valid @RequestBody requestBody: ScheduleGetRequest
-    ): ResponseEntity<List<Any>> {
+    ): ResponseEntity<List<ScheduleResponse>> {
         return ResponseEntity.ok(
-            scheduleService.findSchedules(
+            scheduleService.findSchedulesAndConvertToResponse(
                 principal.name, requestBody
             )
         )
     }
-
 }
