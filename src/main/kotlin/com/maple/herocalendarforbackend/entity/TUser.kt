@@ -41,6 +41,16 @@ data class TUser(
             updatedAt = LocalDateTime.now(),
             isPublic = request.isPublic ?: false
         )
+
+        fun generateTmpModel() = TUser(
+            email = "",
+            nickName = "",
+            pass = "",
+            verified = false,
+            createdAt = LocalDateTime.now(),
+            updatedAt = LocalDateTime.now(),
+            isPublic = false
+        )
     }
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority>? =

@@ -66,12 +66,12 @@ class UserCalendarController(
     /**
      * 소유자 수정 요청
      */
-    @PostMapping("/owner-change")
+    @PutMapping("/owner-change")
     fun ownerChangeRequest(
         principal: Principal,
         @Valid @RequestBody requestBody: ScheduleOwnerChangeRequest
     ): ResponseEntity<String> {
-        scheduleService.changeOwnerRequest(requestBody.scheduleId, principal.name, requestBody.nextOwnerEmail)
+        scheduleService.changeOwnerRequest(principal.name, requestBody)
         return ResponseEntity.ok("ok")
     }
 
@@ -136,7 +136,7 @@ class UserCalendarController(
     }
 
     /**
-     * 한 달 단위 스케줄 획득
+     * 로그인 유저의 스케줄
      */
     @GetMapping
     fun getSchedules(

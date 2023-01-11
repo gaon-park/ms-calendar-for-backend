@@ -1,5 +1,6 @@
 package com.maple.herocalendarforbackend.dto.request
 
+import jakarta.validation.constraints.AssertTrue
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 import org.springframework.format.annotation.DateTimeFormat
@@ -18,4 +19,12 @@ data class ScheduleAddRequest(
     val isPublic: Boolean?,
     // 이메일
     val members: List<String> = listOf(),
-)
+) {
+    @AssertTrue
+    fun isStart(): Boolean {
+        if (end == null) {
+            return true
+        }
+        return end.isAfter(start)
+    }
+}

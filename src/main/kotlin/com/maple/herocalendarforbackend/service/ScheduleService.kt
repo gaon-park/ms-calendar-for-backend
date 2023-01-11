@@ -5,6 +5,7 @@ import com.maple.herocalendarforbackend.code.BaseResponseCode
 import com.maple.herocalendarforbackend.dto.request.ScheduleAddRequest
 import com.maple.herocalendarforbackend.dto.request.ScheduleGetRequest
 import com.maple.herocalendarforbackend.dto.request.ScheduleMemberAddRequest
+import com.maple.herocalendarforbackend.dto.request.ScheduleOwnerChangeRequest
 import com.maple.herocalendarforbackend.dto.request.ScheduleUpdateRequest
 import com.maple.herocalendarforbackend.dto.response.ScheduleMemberResponse
 import com.maple.herocalendarforbackend.dto.response.ScheduleResponse
@@ -106,17 +107,17 @@ class ScheduleService(
     }
 
     /**
-     * 스케줄 소유자 위임 요청(메일 전송)
+     * 스케줄 소유자 위임 요청
      * 스케줄을 소유자 변경 요청 상태로 변경
      */
     @Transactional
-    fun changeOwnerRequest(scheduleId: Long, requesterId: String, nextOwnerEmail: String) {
-        val schedule = findById(scheduleId)
+    fun changeOwnerRequest(requesterId: String, request: ScheduleOwnerChangeRequest) {
+        val schedule = findById(request.scheduleId)
         if (schedule.ownerId != requesterId) {
             throw BaseException(BaseResponseCode.BAD_REQUEST)
         }
 
-        val nextOwner = tUserRepository.findByEmailAndVerified(nextOwnerEmail, true)
+        val nextOwner = tUserRepository.findByEmailAndVerified(request.nextOwnerEmail, true)
             ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
         // 스케줄 멤버가 아닌 유저에게 넘기려는 경우
         tScheduleMemberRepository.save(
@@ -206,7 +207,7 @@ class ScheduleService(
      */
     @Transactional
     fun scheduleRefuse(scheduleId: Long, requesterId: String) {
-        val schedule = findById(scheduleId)
+        findById(scheduleId)
         tScheduleMemberRepository.findByScheduleKeyScheduleIdAndScheduleKeyUserId(scheduleId, requesterId)?.let {
             if (it.acceptedStatus != AcceptedStatus.REFUSED) {
                 tScheduleMemberRepository.save(it.copy(acceptedStatus = AcceptedStatus.REFUSED))
