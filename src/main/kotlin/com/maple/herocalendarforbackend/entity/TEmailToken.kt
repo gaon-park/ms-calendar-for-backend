@@ -1,5 +1,6 @@
 package com.maple.herocalendarforbackend.entity
 
+import com.maple.herocalendarforbackend.code.MagicVariables.Companion.EMAIL_TOKEN_EXPIRATION_HOUR_VALUE
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -8,7 +9,6 @@ import jakarta.persistence.Table
 import org.hibernate.annotations.GenericGenerator
 import java.time.LocalDateTime
 
-// todo redis나 아무튼 자동으로 유효기간 지나면 사라지는 데베로 변경
 @Entity
 @Table(name = "t_email_token")
 data class TEmailToken(
@@ -22,12 +22,11 @@ data class TEmailToken(
     val expirationDate: LocalDateTime
 ) {
     companion object {
-        private const val EMAIL_TOKEN_EXPIRATION_TIME_VALUE = 2L
 
         fun generate(userId: String) = TEmailToken(
             userId = userId,
             expired = false,
-            expirationDate = LocalDateTime.now().plusHours(EMAIL_TOKEN_EXPIRATION_TIME_VALUE)
+            expirationDate = LocalDateTime.now().plusHours(EMAIL_TOKEN_EXPIRATION_HOUR_VALUE)
         )
     }
 }

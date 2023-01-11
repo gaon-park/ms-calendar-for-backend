@@ -1,6 +1,7 @@
 package com.maple.herocalendarforbackend.service
 
 import com.maple.herocalendarforbackend.code.BaseResponseCode
+import com.maple.herocalendarforbackend.code.MagicVariables.Companion.JWT_ACCESS_TOKEN_EXPIRATION_TIME_VALUE
 import com.maple.herocalendarforbackend.entity.TJwtAuth
 import com.maple.herocalendarforbackend.entity.TUser
 import com.maple.herocalendarforbackend.exception.BaseException
@@ -32,11 +33,6 @@ class JwtAuthService(
     companion object {
         // todo secret key 프로퍼티화
         private var secretKey = Keys.hmacShaKeyFor("mwMgh7IA1p1N7ldRz7rQKjLB3sen2Z8iRGzDOGpgftg=".toByteArray())
-
-        /**
-         * 토큰 유효시간 30분
-         */
-        private const val tokenValidTime = 30 * 60 * 1000L
     }
 
     /**
@@ -71,7 +67,7 @@ class JwtAuthService(
         val accessToken = Jwts.builder()
             .setClaims(claims)
             .setIssuedAt(now)
-            .setExpiration(Date(now.time + tokenValidTime))
+            .setExpiration(Date(now.time + JWT_ACCESS_TOKEN_EXPIRATION_TIME_VALUE))
             .signWith(secretKey)
             .compact()
 

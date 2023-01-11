@@ -7,13 +7,13 @@ import org.springframework.scheduling.quartz.QuartzJobBean
 import org.springframework.stereotype.Component
 
 @Component
-class ExpiredTokenDeleteJob : QuartzJobBean() {
-    private val logger = LoggerFactory.getLogger(ExpiredTokenDeleteJob::class.java)
+class ExpiredDataDeleteJob : QuartzJobBean() {
+    private val logger = LoggerFactory.getLogger(ExpiredDataDeleteJob::class.java)
 
     override fun executeInternal(context: JobExecutionContext) {
         logger.info(context.jobDetail.description)
         val ctx = context.jobDetail.jobDataMap["applicationContext"] as ApplicationContext
-        val service = ctx.getBean(ExpiredTokenDeleteService::class.java)
+        val service = ctx.getBean(ExpiredDataDeleteService::class.java)
         service.deleteExpired()
         logger.info("작업 종료")
     }

@@ -1,5 +1,6 @@
 package com.maple.herocalendarforbackend.entity
 
+import com.maple.herocalendarforbackend.code.MagicVariables.Companion.JWT_REFRESH_TOKEN_EXPIRATION_WEEK_VALUE
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -25,11 +26,9 @@ data class TJwtAuth(
     val userPk: TUser,
 ) {
     companion object {
-        private const val REFRESH_TOKEN_EXPIRATION_WEEKS_VALUE = 2L
-
         fun generate(now: LocalDateTime, userPk: TUser) = TJwtAuth(
             expired = false,
-            expirationDate = now.plusWeeks(REFRESH_TOKEN_EXPIRATION_WEEKS_VALUE),
+            expirationDate = now.plusWeeks(JWT_REFRESH_TOKEN_EXPIRATION_WEEK_VALUE),
             userPk = userPk
         )
     }

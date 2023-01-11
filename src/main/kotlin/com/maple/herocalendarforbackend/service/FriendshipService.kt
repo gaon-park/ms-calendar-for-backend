@@ -69,7 +69,7 @@ class FriendshipService(
         } ?: run {
             // 아무런 관계가 없음
             // 요청
-            emailSendService.sendFriendRequestEmail(requester, respondent.email)
+//            emailSendService.sendFriendRequestEmail(requester, respondent.email)
             tFriendshipRepository.save(TFriendship.generateSaveModel(requester, respondent, request.note))
         }
     }

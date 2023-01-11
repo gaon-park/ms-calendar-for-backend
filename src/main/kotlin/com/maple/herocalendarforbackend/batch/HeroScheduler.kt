@@ -2,7 +2,6 @@ package com.maple.herocalendarforbackend.batch
 
 import jakarta.annotation.PostConstruct
 import org.quartz.CronScheduleBuilder
-import org.quartz.JobBuilder
 import org.quartz.Scheduler
 import org.quartz.SchedulerFactory
 import org.quartz.TriggerBuilder
@@ -24,7 +23,7 @@ class HeroScheduler(
 
         val factoryBean = JobDetailFactoryBean()
 
-        factoryBean.setJobClass(ExpiredTokenDeleteJob::class.java)
+        factoryBean.setJobClass(ExpiredDataDeleteJob::class.java)
         factoryBean.setName("만료 토큰 삭제")
         factoryBean.setDescription("만료되었거나 유효하지 않은 토큰 데이터를 삭제합니다")
         factoryBean.setApplicationContext(applicationContext)
