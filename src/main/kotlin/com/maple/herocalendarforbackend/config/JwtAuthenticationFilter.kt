@@ -2,6 +2,7 @@ package com.maple.herocalendarforbackend.config
 
 import com.fasterxml.jackson.module.kotlin.jsonMapper
 import com.maple.herocalendarforbackend.code.BaseResponseCode
+import com.maple.herocalendarforbackend.exception.BaseException
 import com.maple.herocalendarforbackend.service.JwtAuthService
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.JwtException
@@ -26,9 +27,8 @@ class JwtAuthenticationFilter(
             "/favicon.ico",
             "/account/regist",
             "/confirm-email",
-            "/index",
             "/login",
-            "/search/",
+            "/search/"
         )
     }
 
@@ -51,6 +51,7 @@ class JwtAuthenticationFilter(
                 is MalformedJwtException,
                 is JwtException,
                 is SignatureException,
+                is BaseException,
                 is IllegalArgumentException -> setErrorResponse(response, BaseResponseCode.INVALID_TOKEN)
             }
         }
@@ -59,7 +60,8 @@ class JwtAuthenticationFilter(
     // filtering 제외 URL 설정
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
         return EXCLUDE_URL.any { exclude ->
-            request.servletPath.startsWith(exclude)
+            (request.servletPath.startsWith(exclude) || request.servletPath.contains("api-docs")
+                    || request.servletPath.contains("swagger"))
         }
     }
 
@@ -71,6 +73,7 @@ class JwtAuthenticationFilter(
         response.contentType = MediaType.APPLICATION_JSON_VALUE
         try {
             response.writer.write(jsonMapper().writeValueAsString(baseResponseCode))
-        } catch (_: IOException) { }
+        } catch (_: IOException) {
+        }
     }
 }

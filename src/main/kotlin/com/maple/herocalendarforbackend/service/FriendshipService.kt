@@ -3,6 +3,7 @@ package com.maple.herocalendarforbackend.service
 import com.maple.herocalendarforbackend.code.AcceptedStatus
 import com.maple.herocalendarforbackend.code.BaseResponseCode
 import com.maple.herocalendarforbackend.dto.request.FriendAddRequest
+import com.maple.herocalendarforbackend.dto.request.FriendRequest
 import com.maple.herocalendarforbackend.entity.TFriendship
 import com.maple.herocalendarforbackend.entity.TUser
 import com.maple.herocalendarforbackend.exception.BaseException
@@ -16,7 +17,6 @@ import java.time.LocalDateTime
 class FriendshipService(
     private val tUserRepository: TUserRepository,
     private val tFriendshipRepository: TFriendshipRepository,
-    private val emailSendService: EmailSendService
 ) {
 
     fun findUserById(id: String): TUser {
@@ -71,6 +71,22 @@ class FriendshipService(
             // 요청
 //            emailSendService.sendFriendRequestEmail(requester, respondent.email)
             tFriendshipRepository.save(TFriendship.generateSaveModel(requester, respondent, request.note))
+        }
+    }
+
+    /**
+     * 친구 삭제
+     */
+    @Transactional
+    fun deleteFriend(requesterId: String, request: FriendRequest) {
+        val requester = findUserById(requesterId)
+        val respondent = findUserById(request.personalKey)
+        tFriendshipRepository.findById(TFriendship.Key(requester, respondent)).let {
+            if (it.isEmpty) {
+                throw BaseException(BaseResponseCode.BAD_REQUEST)
+            }
+
+            tFriendshipRepository.delete(it.get())
         }
     }
 

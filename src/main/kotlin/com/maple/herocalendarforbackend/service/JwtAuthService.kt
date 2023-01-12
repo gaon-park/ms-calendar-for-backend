@@ -14,6 +14,7 @@ import io.jsonwebtoken.security.Keys
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.userdetails.UserDetailsService
@@ -125,7 +126,11 @@ class JwtAuthService(
      */
     @Suppress("SwallowedException")
     fun getValidatedAuthData(request: HttpServletRequest): String {
-        return request.getHeader("X-AUTH-ACCESS-TOKEN") ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
+        val bearer = request.getHeader(AUTHORIZATION)
+        if (bearer.contains("Bearer ")) {
+            return bearer.replace("Bearer ", "")
+        }
+        throw BaseException(BaseResponseCode.BAD_REQUEST)
     }
 
     /**
