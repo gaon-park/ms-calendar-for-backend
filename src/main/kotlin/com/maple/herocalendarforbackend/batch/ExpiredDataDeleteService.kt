@@ -1,6 +1,6 @@
 package com.maple.herocalendarforbackend.batch
 
-import com.maple.herocalendarforbackend.code.MagicVariables.Companion.EMAIL_TOKEN_EXPIRATION_TIME_VALUE
+import com.maple.herocalendarforbackend.code.MagicVariables.EMAIL_TOKEN_EXPIRATION_TIME_VALUE
 import com.maple.herocalendarforbackend.repository.TEmailTokenRepository
 import com.maple.herocalendarforbackend.repository.TJwtAuthRepository
 import com.maple.herocalendarforbackend.repository.TUserRepository

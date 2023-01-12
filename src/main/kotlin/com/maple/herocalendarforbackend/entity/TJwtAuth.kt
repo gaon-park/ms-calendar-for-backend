@@ -1,6 +1,6 @@
 package com.maple.herocalendarforbackend.entity
 
-import com.maple.herocalendarforbackend.code.MagicVariables.Companion.JWT_REFRESH_TOKEN_EXPIRATION_WEEK_VALUE
+import com.maple.herocalendarforbackend.code.MagicVariables.JWT_REFRESH_TOKEN_EXPIRATION_WEEK_VALUE
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue

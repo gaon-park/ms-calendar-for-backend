@@ -4,6 +4,8 @@ import com.maple.herocalendarforbackend.code.AcceptedStatus
 import jakarta.persistence.Embeddable
 import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
@@ -15,6 +17,7 @@ data class TFriendship(
     @EmbeddedId
     val key: Key,
     val note: String,
+    @Enumerated(value = EnumType.STRING)
     val acceptedStatus: AcceptedStatus,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,

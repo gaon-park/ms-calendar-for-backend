@@ -3,13 +3,11 @@ package com.maple.herocalendarforbackend.service
 import com.maple.herocalendarforbackend.code.AcceptedStatus
 import com.maple.herocalendarforbackend.code.BaseResponseCode
 import com.maple.herocalendarforbackend.dto.request.ScheduleAddRequest
-import com.maple.herocalendarforbackend.dto.request.ScheduleGetRequest
 import com.maple.herocalendarforbackend.dto.request.ScheduleMemberAddRequest
 import com.maple.herocalendarforbackend.dto.request.ScheduleOwnerChangeRequest
 import com.maple.herocalendarforbackend.dto.request.ScheduleUpdateRequest
 import com.maple.herocalendarforbackend.dto.response.ScheduleMemberResponse
 import com.maple.herocalendarforbackend.dto.response.ScheduleResponse
-import com.maple.herocalendarforbackend.dto.response.UserResponse
 import com.maple.herocalendarforbackend.entity.TSchedule
 import com.maple.herocalendarforbackend.entity.TScheduleMember
 import com.maple.herocalendarforbackend.exception.BaseException
@@ -44,16 +42,16 @@ class ScheduleService(
         val owner =
             tUserRepository.findByIdAndVerified(requesterId, true) ?: throw BaseException(BaseResponseCode.NOT_FOUND)
         val schedule = tScheduleRepository.save(TSchedule.convert(request, requesterId))
-        val members = mutableListOf(TScheduleMember.initConvert(owner, schedule, AcceptedStatus.ACCEPTED))
+        if (!request.memberIds.contains(requesterId)) throw BaseException(BaseResponseCode.NOT_FOUND)
 
-        val searchMember = request.members.filter { it != owner.email }.toSet().toList()
+        val members = mutableListOf(TScheduleMember.initConvert(owner, schedule, AcceptedStatus.ACCEPTED))
+        val searchMember = request.memberIds.filter { it != owner.id }.toSet().toList()
         if (searchMember.isNotEmpty()) {
-            val partyMembers = tUserRepository.findByEmailIn(searchMember)
+            val partyMembers = tUserRepository.findByIdInAndVerified(searchMember, true)
                 .map { TScheduleMember.initConvert(it, schedule, AcceptedStatus.WAITING) }
-            if (partyMembers.isEmpty()) {
-                throw BaseException(BaseResponseCode.USER_NOT_FOUND)
+            if (partyMembers.isNotEmpty()) {
+                members.addAll(partyMembers)
             }
-            members.addAll(partyMembers)
         }
         tScheduleMemberRepository.saveAll(members)
     }
@@ -88,15 +86,15 @@ class ScheduleService(
         if (members.none { m -> m.scheduleKey.user.id == requesterId }) {
             throw BaseException(BaseResponseCode.BAD_REQUEST)
         }
-        val newMembers = request.newMember.toSet().toList().filter { email ->
+        val newMembers = request.newMemberIds.toSet().toList().filter { id ->
             members.count { m ->
-                m.scheduleKey.user.email == email
+                m.scheduleKey.user.id == id
             } == 0
         }
 
         // save new members
         if (newMembers.isNotEmpty()) {
-            tUserRepository.findByEmailIn(newMembers)
+            tUserRepository.findByIdInAndVerified(newMembers, true)
                 .map { user -> TScheduleMember.initConvert(user, schedule, AcceptedStatus.WAITING) }
                 .let {
                     if (it.isNotEmpty()) {
@@ -117,7 +115,7 @@ class ScheduleService(
             throw BaseException(BaseResponseCode.BAD_REQUEST)
         }
 
-        val nextOwner = tUserRepository.findByEmailAndVerified(request.nextOwnerEmail, true)
+        val nextOwner = tUserRepository.findByIdAndVerified(request.nextOwnerId, true)
             ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
         // 스케줄 멤버가 아닌 유저에게 넘기려는 경우
         tScheduleMemberRepository.save(
@@ -148,6 +146,11 @@ class ScheduleService(
                 waitingOwnerChange = false,
             )
         )
+        tScheduleMemberRepository.findByScheduleKeyScheduleIdAndScheduleKeyUserId(scheduleId, newOwnerId)?.let {
+            if (it.acceptedStatus != AcceptedStatus.ACCEPTED) {
+                tScheduleMemberRepository.save(it.copy(acceptedStatus = AcceptedStatus.ACCEPTED))
+            }
+        }
     }
 
     /**
@@ -218,26 +221,25 @@ class ScheduleService(
     /**
      * 스케줄 목록
      */
-    fun findSchedules(userId: String, data: ScheduleGetRequest): List<TSchedule> {
+    fun findSchedules(userId: String, from: LocalDate?, to: LocalDate?): List<TSchedule> {
         val now = LocalDate.now()
-        // todo 한 페이지에 보이는 캘린더 시작일, 종료일로 설정
-        val from = data.from ?: LocalDate.of(
+        val fromV = from ?: LocalDate.of(
             now.year, now.month, 1
         )
-        val to = data.to ?: LocalDate.of(
+        val toV = to ?: LocalDate.of(
             now.year, now.month, 31
         )
-        from.format(DateTimeFormatter.ISO_DATE)
-        to.format(DateTimeFormatter.ISO_DATE)
+        fromV.format(DateTimeFormatter.ISO_DATE)
+        toV.format(DateTimeFormatter.ISO_DATE)
 
-        return tScheduleRepository.findByFromToAndUserId(userId, from, to)
+        return tScheduleRepository.findByFromToAndUserId(userId, fromV, toV)
     }
 
     /**
      * 스케줄 목록(controller 가 호출)
      */
-    fun findSchedulesAndConvertToResponse(userId: String, data: ScheduleGetRequest): List<ScheduleResponse> {
-        val schedules = findSchedules(userId, data)
+    fun findSchedulesAndConvertToResponse(userId: String, from: LocalDate?, to: LocalDate?): List<ScheduleResponse> {
+        val schedules = findSchedules(userId, from, to)
         val scheduleGroup = schedules.associateBy { it.id }
         val members = tScheduleMemberRepository.findByScheduleKeyScheduleIdIn(schedules.mapNotNull { it.id })
         val memberGroup: Map<Long?, List<TScheduleMember>> = members.groupBy { it.scheduleKey.schedule.id }

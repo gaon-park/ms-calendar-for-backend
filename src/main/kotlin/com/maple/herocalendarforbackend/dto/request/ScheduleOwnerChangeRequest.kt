@@ -7,5 +7,5 @@ data class ScheduleOwnerChangeRequest(
     @field:NotNull
     val scheduleId: Long,
     @field:NotEmpty
-    val nextOwnerEmail: String
+    val nextOwnerId: String
 )

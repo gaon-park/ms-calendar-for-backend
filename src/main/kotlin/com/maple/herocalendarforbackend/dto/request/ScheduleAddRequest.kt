@@ -1,8 +1,10 @@
 package com.maple.herocalendarforbackend.dto.request
 
+import com.maple.herocalendarforbackend.code.MagicVariables.MAX_VALUE_OF_MEMBERS
 import jakarta.validation.constraints.AssertTrue
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.Size
 import org.springframework.format.annotation.DateTimeFormat
 import java.time.LocalDateTime
 
@@ -13,18 +15,22 @@ data class ScheduleAddRequest(
     @field:DateTimeFormat(pattern = "yyyy-MM-ddTHH:mm")
     val start: LocalDateTime,
     @field:DateTimeFormat(pattern = "yyyy-MM-ddTHH:mm")
-    val end: LocalDateTime?,
+    val end: LocalDateTime,
+    @field:NotNull
+    val repeat: Boolean,
+    val repeatInfo: RepeatInfo?,
     val allDay: Boolean?,
     val note: String?,
     val isPublic: Boolean?,
-    // 이메일
-    val members: List<String> = listOf(),
+    @field:Size(max = MAX_VALUE_OF_MEMBERS)
+    val memberIds: List<String> = listOf(),
 ) {
     @AssertTrue
-    fun isStart(): Boolean {
-        if (end == null) {
-            return true
-        }
-        return end.isAfter(start)
+    fun isStart(): Boolean = (end.isAfter(start))
+
+    @AssertTrue
+    fun isRepeat(): Boolean {
+        if (repeat) return repeatInfo != null
+        return repeatInfo == null
     }
 }

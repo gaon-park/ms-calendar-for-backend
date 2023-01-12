@@ -1,5 +1,6 @@
 package com.maple.herocalendarforbackend.dto.response
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import com.maple.herocalendarforbackend.entity.TSchedule
 import lombok.Builder
 import java.time.LocalDateTime
@@ -8,7 +9,9 @@ import java.time.LocalDateTime
 data class ScheduleResponse(
     val scheduleId: Long,
     val title: String,
+    @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm", timezone="Asia/Seoul")
     val start: LocalDateTime,
+    @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm", timezone="Asia/Seoul")
     val end: LocalDateTime?,
     val allDay: Boolean,
     val url: String,

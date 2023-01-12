@@ -1,7 +1,6 @@
 package com.maple.herocalendarforbackend.api
 
 import com.maple.herocalendarforbackend.dto.request.ScheduleAddRequest
-import com.maple.herocalendarforbackend.dto.request.ScheduleGetRequest
 import com.maple.herocalendarforbackend.dto.request.ScheduleMemberAddRequest
 import com.maple.herocalendarforbackend.dto.request.ScheduleOwnerChangeRequest
 import com.maple.herocalendarforbackend.dto.request.ScheduleRequest
@@ -25,8 +24,10 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.security.Principal
+import java.time.LocalDate
 
 @Tag(name = "Calendar CURD", description = "Schedule作成、更新、閲覧、削除関連 API")
 @RestController
@@ -43,12 +44,13 @@ class UserCalendarController(
         value = [
             ApiResponse(
                 responseCode = "200",
-                description = "OK"
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "0. スケジュール作成がメール認定してない<br>" +
-                        "1. 未加入ユーザは招待できない",
+                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
+            ),
+            ApiResponse(
+                responseCode = "401",
                 content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
             )
         ]
@@ -57,8 +59,9 @@ class UserCalendarController(
     fun addSchedule(
         principal: Principal,
         @Valid @RequestBody requestBody: ScheduleAddRequest
-    ) {
+    ): ResponseEntity<String> {
         scheduleService.save(principal.name, requestBody)
+        return ResponseEntity.ok("ok")
     }
 
     /**
@@ -75,12 +78,13 @@ class UserCalendarController(
         value = [
             ApiResponse(
                 responseCode = "200",
-                description = "OK"
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "0. Scheduleが存在しない <br>" +
-                        "1. RequesterがSchedule Memberじゃない",
+                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
+            ),
+            ApiResponse(
+                responseCode = "401",
                 content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
             )
         ]
@@ -89,8 +93,9 @@ class UserCalendarController(
     fun deleteSchedule(
         principal: Principal,
         @Valid @RequestBody requestBody: ScheduleRequest
-    ) {
+    ): ResponseEntity<String> {
         scheduleService.delete(requestBody.scheduleId, principal.name)
+        return ResponseEntity.ok("ok")
     }
 
     /**
@@ -101,12 +106,17 @@ class UserCalendarController(
         value = [
             ApiResponse(
                 responseCode = "200",
-                description = "OK"
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "0. Scheduleが存在しない <br>" +
-                        "1 RequesterがSchedule Memberじゃない",
+                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
+            ),
+            ApiResponse(
+                responseCode = "401",
+                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
+            ),
+            ApiResponse(
+                responseCode = "404",
                 content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
             )
         ]
@@ -115,8 +125,9 @@ class UserCalendarController(
     fun putScheduleMember(
         principal: Principal,
         @Valid @RequestBody requestBody: ScheduleMemberAddRequest
-    ) {
+    ): ResponseEntity<String> {
         scheduleService.updateMember(principal.name, requestBody)
+        return ResponseEntity.ok("ok")
     }
 
     /**
@@ -135,8 +146,10 @@ class UserCalendarController(
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "0. Scheduleが存在しない <br>" +
-                        "1. RequesterがSchedule Ownerじゃない",
+                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
+            ),
+            ApiResponse(
+                responseCode = "401",
                 content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
             )
         ]
@@ -161,13 +174,13 @@ class UserCalendarController(
         value = [
             ApiResponse(
                 responseCode = "200",
-                description = "OK"
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "0. Scheduleが存在しない <br>" +
-                        "1. Requesterが元Ownerから指名されたNext Schedule Ownerじゃない <br>" +
-                        "2. ScheduleがOwner Change待機中じゃない",
+                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
+            ),
+            ApiResponse(
+                responseCode = "401",
                 content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
             )
         ]
@@ -176,8 +189,9 @@ class UserCalendarController(
     fun ownerChangeAccept(
         principal: Principal,
         @Valid @RequestBody requestBody: ScheduleRequest
-    ) {
+    ): ResponseEntity<String> {
         scheduleService.changeOwnerAccept(requestBody.scheduleId, principal.name)
+        return ResponseEntity.ok("ok")
     }
 
     /**
@@ -195,9 +209,10 @@ class UserCalendarController(
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "0. Scheduleが存在しない <br>" +
-                        "1. Requesterが元Ownerから指名されたNext Schedule Ownerじゃない <br>" +
-                        "2. ScheduleがOwner Change待機中じゃない",
+                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
+            ),
+            ApiResponse(
+                responseCode = "401",
                 content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
             )
         ]
@@ -226,8 +241,10 @@ class UserCalendarController(
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "0. Scheduleが存在しない <br>" +
-                        "1. RequesterがSchedule Memberじゃない",
+                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
+            ),
+            ApiResponse(
+                responseCode = "401",
                 content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
             )
         ]
@@ -236,8 +253,9 @@ class UserCalendarController(
     fun putSchedule(
         principal: Principal,
         @Valid @RequestBody requestBody: ScheduleUpdateRequest,
-    ) {
+    ): ResponseEntity<String> {
         scheduleService.update(principal.name, requestBody)
+        return ResponseEntity.ok("ok")
     }
 
     /**
@@ -252,7 +270,10 @@ class UserCalendarController(
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "0. 招待受けてない <br>",
+                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
+            ),
+            ApiResponse(
+                responseCode = "401",
                 content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
             )
         ]
@@ -261,8 +282,9 @@ class UserCalendarController(
     fun scheduleAccept(
         principal: Principal,
         @Valid @RequestBody requestBody: ScheduleRequest
-    ) {
+    ): ResponseEntity<String> {
         scheduleService.scheduleAccept(requestBody.scheduleId, principal.name)
+        return ResponseEntity.ok("ok")
     }
 
     /**
@@ -273,11 +295,13 @@ class UserCalendarController(
         value = [
             ApiResponse(
                 responseCode = "200",
-                description = "OK"
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "0. 招待受けてない <br>",
+                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
+            ),
+            ApiResponse(
+                responseCode = "401",
                 content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
             )
         ]
@@ -286,8 +310,9 @@ class UserCalendarController(
     fun scheduleRefuse(
         principal: Principal,
         @Valid @RequestBody requestBody: ScheduleRequest
-    ) {
+    ): ResponseEntity<String> {
         scheduleService.scheduleRefuse(requestBody.scheduleId, principal.name)
+        return ResponseEntity.ok("ok")
     }
 
     /**
@@ -298,14 +323,16 @@ class UserCalendarController(
         value = [
             ApiResponse(
                 responseCode = "200",
-                description = "OK",
                 content = arrayOf(
                     Content(array = ArraySchema(schema = Schema(implementation = ScheduleResponse::class)))
                 )
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "0. to日時がfromより先",
+                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
+            ),
+            ApiResponse(
+                responseCode = "401",
                 content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
             )
         ]
@@ -313,11 +340,12 @@ class UserCalendarController(
     @GetMapping
     fun getSchedules(
         principal: Principal,
-        @Valid @RequestBody requestBody: ScheduleGetRequest
+        @RequestParam from: LocalDate?,
+        @RequestParam to: LocalDate?
     ): ResponseEntity<List<ScheduleResponse>> {
         return ResponseEntity.ok(
             scheduleService.findSchedulesAndConvertToResponse(
-                principal.name, requestBody
+                principal.name, from, to
             )
         )
     }

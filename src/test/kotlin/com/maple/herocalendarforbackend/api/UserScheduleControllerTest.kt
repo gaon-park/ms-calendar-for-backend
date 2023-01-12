@@ -4,9 +4,10 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jsonMapper
 import com.maple.herocalendarforbackend.api.base.ExceptionHandler
 import com.maple.herocalendarforbackend.code.BaseResponseCode
+import com.maple.herocalendarforbackend.code.RepeatCode
 import com.maple.herocalendarforbackend.config.JwtAuthenticationFilter
+import com.maple.herocalendarforbackend.dto.request.RepeatInfo
 import com.maple.herocalendarforbackend.dto.request.ScheduleAddRequest
-import com.maple.herocalendarforbackend.dto.request.ScheduleGetRequest
 import com.maple.herocalendarforbackend.dto.request.ScheduleMemberAddRequest
 import com.maple.herocalendarforbackend.dto.request.ScheduleOwnerChangeRequest
 import com.maple.herocalendarforbackend.dto.request.ScheduleRequest
@@ -91,10 +92,13 @@ class UserScheduleControllerTest : DescribeSpec() {
                     ScheduleAddRequest(
                         "",
                         LocalDateTime.now(),
+                        LocalDateTime.now().plusDays(1),
+                        false,
                         null,
                         null,
                         null,
                         null,
+                        emptyList()
                     )
                 )
                 it("BAD_REQUEST 예외 발생") {
@@ -111,9 +115,12 @@ class UserScheduleControllerTest : DescribeSpec() {
                         "11",
                         LocalDateTime.now().plusMonths(1),
                         LocalDateTime.now(),
+                        false,
                         null,
                         null,
                         null,
+                        null,
+                        emptyList()
                     )
                 )
                 it("BAD_REQUEST 예외 발생") {
@@ -130,10 +137,12 @@ class UserScheduleControllerTest : DescribeSpec() {
                     ScheduleAddRequest(
                         "aa",
                         LocalDateTime.now(),
+                        LocalDateTime.now().plusDays(1),
+                        true,
+                        RepeatInfo(RepeatCode.DAYS, LocalDate.now(), LocalDate.now().plusMonths(1)),
                         null,
                         null,
-                        null,
-                        null,
+                        null
                     )
                 )
                 it("정상 종료") {
@@ -490,40 +499,20 @@ class UserScheduleControllerTest : DescribeSpec() {
         }
 
         describe("로그인 유저의 스케줄") {
-            val perform = { request: ScheduleGetRequest ->
+            val perform = {
                 mockMvc.perform(
                     MockMvcRequestBuilders.get(baseUri)
                         .servletPath(baseUri)
                         .principal(principal)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .content(jsonMapper().registerModule(JavaTimeModule()).writeValueAsString(request))
+                        .param("from", LocalDate.now().toString())
                         .accept(MediaType.APPLICATION_JSON)
                 )
             }
-            context("비정상 requestBody") {
-                val result = perform(
-                    ScheduleGetRequest(
-                        LocalDate.now().plusMonths(1),
-                        LocalDate.now()
-                    )
-                )
-                it("BAD_REQUEST 예외 발생") {
-                    result.andExpect {
-                        it.resolvedException?.javaClass shouldBeSameInstanceAs
-                                MethodArgumentNotValidException::class.java
-                        it.response.status shouldBe HttpStatus.BAD_REQUEST.value()
-                    }
-                }
-            }
             context("정상 요청") {
-                every { scheduleService.findSchedulesAndConvertToResponse(any(), any()) } returns emptyList()
-                val result = perform(
-                    ScheduleGetRequest(
-                        LocalDate.now(),
-                        LocalDate.now().plusMonths(1)
-                    )
-                )
+                every { scheduleService.findSchedulesAndConvertToResponse(any(), any(), any()) } returns emptyList()
+                val result = perform()
                 it("정상 종료") {
                     result.andExpect {
                         it.response.status shouldBe HttpStatus.OK.value()

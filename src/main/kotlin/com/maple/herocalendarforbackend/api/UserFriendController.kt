@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -38,18 +39,17 @@ class UserFriendController(
         value = [
             ApiResponse(
                 responseCode = "200",
-                description = "OK"
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "0. 本人にFriend Requestした <br>" +
-                        "1. すでに相手にRequestを送って待機中 <br>" +
-                        "2. すでに断れたことがあるユーザに再Requestした ",
+                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
+            ),
+            ApiResponse(
+                responseCode = "401",
                 content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
             ),
             ApiResponse(
                 responseCode = "404",
-                description = "0. 未登録ユーザ <br>",
                 content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
             )
         ]
@@ -70,16 +70,17 @@ class UserFriendController(
         value = [
             ApiResponse(
                 responseCode = "200",
-                description = "OK"
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "0. Friend関係が見つけない <br>",
+                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
+            ),
+            ApiResponse(
+                responseCode = "401",
                 content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
             ),
             ApiResponse(
                 responseCode = "404",
-                description = "0. 未登録ユーザ <br>",
                 content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
             )
         ]
@@ -100,21 +101,22 @@ class UserFriendController(
         value = [
             ApiResponse(
                 responseCode = "200",
-                description = "OK"
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "0. Friend Requestが存在しない <br>",
+                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
+            ),
+            ApiResponse(
+                responseCode = "401",
                 content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
             ),
             ApiResponse(
                 responseCode = "404",
-                description = "0. 未登録ユーザ <br>",
                 content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
             )
         ]
     )
-    @GetMapping("/accept")
+    @PutMapping("/accept")
     fun friendRequestAccept(
         principal: Principal,
         @Valid @RequestBody requestBody: FriendRequest
@@ -130,21 +132,22 @@ class UserFriendController(
         value = [
             ApiResponse(
                 responseCode = "200",
-                description = "OK"
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "0. Friend Requestが存在しない <br>",
+                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
+            ),
+            ApiResponse(
+                responseCode = "401",
                 content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
             ),
             ApiResponse(
                 responseCode = "404",
-                description = "0. 未登録ユーザ <br>",
                 content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
             )
         ]
     )
-    @GetMapping("/refuse")
+    @PutMapping("/refuse")
     fun friendRequestRefuse(
         principal: Principal,
         @Valid @RequestBody requestBody: FriendRequest
@@ -161,10 +164,13 @@ class UserFriendController(
         value = [
             ApiResponse(
                 responseCode = "200",
-                description = "OK",
                 content = arrayOf(
                     Content(array = ArraySchema(schema = Schema(implementation = UserResponse::class)))
                 )
+            ),
+            ApiResponse(
+                responseCode = "401",
+                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
             ),
         ]
     )

@@ -53,6 +53,7 @@ class JwtAuthenticationFilter(
                 is SignatureException,
                 is BaseException,
                 is IllegalArgumentException -> setErrorResponse(response, BaseResponseCode.INVALID_TOKEN)
+                is java.lang.NullPointerException -> setErrorResponse(response, BaseResponseCode.UNAUTHORIZED)
             }
         }
     }

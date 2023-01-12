@@ -1,14 +1,12 @@
 package com.maple.herocalendarforbackend.service
 
 import com.maple.herocalendarforbackend.code.BaseResponseCode
-import com.maple.herocalendarforbackend.code.MagicVariables.Companion.JWT_ACCESS_TOKEN_EXPIRATION_TIME_VALUE
+import com.maple.herocalendarforbackend.code.MagicVariables.JWT_ACCESS_TOKEN_EXPIRATION_TIME_VALUE
 import com.maple.herocalendarforbackend.entity.TJwtAuth
 import com.maple.herocalendarforbackend.entity.TUser
 import com.maple.herocalendarforbackend.exception.BaseException
 import com.maple.herocalendarforbackend.repository.TJwtAuthRepository
 import com.maple.herocalendarforbackend.repository.TUserRepository
-import io.jsonwebtoken.ExpiredJwtException
-import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import jakarta.servlet.http.Cookie

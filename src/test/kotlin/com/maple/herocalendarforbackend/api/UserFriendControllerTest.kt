@@ -235,7 +235,7 @@ class UserFriendControllerTest : DescribeSpec() {
         describe("친구 요청 수락") {
             val perform = { request: FriendRequest ->
                 mockMvc.perform(
-                    MockMvcRequestBuilders.get("$baseUri/accept")
+                    MockMvcRequestBuilders.put("$baseUri/accept")
                         .servletPath("$baseUri/accept")
                         .principal(principal)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -294,7 +294,7 @@ class UserFriendControllerTest : DescribeSpec() {
         describe("친구 요청 거절") {
             val perform = { request: FriendRequest ->
                 mockMvc.perform(
-                    MockMvcRequestBuilders.get("$baseUri/refuse")
+                    MockMvcRequestBuilders.put("$baseUri/refuse")
                         .servletPath("$baseUri/refuse")
                         .principal(principal)
                         .contentType(MediaType.APPLICATION_JSON)

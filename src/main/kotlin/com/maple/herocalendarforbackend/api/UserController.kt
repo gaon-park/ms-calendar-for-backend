@@ -34,9 +34,12 @@ class UserController(
         value = [
             ApiResponse(
                 responseCode = "200",
-                description = "OK",
                 content = arrayOf(Content(schema = Schema(implementation = AlertsResponse::class)))
-            )
+            ),
+            ApiResponse(
+                responseCode = "401",
+                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
+            ),
         ]
     )
     @GetMapping("/alerts")

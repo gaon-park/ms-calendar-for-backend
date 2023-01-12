@@ -12,7 +12,7 @@ interface TUserRepository : JpaRepository<TUser, String> {
     fun findByIdAndVerified(id: String, verified: Boolean): TUser?
     fun findByEmail(email: String): TUser?
     fun findByEmailAndVerified(email: String, verified: Boolean): TUser?
-    fun findByEmailIn(emails: List<String>): List<TUser>
+    fun findByIdInAndVerified(emails: List<String>, verified: Boolean): List<TUser>
 
     @Query(
         "select *\n" +
