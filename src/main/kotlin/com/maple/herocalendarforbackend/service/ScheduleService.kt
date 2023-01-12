@@ -42,8 +42,6 @@ class ScheduleService(
         val owner =
             tUserRepository.findByIdAndVerified(requesterId, true) ?: throw BaseException(BaseResponseCode.NOT_FOUND)
         val schedule = tScheduleRepository.save(TSchedule.convert(request, requesterId))
-        if (!request.memberIds.contains(requesterId)) throw BaseException(BaseResponseCode.NOT_FOUND)
-
         val members = mutableListOf(TScheduleMember.initConvert(owner, schedule, AcceptedStatus.ACCEPTED))
         val searchMember = request.memberIds.filter { it != owner.id }.toSet().toList()
         if (searchMember.isNotEmpty()) {
