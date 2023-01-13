@@ -63,7 +63,7 @@ class SwaggerConfig : WebMvcConfigurer {
                         securitySchema, SecurityScheme()
                             .name(securitySchema)
                             .type(SecurityScheme.Type.HTTP)
-                            .scheme("Bearer")
+                            .scheme("bearer")
                             .bearerFormat("JWT")
                     )
             )

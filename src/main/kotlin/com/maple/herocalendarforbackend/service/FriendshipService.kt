@@ -78,16 +78,17 @@ class FriendshipService(
      * 친구 삭제
      */
     @Transactional
-    fun deleteFriend(requesterId: String, request: FriendRequest) {
+    fun deleteFriend(requesterId: String, personalKey: String) {
         val requester = findUserById(requesterId)
-        val respondent = findUserById(request.personalKey)
-        tFriendshipRepository.findById(TFriendship.Key(requester, respondent)).let {
-            if (it.isEmpty) {
-                throw BaseException(BaseResponseCode.BAD_REQUEST)
-            }
-
-            tFriendshipRepository.delete(it.get())
-        }
+        val respondent = findUserById(personalKey)
+        tFriendshipRepository.findByKeyIn(
+            listOf(
+                TFriendship.Key(requester, respondent),
+                TFriendship.Key(respondent, requester)
+            )
+        )?.let {
+            tFriendshipRepository.delete(it)
+        } ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
     }
 
     /**

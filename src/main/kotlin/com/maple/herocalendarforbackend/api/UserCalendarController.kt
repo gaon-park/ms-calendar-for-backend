@@ -16,10 +16,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
+import jakarta.websocket.server.PathParam
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -89,12 +92,12 @@ class UserCalendarController(
             )
         ]
     )
-    @DeleteMapping
+    @DeleteMapping("/{scheduleId}")
     fun deleteSchedule(
         principal: Principal,
-        @Valid @RequestBody requestBody: ScheduleRequest
+        @PathVariable(name = "scheduleId") scheduleId: Long,
     ): ResponseEntity<String> {
-        scheduleService.delete(requestBody.scheduleId, principal.name)
+        scheduleService.delete(scheduleId, principal.name)
         return ResponseEntity.ok("ok")
     }
 

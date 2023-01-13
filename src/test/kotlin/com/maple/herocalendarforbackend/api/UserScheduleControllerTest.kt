@@ -156,12 +156,11 @@ class UserScheduleControllerTest : DescribeSpec() {
         describe("스케줄 삭제") {
             val perform = {
                 mockMvc.perform(
-                    MockMvcRequestBuilders.delete(baseUri)
+                    MockMvcRequestBuilders.delete("$baseUri/0")
                         .servletPath(baseUri)
                         .principal(principal)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .content(jsonMapper().writeValueAsString(ScheduleRequest(0)))
                         .accept(MediaType.APPLICATION_JSON)
                 )
             }
