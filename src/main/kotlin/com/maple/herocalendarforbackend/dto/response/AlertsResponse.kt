@@ -4,6 +4,7 @@ import lombok.Builder
 
 @Builder
 data class AlertsResponse(
-    val waitingScheduleRequests: List<WaitingScheduleRequest>,
-    val waitingFriendRequests: List<WaitingFriendRequest>
+    val ownerChangesRequests: List<WaitingOwnerChange>,
+    val waitingScheduleRequests: List<WaitingSchedule>,
+    val waitingFriendRequests: List<WaitingFriend>
 )

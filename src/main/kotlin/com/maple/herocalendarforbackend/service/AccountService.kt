@@ -23,4 +23,8 @@ class AccountService(
         }
         return tUserRepository.save(TUser.generateSaveModel(request, passwordEncoder))
     }
+
+    fun findById(id: String): TUser =
+        tUserRepository.findByIdAndVerified(id, true)
+            ?: throw BaseException(BaseResponseCode.USER_NOT_FOUND)
 }

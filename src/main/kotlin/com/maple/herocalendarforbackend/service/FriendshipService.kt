@@ -4,6 +4,7 @@ import com.maple.herocalendarforbackend.code.AcceptedStatus
 import com.maple.herocalendarforbackend.code.BaseResponseCode
 import com.maple.herocalendarforbackend.dto.request.FriendAddRequest
 import com.maple.herocalendarforbackend.dto.request.FriendRequest
+import com.maple.herocalendarforbackend.dto.response.FriendResponse
 import com.maple.herocalendarforbackend.entity.TFriendship
 import com.maple.herocalendarforbackend.entity.TUser
 import com.maple.herocalendarforbackend.exception.BaseException
@@ -136,13 +137,20 @@ class FriendshipService(
     /**
      * 친구 목록
      */
-    fun findFriends(userId: String): List<TUser> {
+    fun findFriendsAndConvertToResponse(userId: String): List<FriendResponse> {
         return tFriendshipRepository.findByUserId(userId).map {
-            if (userId == it.key.requester.id) {
+            val data = if (it.key.requester.id == userId) {
                 it.key.respondent
             } else {
                 it.key.requester
             }
+
+            FriendResponse(
+                id = data.id,
+                email = data.email,
+                nickName = data.nickName,
+                acceptedStatus = it.acceptedStatus
+            )
         }
     }
 }

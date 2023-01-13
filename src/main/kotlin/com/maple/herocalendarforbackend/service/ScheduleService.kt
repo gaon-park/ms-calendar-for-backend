@@ -10,13 +10,16 @@ import com.maple.herocalendarforbackend.dto.response.ScheduleMemberResponse
 import com.maple.herocalendarforbackend.dto.response.ScheduleResponse
 import com.maple.herocalendarforbackend.entity.TSchedule
 import com.maple.herocalendarforbackend.entity.TScheduleMember
+import com.maple.herocalendarforbackend.entity.TScheduleOwnerRequest
 import com.maple.herocalendarforbackend.exception.BaseException
 import com.maple.herocalendarforbackend.repository.TScheduleMemberRepository
+import com.maple.herocalendarforbackend.repository.TScheduleOwnerRequestRepository
 import com.maple.herocalendarforbackend.repository.TScheduleRepository
 import com.maple.herocalendarforbackend.repository.TUserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Service
@@ -25,6 +28,7 @@ class ScheduleService(
     private val tScheduleRepository: TScheduleRepository,
     private val tScheduleMemberRepository: TScheduleMemberRepository,
     private val tUserRepository: TUserRepository,
+    private val tScheduleOwnerRequestRepository: TScheduleOwnerRequestRepository,
 ) {
     fun findById(scheduleId: Long): TSchedule {
         tScheduleRepository.findById(scheduleId).let {
@@ -108,22 +112,28 @@ class ScheduleService(
      */
     @Transactional
     fun changeOwnerRequest(requesterId: String, request: ScheduleOwnerChangeRequest) {
+        val requester = tUserRepository.findByIdAndVerified(requesterId, true)
+        val nextOwner = tUserRepository.findByIdAndVerified(request.nextOwnerId, true)
         val schedule = findById(request.scheduleId)
-        if (schedule.ownerId != requesterId) {
+        if (requester == null || nextOwner == null || schedule.ownerId != requesterId) {
             throw BaseException(BaseResponseCode.BAD_REQUEST)
         }
 
-        val nextOwner = tUserRepository.findByIdAndVerified(request.nextOwnerId, true)
-            ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
+        tScheduleOwnerRequestRepository.findById(
+            TScheduleOwnerRequest.OwnerRequestId(schedule, requester)
+        ).let {
+            if (it.isPresent) {
+                throw BaseException(BaseResponseCode.WAITING_FOR_RESPONDENT)
+            }
+        }
+
         // 스케줄 멤버가 아닌 유저에게 넘기려는 경우
         tScheduleMemberRepository.save(
             TScheduleMember.initConvert(nextOwner, schedule, AcceptedStatus.WAITING)
         )
-        tScheduleRepository.save(
-            schedule.copy(
-                nextOwnerId = nextOwner.id,
-                waitingOwnerChange = true
-            )
+
+        tScheduleOwnerRequestRepository.save(
+            TScheduleOwnerRequest.convert(schedule, requester, nextOwner)
         )
     }
 
@@ -133,22 +143,18 @@ class ScheduleService(
      */
     @Transactional
     fun changeOwnerAccept(scheduleId: Long, newOwnerId: String) {
-        val schedule = findById(scheduleId)
-        if (!schedule.waitingOwnerChange || schedule.nextOwnerId != newOwnerId) {
-            throw BaseException(BaseResponseCode.BAD_REQUEST)
-        }
+        val request = tScheduleOwnerRequestRepository.findRequest(
+            scheduleId, newOwnerId
+        ) ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
         tScheduleRepository.save(
-            schedule.copy(
-                ownerId = schedule.nextOwnerId,
-                nextOwnerId = null,
-                waitingOwnerChange = false,
-            )
+            request.requestId.schedule.copy(ownerId = newOwnerId)
         )
         tScheduleMemberRepository.findByScheduleKeyScheduleIdAndScheduleKeyUserId(scheduleId, newOwnerId)?.let {
             if (it.acceptedStatus != AcceptedStatus.ACCEPTED) {
                 tScheduleMemberRepository.save(it.copy(acceptedStatus = AcceptedStatus.ACCEPTED))
             }
         }
+        tScheduleOwnerRequestRepository.delete(request)
     }
 
     /**
@@ -156,16 +162,10 @@ class ScheduleService(
      */
     @Transactional
     fun changeOwnerRefuse(scheduleId: Long, newOwnerId: String) {
-        val schedule = findById(scheduleId)
-        if (!schedule.waitingOwnerChange || schedule.nextOwnerId != newOwnerId) {
-            throw BaseException(BaseResponseCode.BAD_REQUEST)
-        }
-        tScheduleRepository.save(
-            schedule.copy(
-                nextOwnerId = null,
-                waitingOwnerChange = false
-            )
-        )
+        val request = tScheduleOwnerRequestRepository.findRequest(
+            scheduleId, newOwnerId
+        ) ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
+        tScheduleOwnerRequestRepository.delete(request)
     }
 
     /**

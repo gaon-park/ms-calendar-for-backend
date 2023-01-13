@@ -3,6 +3,7 @@ package com.maple.herocalendarforbackend.api
 import com.maple.herocalendarforbackend.dto.request.FriendAddRequest
 import com.maple.herocalendarforbackend.dto.request.FriendRequest
 import com.maple.herocalendarforbackend.dto.response.ErrorResponse
+import com.maple.herocalendarforbackend.dto.response.FriendResponse
 import com.maple.herocalendarforbackend.dto.response.UserResponse
 import com.maple.herocalendarforbackend.service.FriendshipService
 import io.swagger.v3.oas.annotations.Operation
@@ -166,7 +167,7 @@ class UserFriendController(
             ApiResponse(
                 responseCode = "200",
                 content = arrayOf(
-                    Content(array = ArraySchema(schema = Schema(implementation = UserResponse::class)))
+                    Content(array = ArraySchema(schema = Schema(implementation = FriendResponse::class)))
                 )
             ),
             ApiResponse(
@@ -178,11 +179,9 @@ class UserFriendController(
     @GetMapping
     fun findFriends(
         principal: Principal
-    ): ResponseEntity<List<UserResponse>> {
+    ): ResponseEntity<List<FriendResponse>> {
         return ResponseEntity.ok(
-            friendshipService.findFriends(principal.name).map {
-                UserResponse(it.email, it.nickName)
-            }
+            friendshipService.findFriendsAndConvertToResponse(principal.name)
         )
     }
 }

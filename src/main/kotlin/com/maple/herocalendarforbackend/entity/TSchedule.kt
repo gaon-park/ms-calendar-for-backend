@@ -29,9 +29,7 @@ data class TSchedule(
     val repeatCode: RepeatCode?,
     val note: String?,
     val isPublic: Boolean,
-    val waitingOwnerChange: Boolean,
     val ownerId: String?,
-    val nextOwnerId: String?,
 ) {
     companion object {
         fun convert(request: ScheduleAddRequest, ownerId: String?) = TSchedule(
@@ -44,9 +42,7 @@ data class TSchedule(
             repeatCode = if (request.repeat) request.repeatInfo!!.repeatCodeValue else null,
             note = request.note ?: "",
             isPublic = request.isPublic ?: false,
-            waitingOwnerChange = false,
             ownerId = ownerId,
-            nextOwnerId = null
         )
     }
 }

@@ -2,8 +2,10 @@ package com.maple.herocalendarforbackend.api
 
 import com.maple.herocalendarforbackend.dto.response.AlertsResponse
 import com.maple.herocalendarforbackend.dto.response.ErrorResponse
-import com.maple.herocalendarforbackend.dto.response.WaitingFriendRequest
-import com.maple.herocalendarforbackend.dto.response.WaitingScheduleRequest
+import com.maple.herocalendarforbackend.dto.response.ProfileResponse
+import com.maple.herocalendarforbackend.dto.response.WaitingFriend
+import com.maple.herocalendarforbackend.dto.response.WaitingSchedule
+import com.maple.herocalendarforbackend.service.AccountService
 import com.maple.herocalendarforbackend.service.AlertService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
@@ -23,13 +25,16 @@ import java.security.Principal
 @RequestMapping("/user", produces = [MediaType.APPLICATION_JSON_VALUE])
 class UserController(
     private val alertService: AlertService,
+    private val accountService: AccountService
 ) {
 
     /**
      * 유저의 미응답 요청 리스트 검색
      */
-    @Operation(summary = "get unconfirmed request list", description = "まだ承認・拒否してないRequest一覧を取得する API <br>" +
-            "すでに相手からFriend Requestを受けている状態なら、承認にする")
+    @Operation(
+        summary = "get unconfirmed request list", description = "まだ承認・拒否してないRequest一覧を取得する API <br>" +
+                "すでに相手からFriend Requestを受けている状態なら、承認にする"
+    )
     @ApiResponses(
         value = [
             ApiResponse(
@@ -46,11 +51,30 @@ class UserController(
     fun getAlerts(
         principal: Principal,
     ): ResponseEntity<AlertsResponse> = ResponseEntity.ok(
-        AlertsResponse(
-            waitingScheduleRequests = alertService.findWaitingScheduleRequests(principal.name)
-                .map { r -> WaitingScheduleRequest.convert(r) },
-            waitingFriendRequests = alertService.findWaitingFriendRequests(principal.name)
-                .map { r -> WaitingFriendRequest.convert(r) }
-        )
+        alertService.findWaitingRequests(principal.name)
     )
+
+    /**
+     * 로그인 유저 프로필 정보
+     */
+    @Operation(summary = "get user profile", description = "ログインユーザの加入情報を確認する API")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                content = arrayOf(Content(schema = Schema(implementation = ProfileResponse::class)))
+            ),
+            ApiResponse(
+                responseCode = "401",
+                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
+            ),
+        ]
+    )
+    @GetMapping("/profile")
+    fun getProfile(
+        principal: Principal,
+    ): ResponseEntity<ProfileResponse> =
+        ResponseEntity.ok(
+            ProfileResponse.convert(accountService.findById(principal.name))
+        )
 }
