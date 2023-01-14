@@ -5,8 +5,8 @@ import com.fasterxml.jackson.module.kotlin.jsonMapper
 import com.maple.herocalendarforbackend.api.base.ExceptionHandler
 import com.maple.herocalendarforbackend.code.BaseResponseCode
 import com.maple.herocalendarforbackend.config.JwtAuthenticationFilter
-import com.maple.herocalendarforbackend.dto.request.FriendAddRequest
-import com.maple.herocalendarforbackend.dto.request.FriendRequest
+import com.maple.herocalendarforbackend.dto.request.friend.FriendAddRequest
+import com.maple.herocalendarforbackend.dto.request.friend.FriendRequest
 import com.maple.herocalendarforbackend.dto.response.ErrorResponse
 import com.maple.herocalendarforbackend.exception.BaseException
 import com.maple.herocalendarforbackend.service.FriendshipService

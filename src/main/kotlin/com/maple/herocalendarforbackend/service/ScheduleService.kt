@@ -2,10 +2,10 @@ package com.maple.herocalendarforbackend.service
 
 import com.maple.herocalendarforbackend.code.AcceptedStatus
 import com.maple.herocalendarforbackend.code.BaseResponseCode
-import com.maple.herocalendarforbackend.dto.request.ScheduleAddRequest
-import com.maple.herocalendarforbackend.dto.request.ScheduleMemberAddRequest
-import com.maple.herocalendarforbackend.dto.request.ScheduleOwnerChangeRequest
-import com.maple.herocalendarforbackend.dto.request.ScheduleUpdateRequest
+import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleAddRequest
+import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleMemberAddRequest
+import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleOwnerChangeRequest
+import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleUpdateRequest
 import com.maple.herocalendarforbackend.dto.response.ScheduleMemberResponse
 import com.maple.herocalendarforbackend.dto.response.ScheduleResponse
 import com.maple.herocalendarforbackend.entity.TSchedule
@@ -19,7 +19,6 @@ import com.maple.herocalendarforbackend.repository.TUserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Service

@@ -1,8 +1,7 @@
 package com.maple.herocalendarforbackend.entity
 
 import com.maple.herocalendarforbackend.code.RepeatCode
-import com.maple.herocalendarforbackend.dto.request.RepeatInfo
-import com.maple.herocalendarforbackend.dto.request.ScheduleAddRequest
+import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleAddRequest
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated

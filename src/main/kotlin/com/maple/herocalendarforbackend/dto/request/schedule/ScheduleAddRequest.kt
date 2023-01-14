@@ -1,6 +1,7 @@
-package com.maple.herocalendarforbackend.dto.request
+package com.maple.herocalendarforbackend.dto.request.schedule
 
 import com.maple.herocalendarforbackend.code.MagicVariables.MAX_VALUE_OF_MEMBERS
+import com.maple.herocalendarforbackend.dto.request.RepeatInfo
 import jakarta.validation.constraints.AssertTrue
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull

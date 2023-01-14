@@ -2,8 +2,7 @@ package com.maple.herocalendarforbackend.service
 
 import com.maple.herocalendarforbackend.code.AcceptedStatus
 import com.maple.herocalendarforbackend.code.BaseResponseCode
-import com.maple.herocalendarforbackend.dto.request.FriendAddRequest
-import com.maple.herocalendarforbackend.dto.request.FriendRequest
+import com.maple.herocalendarforbackend.dto.request.friend.FriendAddRequest
 import com.maple.herocalendarforbackend.dto.response.FriendResponse
 import com.maple.herocalendarforbackend.entity.TFriendship
 import com.maple.herocalendarforbackend.entity.TUser

@@ -1,10 +1,9 @@
 package com.maple.herocalendarforbackend.api
 
-import com.maple.herocalendarforbackend.dto.request.FriendAddRequest
-import com.maple.herocalendarforbackend.dto.request.FriendRequest
+import com.maple.herocalendarforbackend.dto.request.friend.FriendAddRequest
+import com.maple.herocalendarforbackend.dto.request.friend.FriendRequest
 import com.maple.herocalendarforbackend.dto.response.ErrorResponse
 import com.maple.herocalendarforbackend.dto.response.FriendResponse
-import com.maple.herocalendarforbackend.dto.response.UserResponse
 import com.maple.herocalendarforbackend.service.FriendshipService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.ArraySchema

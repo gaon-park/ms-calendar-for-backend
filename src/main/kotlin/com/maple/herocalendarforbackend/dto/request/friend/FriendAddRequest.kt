@@ -1,4 +1,4 @@
-package com.maple.herocalendarforbackend.dto.request
+package com.maple.herocalendarforbackend.dto.request.friend
 
 import jakarta.validation.constraints.NotEmpty
 
