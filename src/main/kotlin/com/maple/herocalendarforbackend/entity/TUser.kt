@@ -22,7 +22,6 @@ data class TUser(
     @Column(nullable = false)
     val email: String,
     val nickName: String,
-    val verified: Boolean,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
     val isPublic: Boolean
@@ -31,7 +30,6 @@ data class TUser(
         fun generateOAuthSaveModel(email: String) = TUser(
             email = email,
             nickName = email,
-            verified = true,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
             isPublic = false
@@ -40,7 +38,6 @@ data class TUser(
         fun generateTmpModel() = TUser(
             email = "",
             nickName = "",
-            verified = false,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
             isPublic = false

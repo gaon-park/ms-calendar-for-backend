@@ -22,7 +22,7 @@ class AlertService(
         val scheduleInvites =
             tScheduleMemberRepository.findByScheduleKeyUserIdAndAcceptedStatus(userId, AcceptedStatus.WAITING)
         val owners =
-            tUserRepository.findByIdInAndVerified(scheduleInvites.mapNotNull { it.scheduleKey.schedule.ownerId }, true)
+            tUserRepository.findByIdIn(scheduleInvites.mapNotNull { it.scheduleKey.schedule.ownerId })
                 .associateBy { it.id }
         val ownerChangeRequests = tScheduleOwnerRequestRepository.findByRespondentId(userId)
         val friendRequests =

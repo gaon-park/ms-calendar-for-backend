@@ -1,7 +1,6 @@
 package com.maple.herocalendarforbackend.entity
 
 import com.maple.herocalendarforbackend.code.AcceptedStatus
-import jakarta.persistence.Column
 import jakarta.persistence.Embeddable
 import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity

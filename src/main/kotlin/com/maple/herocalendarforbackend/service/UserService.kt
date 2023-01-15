@@ -13,10 +13,12 @@ class UserService(
     private val tUserRepository: TUserRepository
 ) : UserDetailsService {
     override fun loadUserByUsername(username: String?): UserDetails? = username?.let {
-        tUserRepository.findByEmailAndVerified(it, true)
+        tUserRepository.findByEmail(it)
     }
 
     fun findById(id: String): TUser =
-        tUserRepository.findByIdAndVerified(id, true)
-            ?: throw BaseException(BaseResponseCode.USER_NOT_FOUND)
+        tUserRepository.findById(id).let {
+            if (it.isEmpty) throw BaseException(BaseResponseCode.USER_NOT_FOUND)
+            it.get()
+        }
 }

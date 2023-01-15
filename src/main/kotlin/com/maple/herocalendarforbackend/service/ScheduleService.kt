@@ -11,6 +11,7 @@ import com.maple.herocalendarforbackend.dto.response.ScheduleResponse
 import com.maple.herocalendarforbackend.entity.TSchedule
 import com.maple.herocalendarforbackend.entity.TScheduleMember
 import com.maple.herocalendarforbackend.entity.TScheduleOwnerRequest
+import com.maple.herocalendarforbackend.entity.TUser
 import com.maple.herocalendarforbackend.exception.BaseException
 import com.maple.herocalendarforbackend.repository.TScheduleMemberRepository
 import com.maple.herocalendarforbackend.repository.TScheduleOwnerRequestRepository
@@ -29,6 +30,13 @@ class ScheduleService(
     private val tUserRepository: TUserRepository,
     private val tScheduleOwnerRequestRepository: TScheduleOwnerRequestRepository,
 ) {
+    fun findUserById(id: String): TUser {
+        return tUserRepository.findById(id).let {
+            if (it.isEmpty) throw BaseException(BaseResponseCode.USER_NOT_FOUND)
+            it.get()
+        }
+    }
+
     fun findById(scheduleId: Long): TSchedule {
         tScheduleRepository.findById(scheduleId).let {
             if (it.isPresent)
@@ -42,13 +50,12 @@ class ScheduleService(
      */
     @Transactional
     fun save(requesterId: String, request: ScheduleAddRequest) {
-        val owner =
-            tUserRepository.findByIdAndVerified(requesterId, true) ?: throw BaseException(BaseResponseCode.NOT_FOUND)
+        val owner = findUserById(requesterId)
         val schedule = tScheduleRepository.save(TSchedule.convert(request, requesterId))
         val members = mutableListOf(TScheduleMember.initConvert(owner, schedule, AcceptedStatus.ACCEPTED))
         val searchMember = request.memberIds.filter { it != owner.id }.toSet().toList()
         if (searchMember.isNotEmpty()) {
-            val partyMembers = tUserRepository.findByIdInAndVerified(searchMember, true)
+            val partyMembers = tUserRepository.findByIdIn(searchMember)
                 .map { TScheduleMember.initConvert(it, schedule, AcceptedStatus.WAITING) }
             if (partyMembers.isNotEmpty()) {
                 members.addAll(partyMembers)
@@ -95,7 +102,7 @@ class ScheduleService(
 
         // save new members
         if (newMembers.isNotEmpty()) {
-            tUserRepository.findByIdInAndVerified(newMembers, true)
+            tUserRepository.findByIdIn(newMembers)
                 .map { user -> TScheduleMember.initConvert(user, schedule, AcceptedStatus.WAITING) }
                 .let {
                     if (it.isNotEmpty()) {
@@ -111,10 +118,10 @@ class ScheduleService(
      */
     @Transactional
     fun changeOwnerRequest(requesterId: String, request: ScheduleOwnerChangeRequest) {
-        val requester = tUserRepository.findByIdAndVerified(requesterId, true)
-        val nextOwner = tUserRepository.findByIdAndVerified(request.nextOwnerId, true)
+        val requester = findUserById(requesterId)
+        val nextOwner = findUserById(request.nextOwnerId)
         val schedule = findById(request.scheduleId)
-        if (requester == null || nextOwner == null || schedule.ownerId != requesterId) {
+        if (schedule.ownerId != requesterId) {
             throw BaseException(BaseResponseCode.BAD_REQUEST)
         }
 

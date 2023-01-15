@@ -39,7 +39,7 @@ class JwtAuthService(
      */
     @Transactional
     fun firstTokenForLogin(email: String, roles: List<String>, response: HttpServletResponse): String {
-        val tUser = tUserRepository.findByEmailAndVerified(email, true) ?: throw BaseException(
+        val tUser = tUserRepository.findByEmail(email) ?: throw BaseException(
             BaseResponseCode.USER_NOT_FOUND
         )
         // 같은 기기(클라이언트)로 로그인 기록이 있다면 삭제 후 재발급
