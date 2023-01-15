@@ -3,9 +3,11 @@ package com.maple.herocalendarforbackend.dto.request.schedule
 import jakarta.validation.constraints.AssertTrue
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
+import lombok.Builder
 import org.springframework.format.annotation.DateTimeFormat
 import java.time.LocalDateTime
 
+@Builder
 data class ScheduleUpdateRequest(
     @field:NotNull
     val scheduleId: Long,

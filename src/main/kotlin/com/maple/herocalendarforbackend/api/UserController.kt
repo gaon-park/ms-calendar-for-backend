@@ -3,10 +3,8 @@ package com.maple.herocalendarforbackend.api
 import com.maple.herocalendarforbackend.dto.response.AlertsResponse
 import com.maple.herocalendarforbackend.dto.response.ErrorResponse
 import com.maple.herocalendarforbackend.dto.response.ProfileResponse
-import com.maple.herocalendarforbackend.dto.response.WaitingFriend
-import com.maple.herocalendarforbackend.dto.response.WaitingSchedule
-import com.maple.herocalendarforbackend.service.AccountService
 import com.maple.herocalendarforbackend.service.AlertService
+import com.maple.herocalendarforbackend.service.UserService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -25,7 +23,7 @@ import java.security.Principal
 @RequestMapping("/user", produces = [MediaType.APPLICATION_JSON_VALUE])
 class UserController(
     private val alertService: AlertService,
-    private val accountService: AccountService
+    private val userService: UserService,
 ) {
 
     /**
@@ -75,6 +73,6 @@ class UserController(
         principal: Principal,
     ): ResponseEntity<ProfileResponse> =
         ResponseEntity.ok(
-            ProfileResponse.convert(accountService.findById(principal.name))
+            ProfileResponse.convert(userService.findById(principal.name))
         )
 }

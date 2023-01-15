@@ -4,9 +4,12 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import com.maple.herocalendarforbackend.entity.TScheduleMember
 import com.maple.herocalendarforbackend.entity.TScheduleOwnerRequest
 import com.maple.herocalendarforbackend.entity.TUser
+import lombok.Builder
 import java.time.LocalDateTime
 
+@Builder
 data class WaitingSchedule(
+    val id: Long,
     val title: String,
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm", timezone = "Asia/Seoul")
     val start: LocalDateTime,
@@ -21,6 +24,7 @@ data class WaitingSchedule(
         fun convert(data: TScheduleMember, owner: TUser): WaitingSchedule {
             val schedule = data.scheduleKey.schedule
             return WaitingSchedule(
+                id = schedule.id!!,
                 title = schedule.title,
                 start = schedule.start,
                 end = schedule.end,
@@ -38,6 +42,7 @@ data class WaitingSchedule(
             val schedule = data.requestId.schedule
             val owner = data.requestId.owner
             return WaitingSchedule(
+                id = schedule.id!!,
                 title = schedule.title,
                 start = schedule.start,
                 end = schedule.end,

@@ -1,6 +1,5 @@
 package com.maple.herocalendarforbackend.service
 
-import com.maple.herocalendarforbackend.entity.TEmailToken
 import com.maple.herocalendarforbackend.entity.TUser
 import jakarta.mail.Message
 import jakarta.mail.internet.InternetAddress
@@ -12,12 +11,11 @@ import org.springframework.stereotype.Service
 
 @Service
 @PropertySource("classpath:email.properties")
+@Deprecated("")
 class EmailSendService(
     private val mailSender: JavaMailSender,
     @Value("\${owner-change-request-mail.path}")
     private val ownerChangeRequestMailPath: String,
-    @Value("\${auth-mail.path}")
-    private val authMailPath: String,
     @Value("\${add-friend.path}")
     private val addFriendMailPath: String,
     @Value("\${AdminMail.personal}")
@@ -26,24 +24,24 @@ class EmailSendService(
     private val adminId: String,
 ) {
 
-    /**
-     * 인증 메일 전송
-     */
-    @Async
-    fun sendAuthEmail(token: TEmailToken, to: String) {
-        val message = mailSender.createMimeMessage()
-        message.addRecipients(Message.RecipientType.TO, to)
-        message.subject = "회원가입 이메일 인증"
-
-        var msg = EmailSendService::class.java.getResource(authMailPath)?.readText()
-        // todo 도메인 프로퍼티화
-        msg = msg?.replace("\${LINK_WITH_TOKEN}", "http://localhost:8080/confirm-email?token=${token.id}")
-
-        message.setText(msg, "utf-8", "html")
-        message.setFrom(InternetAddress(adminId, personal))
-
-        mailSender.send(message)
-    }
+//    /**
+//     * 인증 메일 전송
+//     */
+//    @Async
+//    fun sendAuthEmail(token: TEmailToken, to: String) {
+//        val message = mailSender.createMimeMessage()
+//        message.addRecipients(Message.RecipientType.TO, to)
+//        message.subject = "회원가입 이메일 인증"
+//
+//        var msg = EmailSendService::class.java.getResource(authMailPath)?.readText()
+//        // todo 도메인 프로퍼티화
+//        msg = msg?.replace("\${LINK_WITH_TOKEN}", "http://localhost:8080/confirm-email?token=${token.id}")
+//
+//        message.setText(msg, "utf-8", "html")
+//        message.setFrom(InternetAddress(adminId, personal))
+//
+//        mailSender.send(message)
+//    }
 
     @Async
     fun sendOwnerChangeRequestEmail(scheduleId: Long, to: String) {

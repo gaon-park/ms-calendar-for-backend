@@ -28,7 +28,8 @@ class JwtAuthenticationFilter(
             "/account/regist",
             "/confirm-email",
             "/login",
-            "/search/"
+            "/search/",
+            "/oauth2/"
         )
     }
 

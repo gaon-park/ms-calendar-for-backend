@@ -2,8 +2,10 @@ package com.maple.herocalendarforbackend.dto.response
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.maple.herocalendarforbackend.entity.TFriendship
+import lombok.Builder
 import java.time.LocalDateTime
 
+@Builder
 data class WaitingFriend(
     val requester: UserResponse,
     val note: String,

@@ -362,7 +362,7 @@ class UserFriendControllerTest : DescribeSpec() {
                 )
             }
             context("정상 요청") {
-                every { friendshipService.findFriends(any()) } returns emptyList()
+                every { friendshipService.findFriendsAndConvertToResponse(any()) } returns emptyList()
                 val result = perform()
                 it("정상 종료") {
                     result.andExpect {

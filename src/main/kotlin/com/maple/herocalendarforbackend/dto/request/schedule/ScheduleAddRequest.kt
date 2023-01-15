@@ -6,9 +6,11 @@ import jakarta.validation.constraints.AssertTrue
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
+import lombok.Builder
 import org.springframework.format.annotation.DateTimeFormat
 import java.time.LocalDateTime
 
+@Builder
 data class ScheduleAddRequest(
     @field:NotEmpty(message = "타이틀을 필수 항목입니다.")
     val title: String,

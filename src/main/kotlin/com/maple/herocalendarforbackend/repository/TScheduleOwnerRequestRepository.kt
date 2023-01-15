@@ -13,12 +13,12 @@ interface TScheduleOwnerRequestRepository: JpaRepository<TScheduleOwnerRequest, 
         "select *\n" +
                 "from t_schedule_owner_request t\n" +
                 "where t.schedule_id= :scheduleId\n" +
-                "and t.requester_id= :requesterId",
+                "and t.respondent_id= :respondentId",
         nativeQuery = true
     )
     fun findRequest(
         @Param("scheduleId") scheduleId: Long,
-        @Param("requesterId") requesterId: String
+        @Param("respondentId") respondentId: String
     ): TScheduleOwnerRequest?
 
     fun findByRespondentId(respondentId: String): List<TScheduleOwnerRequest>

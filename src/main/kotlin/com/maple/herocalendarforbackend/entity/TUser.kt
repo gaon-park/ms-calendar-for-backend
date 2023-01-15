@@ -1,6 +1,5 @@
 package com.maple.herocalendarforbackend.entity
 
-import com.maple.herocalendarforbackend.dto.request.AccountRegistRequest
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -10,7 +9,6 @@ import org.hibernate.annotations.GenericGenerator
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.userdetails.UserDetails
-import org.springframework.security.crypto.password.PasswordEncoder
 import java.time.LocalDateTime
 
 @Entity
@@ -24,28 +22,24 @@ data class TUser(
     @Column(nullable = false)
     val email: String,
     val nickName: String,
-    @Column(nullable = false)
-    val pass: String,
     val verified: Boolean,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
     val isPublic: Boolean
 ) : UserDetails {
     companion object {
-        fun generateSaveModel(request: AccountRegistRequest, passwordEncoder: PasswordEncoder) = TUser(
-            email = request.email,
-            nickName = request.nickName ?: request.email,
-            pass = passwordEncoder.encode(request.password),
-            verified = false,
+        fun generateOAuthSaveModel(email: String) = TUser(
+            email = email,
+            nickName = email,
+            verified = true,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
-            isPublic = request.isPublic ?: false
+            isPublic = false
         )
 
         fun generateTmpModel() = TUser(
             email = "",
             nickName = "",
-            pass = "",
             verified = false,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
@@ -56,7 +50,7 @@ data class TUser(
     override fun getAuthorities(): MutableCollection<out GrantedAuthority>? =
         AuthorityUtils.createAuthorityList("ROLE_USER")
 
-    override fun getPassword(): String = pass
+    override fun getPassword(): String = ""
 
     override fun getUsername(): String = id!!
 
