@@ -25,7 +25,6 @@ class FriendshipServiceTest : BehaviorSpec() {
     init {
         val tUserRepository = mockk<TUserRepository>()
         val tFriendshipRepository = mockk<TFriendshipRepository>()
-        val emailSendService = mockk<EmailSendService>()
         val service = FriendshipService(tUserRepository, tFriendshipRepository)
 
         val keySlot: CapturingSlot<List<TFriendship.Key>> = slot()
@@ -50,8 +49,6 @@ class FriendshipServiceTest : BehaviorSpec() {
             id = "0",
             email = "do.judo1224@gmail.com",
             nickName = "",
-            pass = "",
-            verified = true,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
             isPublic = false
@@ -61,8 +58,6 @@ class FriendshipServiceTest : BehaviorSpec() {
             id = "1",
             email = "do.judo1224@gmail.com",
             nickName = "",
-            pass = "",
-            verified = true,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
             isPublic = false
@@ -120,7 +115,6 @@ class FriendshipServiceTest : BehaviorSpec() {
             When("아무런 관계가 없는 상태라면") {
                 every { tUserRepository.findById(any()) } returns Optional.of(respondent)
                 every { tFriendshipRepository.findByKeyIn(capture(keySlot)) } returns null
-                every { emailSendService.sendFriendRequestEmail(any(), any()) } just Runs
                 service.friendRequest(requester.id!!, FriendAddRequest(respondent.id!!, null))
                 Then("요청을 진행") {
                     friendshipSlot.isCaptured shouldBe true
