@@ -34,7 +34,6 @@ class EmailSendService(
 //        message.subject = "회원가입 이메일 인증"
 //
 //        var msg = EmailSendService::class.java.getResource(authMailPath)?.readText()
-//        // todo 도메인 프로퍼티화
 //        msg = msg?.replace("\${LINK_WITH_TOKEN}", "http://localhost:8080/confirm-email?token=${token.id}")
 //
 //        message.setText(msg, "utf-8", "html")

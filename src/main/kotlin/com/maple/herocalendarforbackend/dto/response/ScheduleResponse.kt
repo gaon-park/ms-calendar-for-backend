@@ -14,7 +14,6 @@ data class ScheduleResponse(
     @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm", timezone="Asia/Seoul")
     val end: LocalDateTime?,
     val allDay: Boolean,
-    val url: String,
     val note: String?,
     val ownerId: String,
     val members: List<ScheduleMemberResponse>,
@@ -26,7 +25,6 @@ data class ScheduleResponse(
             start = data.start,
             end = data.end,
             allDay = data.allDay,
-            url = "", // todo
             note = data.note,
             ownerId = data.ownerId!!,
             members = members

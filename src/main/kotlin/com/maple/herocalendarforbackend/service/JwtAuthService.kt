@@ -5,6 +5,7 @@ import com.maple.herocalendarforbackend.code.MagicVariables.JWT_ACCESS_TOKEN_EXP
 import com.maple.herocalendarforbackend.entity.TJwtAuth
 import com.maple.herocalendarforbackend.entity.TUser
 import com.maple.herocalendarforbackend.exception.BaseException
+import com.maple.herocalendarforbackend.properties.AppProperties
 import com.maple.herocalendarforbackend.repository.TJwtAuthRepository
 import com.maple.herocalendarforbackend.repository.TUserRepository
 import io.jsonwebtoken.Jwts
@@ -28,11 +29,9 @@ class JwtAuthService(
     private val userDetailsService: UserDetailsService,
     private val tJwtAuthRepository: TJwtAuthRepository,
     private val tUserRepository: TUserRepository,
+    appProperties: AppProperties,
 ) {
-    companion object {
-        // todo secret key 프로퍼티화
-        private var secretKey = Keys.hmacShaKeyFor("mwMgh7IA1p1N7ldRz7rQKjLB3sen2Z8iRGzDOGpgftg=".toByteArray())
-    }
+    private var secretKey = Keys.hmacShaKeyFor(appProperties.jwtSecretKey.toByteArray())
 
     /**
      * 최초 로그인 토큰 생성
