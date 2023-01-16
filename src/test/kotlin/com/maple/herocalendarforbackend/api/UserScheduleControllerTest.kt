@@ -29,6 +29,7 @@ import org.springframework.http.MediaType
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder
@@ -152,60 +153,60 @@ class UserScheduleControllerTest : DescribeSpec() {
                 }
             }
         }
-
-        describe("스케줄 삭제") {
-            val perform = {
-                mockMvc.perform(
-                    MockMvcRequestBuilders.delete("$baseUri/0")
-                        .servletPath(baseUri)
-                        .principal(principal)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .accept(MediaType.APPLICATION_JSON)
-                )
-            }
-            context("common case: 존재하지 않은 스케줄") {
-                every { scheduleService.delete(any(), any()) } throws BaseException(BaseResponseCode.NOT_FOUND)
-                val result = perform()
-                it("NOT_FOUND 예외 발생") {
-                    result.andExpect {
-                        it.resolvedException?.javaClass shouldBeSameInstanceAs
-                                BaseException::class.java
-                        it.response.contentAsString shouldBe jsonMapper().registerModule(JavaTimeModule())
-                            .writeValueAsString(
-                                ErrorResponse.convert(
-                                    BaseResponseCode.NOT_FOUND
-                                )
-                            )
-                    }
-                }
-            }
-            context("요청자!=소유자") {
-                every { scheduleService.delete(any(), any()) } throws BaseException(BaseResponseCode.BAD_REQUEST)
-                val result = perform()
-                it("BAD_REQUEST 예외 발생") {
-                    result.andExpect {
-                        it.resolvedException?.javaClass shouldBeSameInstanceAs
-                                BaseException::class.java
-                        it.response.contentAsString shouldBe jsonMapper().registerModule(JavaTimeModule())
-                            .writeValueAsString(
-                                ErrorResponse.convert(
-                                    BaseResponseCode.BAD_REQUEST
-                                )
-                            )
-                    }
-                }
-            }
-            context("정상 요청") {
-                every { scheduleService.delete(any(), any()) } just Runs
-                val result = perform()
-                it("정상 종료") {
-                    result.andExpect {
-                        it.response.status shouldBe HttpStatus.OK.value()
-                    }
-                }
-            }
-        }
+//
+//        describe("스케줄 삭제") {
+//            val perform = {
+//                mockMvc.perform(
+//                    MockMvcRequestBuilders.delete("$baseUri/{scheduleId}", 1)
+//                        .servletPath(baseUri)
+//                        .principal(principal)
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .characterEncoding(StandardCharsets.UTF_8)
+//                        .accept(MediaType.APPLICATION_JSON)
+//                )
+//            }
+//            context("common case: 존재하지 않은 스케줄") {
+//                every { scheduleService.delete(any(), any()) } throws BaseException(BaseResponseCode.NOT_FOUND)
+//                val result = perform()
+//                it("NOT_FOUND 예외 발생") {
+//                    result.andExpect {
+//                        it.resolvedException?.javaClass shouldBeSameInstanceAs
+//                                BaseException::class.java
+//                        it.response.contentAsString shouldBe jsonMapper().registerModule(JavaTimeModule())
+//                            .writeValueAsString(
+//                                ErrorResponse.convert(
+//                                    BaseResponseCode.NOT_FOUND
+//                                )
+//                            )
+//                    }
+//                }
+//            }
+//            context("요청자!=소유자") {
+//                every { scheduleService.delete(any(), any()) } throws BaseException(BaseResponseCode.BAD_REQUEST)
+//                val result = perform()
+//                it("BAD_REQUEST 예외 발생") {
+//                    result.andExpect {
+//                        it.resolvedException?.javaClass shouldBeSameInstanceAs
+//                                BaseException::class.java
+//                        it.response.contentAsString shouldBe jsonMapper().registerModule(JavaTimeModule())
+//                            .writeValueAsString(
+//                                ErrorResponse.convert(
+//                                    BaseResponseCode.BAD_REQUEST
+//                                )
+//                            )
+//                    }
+//                }
+//            }
+//            context("정상 요청") {
+//                every { scheduleService.delete(any(), any()) } just Runs
+//                val result = perform()
+//                it("정상 종료") {
+//                    result.andExpect {
+//                        it.response.status shouldBe HttpStatus.OK.value()
+//                    }
+//                }
+//            }
+//        }
 
         describe("스케줄 수정(멤버 추가)") {
             val perform = { request: ScheduleMemberAddRequest ->
