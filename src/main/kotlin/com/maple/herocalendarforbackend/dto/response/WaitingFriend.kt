@@ -14,11 +14,7 @@ data class WaitingFriend(
 ) {
     companion object {
         fun convert(data: TFriendship) = WaitingFriend(
-            requester = UserResponse(
-                id = data.key.requester.id,
-                email = data.key.requester.email,
-                nickName = data.key.requester.nickName
-            ),
+            requester = UserResponse.convert(data.key.requester),
             note = data.note,
             createdAt = data.createdAt
         )

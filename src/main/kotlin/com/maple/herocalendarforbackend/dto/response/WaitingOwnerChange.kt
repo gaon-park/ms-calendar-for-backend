@@ -16,7 +16,7 @@ data class WaitingOwnerChange(
         fun convert(data: TScheduleOwnerRequest) : WaitingOwnerChange {
             val owner = data.requestId.owner
             return WaitingOwnerChange(
-                requester = UserResponse(owner.id, owner.email, owner.nickName),
+                requester = UserResponse.convert(data.requestId.owner),
                 schedule = WaitingSchedule.convert(data),
                 createdAt = data.createdAt
             )

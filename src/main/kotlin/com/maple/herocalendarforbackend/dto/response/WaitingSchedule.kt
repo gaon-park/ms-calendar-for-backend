@@ -29,11 +29,7 @@ data class WaitingSchedule(
                 start = schedule.start,
                 end = schedule.end,
                 allDay = schedule.allDay,
-                owner = UserResponse(
-                    id = owner.id,
-                    email = owner.email,
-                    nickName = owner.nickName
-                ),
+                owner = UserResponse.convert(owner),
                 createdAt = data.createdAt
             )
         }
@@ -47,11 +43,7 @@ data class WaitingSchedule(
                 start = schedule.start,
                 end = schedule.end,
                 allDay = schedule.allDay,
-                owner = UserResponse(
-                    id = owner.id,
-                    email = owner.email,
-                    nickName = owner.nickName
-                ),
+                owner = UserResponse.convert(owner),
                 createdAt = data.createdAt
             )
         }

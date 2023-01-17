@@ -11,7 +11,7 @@ import org.springframework.scheduling.quartz.JobDetailFactoryBean
 import org.springframework.stereotype.Component
 
 @Component
-class HeroScheduler(
+class ReloadAvatarImgScheduler(
     private val applicationContext: ApplicationContext
 ) {
     private val schedulerFactory: SchedulerFactory = StdSchedulerFactory()
@@ -23,9 +23,9 @@ class HeroScheduler(
 
         val factoryBean = JobDetailFactoryBean()
 
-        factoryBean.setJobClass(ExpiredDataDeleteJob::class.java)
-        factoryBean.setName("만료 토큰 삭제")
-        factoryBean.setDescription("만료되었거나 유효하지 않은 토큰 데이터를 삭제합니다")
+        factoryBean.setJobClass(ReloadAvatarImgJob::class.java)
+        factoryBean.setName("아바타 이미지 최신화")
+        factoryBean.setDescription("Maple.gg 로부터 최신 아바타 이미지를 받아옵니다")
         factoryBean.setApplicationContext(applicationContext)
         factoryBean.setApplicationContextJobDataKey("applicationContext")
         factoryBean.afterPropertiesSet()
@@ -35,7 +35,7 @@ class HeroScheduler(
         val trigger = TriggerBuilder.newTrigger()
             .withSchedule(
                 CronScheduleBuilder
-                    .cronSchedule("0 0 6 * * ?")
+                    .cronSchedule("0 30 6 * * ?")
             )
             .build()
 

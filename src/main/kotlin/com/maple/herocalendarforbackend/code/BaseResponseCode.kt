@@ -17,5 +17,6 @@ enum class BaseResponseCode(
 
     TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "유효기간이 만료된 토큰입니다."),
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
-    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "액세스 토큰 정보가 없습니다.")
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "액세스 토큰 정보가 없습니다."),
+    GG_DATA_LOAD_FAILED(HttpStatus.NOT_FOUND, "maple.gg 에서 정보를 읽어오지 못했습니다.")
 }

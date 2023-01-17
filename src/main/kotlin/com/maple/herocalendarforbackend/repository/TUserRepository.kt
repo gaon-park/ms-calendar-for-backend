@@ -23,13 +23,4 @@ interface TUserRepository : JpaRepository<TUser, String> {
         @Param("value") value: String,
         @Param("isPublic") isPublic: Boolean
     ): List<TUser>
-
-    @Query(
-        "select *\n" +
-                "from t_user u\n" +
-                "where u.verified = false\n" +
-                "and u.created_at <= :maximumIssuance",
-        nativeQuery = true
-    )
-    fun findByNotVerified(@Param("maximumIssuance") maximumIssuance: Date): List<TUser>
 }

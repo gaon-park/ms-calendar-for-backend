@@ -44,7 +44,7 @@ class SearchController(
     fun findPublicByEmailOrNickName(@RequestParam(name = "user") user: String): ResponseEntity<List<UserResponse>> =
         ResponseEntity.ok(
             searchService.findPublicByEmailOrNickName(user).map {
-                UserResponse(it.id, it.email, it.nickName)
+                UserResponse.convert(it)
             }
         )
 }

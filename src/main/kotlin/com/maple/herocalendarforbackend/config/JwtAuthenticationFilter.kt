@@ -37,7 +37,7 @@ class JwtAuthenticationFilter(
         request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain
     ) {
         try {
-            if (request.servletPath.equals("/reissue/access-token")) {
+            if (request.servletPath.equals("/reissue/token")) {
                 val token = jwtAuthService.getValidatedAuthDataByRefreshToken(request, response)
                 request.setAttribute("accessToken", token)
                 SecurityContextHolder.getContext().authentication = jwtAuthService.getAuthentication(token)

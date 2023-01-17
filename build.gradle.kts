@@ -46,6 +46,7 @@ dependencies {
 	testImplementation("org.springdoc:springdoc-openapi-starter-webmvc-api:2.0.2")
 	implementation("org.springdoc:springdoc-openapi-starter-common:2.0.2")
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
+	implementation("org.jsoup:jsoup:1.15.3")
 
 	compileOnly("org.projectlombok:lombok")
 

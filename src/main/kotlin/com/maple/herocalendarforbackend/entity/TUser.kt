@@ -24,7 +24,9 @@ data class TUser(
     val nickName: String,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
-    val isPublic: Boolean
+    val isPublic: Boolean,
+    @Column(length = 10000)
+    val avatarImg: String,
 ) : UserDetails {
     companion object {
         fun generateOAuthSaveModel(email: String) = TUser(
@@ -32,7 +34,8 @@ data class TUser(
             nickName = email,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
-            isPublic = false
+            isPublic = false,
+            avatarImg = "",
         )
 
         fun generateTmpModel() = TUser(
@@ -40,7 +43,8 @@ data class TUser(
             nickName = "",
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
-            isPublic = false
+            isPublic = false,
+            avatarImg = "",
         )
     }
 

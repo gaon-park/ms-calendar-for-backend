@@ -1,19 +1,24 @@
 package com.maple.herocalendarforbackend.api
 
+import com.maple.herocalendarforbackend.dto.request.ProfileRequest
 import com.maple.herocalendarforbackend.dto.response.AlertsResponse
 import com.maple.herocalendarforbackend.dto.response.ErrorResponse
 import com.maple.herocalendarforbackend.dto.response.ProfileResponse
 import com.maple.herocalendarforbackend.service.AlertService
 import com.maple.herocalendarforbackend.service.UserService
+import com.maple.herocalendarforbackend.util.MapleGGUtil
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.security.Principal
@@ -66,6 +71,10 @@ class UserController(
                 responseCode = "401",
                 content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
             ),
+            ApiResponse(
+                responseCode = "404",
+                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
+            ),
         ]
     )
     @GetMapping("/profile")
@@ -74,5 +83,46 @@ class UserController(
     ): ResponseEntity<ProfileResponse> =
         ResponseEntity.ok(
             ProfileResponse.convert(userService.findById(principal.name))
+        )
+
+    /**
+     * 로그인 유저 프로필 수정
+     */
+    @Operation(summary = "put user profile", description = "ログインユーザの加入情報を修正する API")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                content = arrayOf(Content(schema = Schema(implementation = ProfileResponse::class)))
+            ),
+            ApiResponse(
+                responseCode = "400",
+                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
+            ),
+            ApiResponse(
+                responseCode = "401",
+                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
+            ),
+            ApiResponse(
+                responseCode = "404",
+                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
+            ),
+        ]
+    )
+    @PutMapping("/profile")
+    fun putProfile(
+        principal: Principal,
+        @Valid @RequestBody requestBody: ProfileRequest
+    ): ResponseEntity<ProfileResponse> =
+        ResponseEntity.ok(
+            ProfileResponse.convert(userService.updateProfile(principal.name, requestBody))
+        )
+
+    @GetMapping("/reload/avatarImg")
+    fun avatar(
+        principal: Principal,
+    ): ResponseEntity<ProfileResponse> =
+        ResponseEntity.ok(
+            ProfileResponse.convert(userService.reloadAvatarImg(principal.name))
         )
 }

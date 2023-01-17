@@ -1,13 +1,15 @@
 package com.maple.herocalendarforbackend
 
-import com.maple.herocalendarforbackend.batch.HeroScheduler
+import com.maple.herocalendarforbackend.batch.ExpiredDataDeleteScheduler
+import com.maple.herocalendarforbackend.batch.ReloadAvatarImgScheduler
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 @Suppress("UnusedPrivateMember")
 @SpringBootApplication
 class HeroCalendarForBackendApplication(
-	private val scheduler: HeroScheduler
+	private val expiredDataDeleteScheduler: ExpiredDataDeleteScheduler,
+	private val reloadAvatarImgScheduler: ReloadAvatarImgScheduler
 )
 
 fun main(args: Array<String>) {
