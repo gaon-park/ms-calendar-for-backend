@@ -20,6 +20,9 @@ class UserService(
         tUserRepository.findByEmail(it)
     }
 
+    fun findPublicByEmailOrNickName(user: String): List<TUser> =
+        tUserRepository.findByEmailOrNickNameAndIsPublic(user, true)
+
     fun findById(id: String): TUser =
         tUserRepository.findById(id).let {
             if (it.isEmpty) throw BaseException(BaseResponseCode.USER_NOT_FOUND)

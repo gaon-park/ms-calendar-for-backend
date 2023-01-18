@@ -24,7 +24,6 @@ data class ScheduleAddRequest(
     val repeatInfo: RepeatInfo?,
     val allDay: Boolean?,
     val note: String?,
-    val isPublic: Boolean?,
     @field:Size(max = MAX_VALUE_OF_MEMBERS)
     val memberIds: List<String> = listOf(),
 ) {

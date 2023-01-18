@@ -27,7 +27,6 @@ data class TSchedule(
     @Enumerated(value = EnumType.STRING)
     val repeatCode: RepeatCode?,
     val note: String?,
-    val isPublic: Boolean,
     val ownerId: String?,
 ) {
     companion object {
@@ -40,7 +39,6 @@ data class TSchedule(
             repeatEnd = if (request.repeat) request.repeatInfo!!.end else request.end.toLocalDate(),
             repeatCode = if (request.repeat) request.repeatInfo!!.repeatCodeValue else null,
             note = request.note ?: "",
-            isPublic = request.isPublic ?: false,
             ownerId = ownerId,
         )
     }

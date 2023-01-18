@@ -15,9 +15,35 @@ interface TFriendshipRepository : JpaRepository<TFriendship, TFriendship.Key> {
     @Query(
         "select *\n" +
                 "from t_friendship f\n" +
-                "where requester_id= :userId\n" +
+                "where requester_id= :userId \n" +
                 "or respondent_id= :userId",
         nativeQuery = true
     )
     fun findByUserId(@Param("userId") userId: String): List<TFriendship>
+
+
+    @Query(
+        "select *\n" +
+                "from t_friendship f\n" +
+                "where requester_id= :userId \n" +
+                "or respondent_id= :userId " +
+                "and accepted_status= \"ACCEPTED\"",
+        nativeQuery = true
+    )
+    fun findByUserIdAndAccepted(
+        @Param("userId") userId: String,
+    ): List<TFriendship>
+
+    @Query(
+        "select *\n" +
+                "from t_friendship f\n" +
+                "where (f.requester_id= :user0 and f.respondent_id= :user1) \n" +
+                "or (f.requester_id= :user1 and f.respondent_id= :user0) \n" +
+                "and accept_status=\"ACCEPTED\"",
+        nativeQuery = true
+    )
+    fun findFriendship(
+        @Param("user0") user0: String,
+        @Param("user1") user1: String
+    ): TFriendship?
 }

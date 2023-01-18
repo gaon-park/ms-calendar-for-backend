@@ -20,7 +20,6 @@ data class ScheduleUpdateRequest(
     val end: LocalDateTime?,
     val allDay: Boolean,
     val note: String?,
-    val isPublic: Boolean,
 ) {
     @AssertTrue
     fun isStart(): Boolean {

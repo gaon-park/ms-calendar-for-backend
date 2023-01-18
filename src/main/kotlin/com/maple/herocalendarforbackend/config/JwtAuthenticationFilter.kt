@@ -25,10 +25,6 @@ class JwtAuthenticationFilter(
         val EXCLUDE_URL = listOf(
             "/static/",
             "/favicon.ico",
-            "/account/regist",
-            "/confirm-email",
-            "/login",
-            "/search/",
             "/oauth2/"
         )
     }
@@ -37,7 +33,13 @@ class JwtAuthenticationFilter(
         request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain
     ) {
         try {
-            if (request.servletPath.equals("/reissue/token")) {
+            if (request.servletPath.startsWith("/search/")) {
+                try {
+                    val token = jwtAuthService.getValidatedAuthData(request)
+                    SecurityContextHolder.getContext().authentication = jwtAuthService.getAuthentication(token)
+                } catch (_: Exception) {  }
+            }
+            else if (request.servletPath.equals("/reissue/token")) {
                 val token = jwtAuthService.getValidatedAuthDataByRefreshToken(request, response)
                 request.setAttribute("accessToken", token)
                 SecurityContextHolder.getContext().authentication = jwtAuthService.getAuthentication(token)

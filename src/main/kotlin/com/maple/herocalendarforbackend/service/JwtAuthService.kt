@@ -121,7 +121,6 @@ class JwtAuthService(
     /**
      * 검증된 데이터 반환
      */
-    @Suppress("SwallowedException")
     fun getValidatedAuthData(request: HttpServletRequest): String {
         val bearer = request.getHeader(AUTHORIZATION)
         if (bearer.contains("Bearer ")) {

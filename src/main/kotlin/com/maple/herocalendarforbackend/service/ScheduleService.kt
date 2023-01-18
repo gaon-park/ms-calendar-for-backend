@@ -192,7 +192,6 @@ class ScheduleService(
                 end = request.end,
                 allDay = request.allDay,
                 note = request.note,
-                isPublic = request.isPublic
             )
         )
     }

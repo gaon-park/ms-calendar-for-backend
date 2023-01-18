@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository
 import java.time.LocalDate
 
 @Repository
-@Suppress("EmptyClassBlock")
 interface TScheduleRepository : JpaRepository<TSchedule, Long> {
     @Query(
         "select *\n" +

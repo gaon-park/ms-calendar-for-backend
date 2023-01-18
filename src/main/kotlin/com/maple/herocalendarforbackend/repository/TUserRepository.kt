@@ -15,7 +15,7 @@ interface TUserRepository : JpaRepository<TUser, String> {
     @Query(
         "select *\n" +
                 "from t_user t\n" +
-                "where (t.email= :value or t.nick_name like %:value%)\n" +
+                "where (t.email like %:value% or t.nick_name like %:value%)\n" +
                 "and t.is_public= :isPublic",
         nativeQuery = true
     )

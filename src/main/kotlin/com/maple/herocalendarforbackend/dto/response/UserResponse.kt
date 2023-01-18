@@ -17,5 +17,10 @@ data class UserResponse(
             nickName = user.nickName,
             avatarImg = user.avatarImg
         )
+
+        fun convert(list: List<TUser>): List<UserResponse> =
+            list.map {
+                convert(it)
+            }
     }
 }
