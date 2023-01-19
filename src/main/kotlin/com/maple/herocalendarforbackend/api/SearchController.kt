@@ -52,11 +52,9 @@ class SearchController(
         @RequestParam(name = "user") user: String
     ): ResponseEntity<List<UserResponse>> {
         return ResponseEntity.ok(
-            UserResponse.convert(
-                principal?.name?.let {
-                    searchService.findFriendByEmailOrNickName(it, user)
-                } ?: searchService.findPublicByEmailOrNickName(user))
-        )
+            principal?.name?.let {
+                searchService.findFriendByEmailOrNickName(it, user)
+            } ?: searchService.findPublicByEmailOrNickName(user))
     }
 
     /**
@@ -88,10 +86,10 @@ class SearchController(
     ): ResponseEntity<List<ScheduleResponse>> {
         return ResponseEntity.ok(
             principal?.name?.let {
-                searchService.findFriendSchedulesAndConvertToResponse(
+                searchService.findFriendSchedules(
                     it, userId, from, to
                 )
-            } ?: searchService.findPublicUserSchedulesAndConvertToResponse(
+            } ?: searchService.findPublicUserSchedules(
                 userId, from, to
             )
         )

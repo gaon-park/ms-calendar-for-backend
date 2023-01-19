@@ -1,6 +1,7 @@
 package com.maple.herocalendarforbackend.dto.response
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import com.maple.herocalendarforbackend.code.AcceptedStatus
 import com.maple.herocalendarforbackend.entity.TFriendship
 import lombok.Builder
 import java.time.LocalDateTime
@@ -14,7 +15,7 @@ data class WaitingFriend(
 ) {
     companion object {
         fun convert(data: TFriendship) = WaitingFriend(
-            requester = UserResponse.convert(data.key.requester),
+            requester = UserResponse.convert(data.key.requester, AcceptedStatus.WAITING),
             note = data.note,
             createdAt = data.createdAt
         )

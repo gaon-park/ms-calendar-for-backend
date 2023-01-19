@@ -1,6 +1,7 @@
 package com.maple.herocalendarforbackend.dto.response
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import com.maple.herocalendarforbackend.code.AcceptedStatus
 import com.maple.herocalendarforbackend.entity.TScheduleOwnerRequest
 import lombok.Builder
 import java.time.LocalDateTime
@@ -16,7 +17,7 @@ data class WaitingOwnerChange(
         fun convert(data: TScheduleOwnerRequest) : WaitingOwnerChange {
             val owner = data.requestId.owner
             return WaitingOwnerChange(
-                requester = UserResponse.convert(data.requestId.owner),
+                requester = UserResponse.convert(data.requestId.owner, AcceptedStatus.WAITING),
                 schedule = WaitingSchedule.convert(data),
                 createdAt = data.createdAt
             )

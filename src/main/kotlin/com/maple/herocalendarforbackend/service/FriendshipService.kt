@@ -19,8 +19,8 @@ class FriendshipService(
     private val tFriendshipRepository: TFriendshipRepository,
 ) {
 
-    fun findAcceptedFriend(userId: String): List<TFriendship> {
-        return tFriendshipRepository.findByUserIdAndAccepted(userId)
+    fun findAllAcceptedStatusByUserId(userId: String): List<TFriendship> {
+        return tFriendshipRepository.findAllAcceptedStatusByUserId(userId)
     }
 
     fun areTheyFriend(userId: String, friendId: String): Boolean {

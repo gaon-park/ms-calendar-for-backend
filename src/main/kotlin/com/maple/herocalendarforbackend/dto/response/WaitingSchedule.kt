@@ -1,6 +1,7 @@
 package com.maple.herocalendarforbackend.dto.response
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import com.maple.herocalendarforbackend.code.AcceptedStatus
 import com.maple.herocalendarforbackend.entity.TScheduleMember
 import com.maple.herocalendarforbackend.entity.TScheduleOwnerRequest
 import com.maple.herocalendarforbackend.entity.TUser
@@ -29,7 +30,7 @@ data class WaitingSchedule(
                 start = schedule.start,
                 end = schedule.end,
                 allDay = schedule.allDay,
-                owner = UserResponse.convert(owner),
+                owner = UserResponse.convert(owner, AcceptedStatus.WAITING),
                 createdAt = data.createdAt
             )
         }
@@ -43,7 +44,7 @@ data class WaitingSchedule(
                 start = schedule.start,
                 end = schedule.end,
                 allDay = schedule.allDay,
-                owner = UserResponse.convert(owner),
+                owner = UserResponse.convert(owner, AcceptedStatus.WAITING),
                 createdAt = data.createdAt
             )
         }

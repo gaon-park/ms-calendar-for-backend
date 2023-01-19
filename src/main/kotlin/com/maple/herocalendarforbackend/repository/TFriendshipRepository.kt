@@ -26,11 +26,10 @@ interface TFriendshipRepository : JpaRepository<TFriendship, TFriendship.Key> {
         "select *\n" +
                 "from t_friendship f\n" +
                 "where requester_id= :userId \n" +
-                "or respondent_id= :userId " +
-                "and accepted_status= \"ACCEPTED\"",
+                "or respondent_id= :userId ",
         nativeQuery = true
     )
-    fun findByUserIdAndAccepted(
+    fun findAllAcceptedStatusByUserId(
         @Param("userId") userId: String,
     ): List<TFriendship>
 

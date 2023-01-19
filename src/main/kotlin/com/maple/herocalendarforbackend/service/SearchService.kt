@@ -2,11 +2,8 @@ package com.maple.herocalendarforbackend.service
 
 import com.maple.herocalendarforbackend.code.BaseResponseCode
 import com.maple.herocalendarforbackend.dto.response.ScheduleResponse
-import com.maple.herocalendarforbackend.entity.TUser
+import com.maple.herocalendarforbackend.dto.response.UserResponse
 import com.maple.herocalendarforbackend.exception.BaseException
-import com.maple.herocalendarforbackend.repository.TFriendshipRepository
-import com.maple.herocalendarforbackend.repository.TScheduleRepository
-import com.maple.herocalendarforbackend.repository.TUserRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
@@ -16,32 +13,41 @@ class SearchService(
     private val friendshipService: FriendshipService,
     private val scheduleService: ScheduleService,
 ) {
-    fun findFriendByEmailOrNickName(userId: String, searchUser: String): List<TUser> {
-        val friends = friendshipService.findAcceptedFriend(userId)
+    fun findFriendByEmailOrNickName(userId: String, searchUser: String): List<UserResponse> {
+        val friends = friendshipService.findAllAcceptedStatusByUserId(userId)
             .map {
-                if (it.key.requester.id == userId) it.key.respondent
-                else it.key.requester
+                UserResponse.convert(
+                    if (it.key.requester.id == userId) it.key.respondent
+                    else it.key.requester,
+                    it.acceptedStatus
+                )
             }.filter {
                 it.nickName.contains(searchUser) ||
                         it.email.contains(searchUser)
             }
 
+        val friendIds = friends.mapNotNull { it.id }
+
         val users = findPublicByEmailOrNickName(searchUser)
             .filter { it.id != userId }
-        return listOf<TUser>().plus(friends).plus(users).toSet().toList()
+            .filter { !friendIds.contains(it.id) }
+        return listOf<UserResponse>().plus(friends).plus(users)
     }
 
-    fun findPublicByEmailOrNickName(user: String): List<TUser> =
+    fun findPublicByEmailOrNickName(user: String): List<UserResponse> =
         userService.findPublicByEmailOrNickName(user)
+            .map {
+                UserResponse.convert(it, null)
+            }
 
-    fun findFriendSchedulesAndConvertToResponse(
+    fun findFriendSchedules(
         userId: String, friendId: String, from: LocalDate?, to: LocalDate?
     ): List<ScheduleResponse> {
         if (!friendshipService.areTheyFriend(userId, friendId)) throw BaseException(BaseResponseCode.BAD_REQUEST)
         return scheduleService.findSchedulesAndConvertToResponse(friendId, from, to)
     }
 
-    fun findPublicUserSchedulesAndConvertToResponse(
+    fun findPublicUserSchedules(
         searchUserId: String, from: LocalDate?, to: LocalDate?
     ): List<ScheduleResponse> {
         val user = userService.findById(searchUserId)
