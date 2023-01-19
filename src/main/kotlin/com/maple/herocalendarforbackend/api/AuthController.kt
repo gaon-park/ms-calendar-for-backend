@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @Tag(name = "Auth", description = "認証まわり API")
 @RestController
-@RequestMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
+@RequestMapping("/api", produces = [MediaType.APPLICATION_JSON_VALUE])
 class AuthController(
     private val googleOAuthService: GoogleOAuthService,
     private val jwtAuthService: JwtAuthService,

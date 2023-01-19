@@ -25,7 +25,7 @@ import java.security.Principal
 
 @Tag(name = "User tools", description = "Login User関連 API")
 @RestController
-@RequestMapping("/user", produces = [MediaType.APPLICATION_JSON_VALUE])
+@RequestMapping("/api/user", produces = [MediaType.APPLICATION_JSON_VALUE])
 class UserController(
     private val alertService: AlertService,
     private val userService: UserService,

@@ -27,7 +27,7 @@ class SecurityConfig(
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeHttpRequests() // 요청에 대한 권한 체크
-            .requestMatchers("/user", "/user/**").hasRole("USER")
+            .requestMatchers("/api/user", "/api/user/**").hasRole("USER")
             .anyRequest().permitAll() // 그 외 나머지 요청은 누구나 접근 가능
             .and()
             .addFilterBefore(

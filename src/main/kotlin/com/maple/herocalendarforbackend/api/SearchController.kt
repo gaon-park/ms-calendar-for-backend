@@ -22,7 +22,7 @@ import java.time.LocalDate
 
 @Tag(name = "Search", description = "検索関連(ログアウト状態でもアクセス) API")
 @RestController
-@RequestMapping("/search", produces = [MediaType.APPLICATION_JSON_VALUE])
+@RequestMapping("/api/search", produces = [MediaType.APPLICATION_JSON_VALUE])
 class SearchController(
     private val searchService: SearchService
 ) {

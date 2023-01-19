@@ -27,7 +27,7 @@ import java.security.Principal
 
 @Tag(name = "Friend CURD", description = "ユーザのFriend追加、更新、閲覧、削除関連 API")
 @RestController
-@RequestMapping("/user/friend", produces = [MediaType.APPLICATION_JSON_VALUE])
+@RequestMapping("/api/user/friend", produces = [MediaType.APPLICATION_JSON_VALUE])
 class UserFriendController(
     private val friendshipService: FriendshipService
 ) {

@@ -32,7 +32,7 @@ import java.time.LocalDate
 
 @Tag(name = "Calendar CURD", description = "Schedule作成、更新、閲覧、削除関連 API")
 @RestController
-@RequestMapping("/user/schedule", produces = [MediaType.APPLICATION_JSON_VALUE])
+@RequestMapping("/api/user/schedule", produces = [MediaType.APPLICATION_JSON_VALUE])
 class UserCalendarController(
     private val scheduleService: ScheduleService,
 ) {
