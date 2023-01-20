@@ -98,8 +98,6 @@ class UserScheduleControllerTest : DescribeSpec() {
                         null,
                         null,
                         null,
-                        null,
-                        emptyList()
                     )
                 )
                 it("BAD_REQUEST 예외 발생") {
@@ -120,8 +118,6 @@ class UserScheduleControllerTest : DescribeSpec() {
                         null,
                         null,
                         null,
-                        null,
-                        emptyList()
                     )
                 )
                 it("BAD_REQUEST 예외 발생") {
@@ -143,7 +139,6 @@ class UserScheduleControllerTest : DescribeSpec() {
                         RepeatInfo(RepeatCode.DAYS, LocalDate.now(), LocalDate.now().plusMonths(1)),
                         null,
                         null,
-                        null
                     )
                 )
                 it("정상 종료") {
@@ -410,7 +405,6 @@ class UserScheduleControllerTest : DescribeSpec() {
                         end = null,
                         allDay = false,
                         note = null,
-                        isPublic = false
                     )
                 )
                 it("BAD_REQUEST 예외 발생") {
@@ -430,7 +424,6 @@ class UserScheduleControllerTest : DescribeSpec() {
                         end = LocalDateTime.now(),
                         allDay = false,
                         note = null,
-                        isPublic = false
                     )
                 )
                 it("BAD_REQUEST 예외 발생") {
@@ -456,7 +449,6 @@ class UserScheduleControllerTest : DescribeSpec() {
                         end = null,
                         allDay = false,
                         note = null,
-                        isPublic = false
                     )
                 )
                 it("BAD_REQUEST 예외 발생") {
@@ -487,7 +479,6 @@ class UserScheduleControllerTest : DescribeSpec() {
                         end = null,
                         allDay = false,
                         note = null,
-                        isPublic = false
                     )
                 )
                 it("정상 Response") {

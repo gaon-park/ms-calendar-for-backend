@@ -9,6 +9,7 @@ import org.hibernate.annotations.GenericGenerator
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import java.time.LocalDateTime
 
 @Entity
@@ -27,6 +28,7 @@ data class TUser(
     val isPublic: Boolean,
     @Column(length = 10000)
     val avatarImg: String,
+    val userRole: String?,
 ) : UserDetails {
     companion object {
         fun generateOAuthSaveModel(email: String) = TUser(
@@ -36,6 +38,7 @@ data class TUser(
             updatedAt = LocalDateTime.now(),
             isPublic = false,
             avatarImg = "",
+            userRole = null
         )
 
         fun generateTmpModel() = TUser(
@@ -45,13 +48,14 @@ data class TUser(
             updatedAt = LocalDateTime.now(),
             isPublic = false,
             avatarImg = "",
+            userRole = null
         )
     }
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority>? =
-        AuthorityUtils.createAuthorityList("ROLE_USER")
+        AuthorityUtils.createAuthorityList("ROLE_USER", userRole)
 
-    override fun getPassword(): String = ""
+    override fun getPassword(): String = BCryptPasswordEncoder().encode(email.split("@")[0])
 
     override fun getUsername(): String = id!!
 

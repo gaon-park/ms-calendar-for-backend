@@ -2,6 +2,7 @@ package com.maple.herocalendarforbackend.api
 
 import com.maple.herocalendarforbackend.api.base.ExceptionHandler
 import com.maple.herocalendarforbackend.config.JwtAuthenticationFilter
+import com.maple.herocalendarforbackend.dto.response.UserResponse
 import com.maple.herocalendarforbackend.entity.TUser
 import com.maple.herocalendarforbackend.service.JwtAuthService
 import com.maple.herocalendarforbackend.service.SearchService
@@ -55,7 +56,7 @@ class SearchControllerTest : DescribeSpec() {
                 }
             }
             context("some results") {
-                every { searchService.findPublicByEmailOrNickName(any()) } returns listOf(TUser.generateTmpModel())
+                every { searchService.findPublicByEmailOrNickName(any()) } returns listOf()
                 val result = perform()
                 it("정상 종료") {
                     result.andExpect {

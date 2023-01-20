@@ -15,7 +15,6 @@ data class WaitingOwnerChange(
 ) {
     companion object {
         fun convert(data: TScheduleOwnerRequest) : WaitingOwnerChange {
-            val owner = data.requestId.owner
             return WaitingOwnerChange(
                 requester = UserResponse.convert(data.requestId.owner, AcceptedStatus.WAITING),
                 schedule = WaitingSchedule.convert(data),
