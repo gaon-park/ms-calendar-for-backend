@@ -52,7 +52,8 @@ class FriendshipServiceTest : BehaviorSpec() {
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
             isPublic = false,
-            avatarImg = ""
+            avatarImg = "",
+            userRole = null
         )
 
         val respondent = TUser(
@@ -62,7 +63,8 @@ class FriendshipServiceTest : BehaviorSpec() {
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
             isPublic = false,
-            avatarImg = ""
+            avatarImg = "",
+            userRole = null
         )
 
         // method: friendRequest

@@ -24,7 +24,9 @@ class SecurityConfig(
         http
             .csrf().disable()
             .authorizeHttpRequests()
-            .requestMatchers("/swagger/**", "/api-docs", "/api-docs/**")
+                // todo 본방 개시 전, 삭제
+//            .requestMatchers("/swagger/**", "/api-docs", "/api-docs/**")
+            .requestMatchers("/", "/**")
             .hasRole("ADMIN")
             .and()
             .httpBasic()
@@ -48,6 +50,7 @@ class SecurityConfig(
         return auth.authenticationManager
     }
 
+    // todo 본방 개시 전, 삭제
     @Bean
     fun passwordEncoder(): PasswordEncoder {
         return BCryptPasswordEncoder()

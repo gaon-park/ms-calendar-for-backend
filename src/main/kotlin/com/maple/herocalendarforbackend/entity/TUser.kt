@@ -40,21 +40,12 @@ data class TUser(
             avatarImg = "",
             userRole = null
         )
-
-        fun generateTmpModel() = TUser(
-            email = "",
-            nickName = "",
-            createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now(),
-            isPublic = false,
-            avatarImg = "",
-            userRole = null
-        )
     }
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority>? =
         AuthorityUtils.createAuthorityList("ROLE_USER", userRole)
 
+    // todo 본방 개시 전, 삭제
     override fun getPassword(): String = BCryptPasswordEncoder().encode(email.split("@")[0])
 
     override fun getUsername(): String = id!!
