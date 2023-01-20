@@ -21,7 +21,7 @@ class UserService(
     }
 
     fun findPublicByEmailOrNickName(user: String): List<TUser> =
-        tUserRepository.findByEmailOrNickNameAndIsPublic(user, true)
+        tUserRepository.findByEmailOrNickNameAndIsPublic(user)
 
     fun findById(id: String): TUser =
         tUserRepository.findById(id).let {

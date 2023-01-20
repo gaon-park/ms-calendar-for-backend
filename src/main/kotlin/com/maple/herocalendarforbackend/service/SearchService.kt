@@ -23,7 +23,7 @@ class SearchService(
                 )
             }.filter {
                 it.nickName.contains(searchUser) ||
-                        it.email.contains(searchUser)
+                        it.email.split("@")[0].contains(searchUser)
             }
 
         val friendIds = friends.mapNotNull { it.id }

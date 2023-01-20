@@ -15,12 +15,11 @@ interface TUserRepository : JpaRepository<TUser, String> {
     @Query(
         "select *\n" +
                 "from t_user t\n" +
-                "where (t.email like %:value% or t.nick_name like %:value%)\n" +
-                "and t.is_public= :isPublic",
+                "where (substring_index(t.email, \"@\", 1) like %:value% or t.nick_name like %:value%)\n" +
+                "and t.is_public= true",
         nativeQuery = true
     )
     fun findByEmailOrNickNameAndIsPublic(
         @Param("value") value: String,
-        @Param("isPublic") isPublic: Boolean
     ): List<TUser>
 }
