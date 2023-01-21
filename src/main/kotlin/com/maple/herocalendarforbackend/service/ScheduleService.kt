@@ -54,17 +54,17 @@ class ScheduleService(
     }
 
     @Transactional
-    fun saveScheduleMember(owner: TUser, memberIds: List<String>, memberGroup: TScheduleGroup) {
+    fun saveScheduleMember(owner: TUser, memberIds: List<String>, group: TScheduleGroup) {
         val members =
             tUserRepository.findPublicOrFriendByIdIn(memberIds.filter { it != owner.id }.toSet().toList(), owner.id!!)
         val memberData = mutableListOf(
             TScheduleMember.initConvert(
-                owner, memberGroup, AcceptedStatus.ACCEPTED
+                owner, group, AcceptedStatus.ACCEPTED
             )
         )
         memberData.addAll(members.map {
             TScheduleMember.initConvert(
-                it, memberGroup, AcceptedStatus.WAITING
+                it, group, AcceptedStatus.WAITING
             )
         })
 
@@ -73,7 +73,7 @@ class ScheduleService(
 
     @Transactional
     fun saveSchedule(
-        request: ScheduleAddRequest, ownerId: String, memberGroup: TScheduleGroup
+        request: ScheduleAddRequest, ownerId: String, group: TScheduleGroup
     ) {
         val requestStart = request.start
         val requestEnd = request.end
@@ -93,7 +93,7 @@ class ScheduleService(
         val repeatSchedules = mutableListOf<TSchedule>()
         repeatSchedules.addAll(start.datesUntil(end.plusDays(1), period).map {
             TSchedule.convert(
-                request = request, ownerId = ownerId, group = memberGroup, start = LocalDateTime.of(
+                request = request, ownerId = ownerId, group = group, start = LocalDateTime.of(
                     it.year, it.month, it.dayOfMonth, requestStart.hour, requestStart.minute
                 ), end = LocalDateTime.of(
                     it.year, it.month, it.dayOfMonth, requestEnd.hour, requestEnd.minute
