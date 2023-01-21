@@ -12,7 +12,6 @@ import com.maple.herocalendarforbackend.entity.TUser
 import com.maple.herocalendarforbackend.exception.BaseException
 import com.maple.herocalendarforbackend.repository.TScheduleMemberGroupRepository
 import com.maple.herocalendarforbackend.repository.TScheduleMemberRepository
-import com.maple.herocalendarforbackend.repository.TScheduleOwnerRequestRepository
 import com.maple.herocalendarforbackend.repository.TScheduleRepository
 import com.maple.herocalendarforbackend.repository.TUserRepository
 import org.springframework.stereotype.Service
@@ -27,7 +26,6 @@ class ScheduleService(
     private val tScheduleRepository: TScheduleRepository,
     private val tScheduleMemberRepository: TScheduleMemberRepository,
     private val tUserRepository: TUserRepository,
-    private val tScheduleOwnerRequestRepository: TScheduleOwnerRequestRepository,
     private val tScheduleMemberGroupRepository: TScheduleMemberGroupRepository,
 ) {
 
@@ -120,26 +118,6 @@ class ScheduleService(
         )
     }
 
-//
-//    /**
-//     * 스케줄 입력
-//     */
-//    @Transactional
-//    fun save(requesterId: String, request: ScheduleAddRequest) {
-//        val owner = findUserById(requesterId)
-//        val schedule = tScheduleRepository.save(TSchedule.convert(request, requesterId))
-//        val members = mutableListOf(TScheduleMember.initConvert(owner, schedule, AcceptedStatus.ACCEPTED))
-//        val searchMember = request.memberIds.filter { it != owner.id }.toSet().toList()
-//        if (searchMember.isNotEmpty()) {
-//            val partyMembers = tUserRepository.findByIdIn(searchMember)
-//                .map { TScheduleMember.initConvert(it, schedule, AcceptedStatus.WAITING) }
-//            if (partyMembers.isNotEmpty()) {
-//                members.addAll(partyMembers)
-//            }
-//        }
-//        tScheduleMemberRepository.saveAll(members)
-//    }
-//
 //    /**
 //     * 스케줄 삭제
 //     */
@@ -158,68 +136,6 @@ class ScheduleService(
 //        } else {
 //            throw BaseException(BaseResponseCode.BAD_REQUEST)
 //        }
-//    }
-//
-//    /**
-//     * 스케줄 소유자 위임 요청
-//     * 스케줄을 소유자 변경 요청 상태로 변경
-//     */
-//    @Transactional
-//    fun changeOwnerRequest(requesterId: String, request: ScheduleOwnerChangeRequest) {
-//        val requester = findUserById(requesterId)
-//        val nextOwner = findUserById(request.nextOwnerId)
-//        val schedule = findById(request.scheduleId)
-//        if (schedule.ownerId != requesterId) {
-//            throw BaseException(BaseResponseCode.BAD_REQUEST)
-//        }
-//
-//        tScheduleOwnerRequestRepository.findById(
-//            TScheduleOwnerRequest.OwnerRequestId(schedule, requester)
-//        ).let {
-//            if (it.isPresent) {
-//                throw BaseException(BaseResponseCode.WAITING_FOR_RESPONDENT)
-//            }
-//        }
-//
-//        // 스케줄 멤버가 아닌 유저에게 넘기려는 경우
-//        tScheduleMemberRepository.save(
-//            TScheduleMember.initConvert(nextOwner, schedule, AcceptedStatus.WAITING)
-//        )
-//
-//        tScheduleOwnerRequestRepository.save(
-//            TScheduleOwnerRequest.convert(schedule, requester, nextOwner)
-//        )
-//    }
-//
-//    /**
-//     * 스케줄 소유자 위임
-//     * 스케줄을 소유자 변경 요청 상태에서 완료로 변경
-//     */
-//    @Transactional
-//    fun changeOwnerAccept(scheduleId: Long, newOwnerId: String) {
-//        val request = tScheduleOwnerRequestRepository.findRequest(
-//            scheduleId, newOwnerId
-//        ) ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
-//        tScheduleRepository.save(
-//            request.requestId.schedule.copy(ownerId = newOwnerId)
-//        )
-//        tScheduleMemberRepository.findByScheduleKeyScheduleIdAndScheduleKeyUserId(scheduleId, newOwnerId)?.let {
-//            if (it.acceptedStatus != AcceptedStatus.ACCEPTED) {
-//                tScheduleMemberRepository.save(it.copy(acceptedStatus = AcceptedStatus.ACCEPTED))
-//            }
-//        }
-//        tScheduleOwnerRequestRepository.delete(request)
-//    }
-//
-//    /**
-//     * 스케줄의 소유자 변경 요청을 거절
-//     */
-//    @Transactional
-//    fun changeOwnerRefuse(scheduleId: Long, newOwnerId: String) {
-//        val request = tScheduleOwnerRequestRepository.findRequest(
-//            scheduleId, newOwnerId
-//        ) ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
-//        tScheduleOwnerRequestRepository.delete(request)
 //    }
 //
 //    /**

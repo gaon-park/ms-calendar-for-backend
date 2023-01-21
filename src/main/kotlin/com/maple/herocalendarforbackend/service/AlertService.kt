@@ -3,7 +3,6 @@ package com.maple.herocalendarforbackend.service
 import com.maple.herocalendarforbackend.dto.response.AlertsResponse
 import com.maple.herocalendarforbackend.repository.TFriendshipRepository
 import com.maple.herocalendarforbackend.repository.TScheduleMemberRepository
-import com.maple.herocalendarforbackend.repository.TScheduleOwnerRequestRepository
 import com.maple.herocalendarforbackend.repository.TUserRepository
 import org.springframework.stereotype.Service
 
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Service
 class AlertService(
     private val tScheduleMemberRepository: TScheduleMemberRepository,
     private val tFriendshipRepository: TFriendshipRepository,
-    private val tScheduleOwnerRequestRepository: TScheduleOwnerRequestRepository,
     private val tUserRepository: TUserRepository,
 ) {
     fun findWaitingRequests(userId: String): AlertsResponse {
