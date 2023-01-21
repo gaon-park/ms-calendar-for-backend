@@ -4,6 +4,7 @@ import com.maple.herocalendarforbackend.code.AcceptedStatus
 import com.maple.herocalendarforbackend.code.BaseResponseCode
 import com.maple.herocalendarforbackend.code.RepeatCode
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleAddRequest
+import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleMemberAddRequest
 import com.maple.herocalendarforbackend.entity.TSchedule
 import com.maple.herocalendarforbackend.entity.TScheduleMember
 import com.maple.herocalendarforbackend.entity.TScheduleMemberGroup
@@ -29,6 +30,15 @@ class ScheduleService(
     private val tScheduleOwnerRequestRepository: TScheduleOwnerRequestRepository,
     private val tScheduleMemberGroupRepository: TScheduleMemberGroupRepository,
 ) {
+
+    fun findById(scheduleId: Long): TSchedule {
+        tScheduleRepository.findById(scheduleId).let {
+            if (it.isPresent)
+                return it.get()
+        }
+        throw BaseException(BaseResponseCode.NOT_FOUND)
+    }
+
     fun findUserById(id: String): TUser {
         return tUserRepository.findById(id).let {
             if (it.isEmpty) throw BaseException(BaseResponseCode.USER_NOT_FOUND)
@@ -96,14 +106,20 @@ class ScheduleService(
         tScheduleRepository.saveAll(repeatSchedules)
     }
 
-//
-//    fun findById(scheduleId: Long): TSchedule {
-//        tScheduleRepository.findById(scheduleId).let {
-//            if (it.isPresent)
-//                return it.get()
-//        }
-//        throw BaseException(BaseResponseCode.NOT_FOUND)
-//    }
+    /**
+     * 멤버 추가
+     */
+    @Transactional
+    fun updateMember(requesterId: String, request: ScheduleMemberAddRequest) {
+        val schedule = findById(request.scheduleId)
+        tScheduleMemberRepository.saveAll(
+            tUserRepository.findPublicOrFriendByIdIn(request.newMemberIds, requesterId)
+                .map {
+                    TScheduleMember.initConvert(it, schedule.memberGroup, AcceptedStatus.WAITING)
+                }
+        )
+    }
+
 //
 //    /**
 //     * 스케줄 입력
@@ -141,34 +157,6 @@ class ScheduleService(
 //            )
 //        } else {
 //            throw BaseException(BaseResponseCode.BAD_REQUEST)
-//        }
-//    }
-//
-//    /**
-//     * 멤버 추가
-//     */
-//    @Transactional
-//    fun updateMember(requesterId: String, request: ScheduleMemberAddRequest) {
-//        val schedule = findById(request.scheduleId)
-//        val members = tScheduleMemberRepository.findByScheduleKeyScheduleId(request.scheduleId)
-//        if (members.none { m -> m.scheduleKey.user.id == requesterId }) {
-//            throw BaseException(BaseResponseCode.BAD_REQUEST)
-//        }
-//        val newMembers = request.newMemberIds.toSet().toList().filter { id ->
-//            members.count { m ->
-//                m.scheduleKey.user.id == id
-//            } == 0
-//        }
-//
-//        // save new members
-//        if (newMembers.isNotEmpty()) {
-//            tUserRepository.findByIdIn(newMembers)
-//                .map { user -> TScheduleMember.initConvert(user, schedule, AcceptedStatus.WAITING) }
-//                .let {
-//                    if (it.isNotEmpty()) {
-//                        tScheduleMemberRepository.saveAll(it)
-//                    }
-//                }
 //        }
 //    }
 //

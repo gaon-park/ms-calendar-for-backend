@@ -128,8 +128,7 @@ class UserCalendarController(
         principal: Principal,
         @Valid @RequestBody requestBody: ScheduleMemberAddRequest
     ): ResponseEntity<String> {
-        // todo
-//        scheduleService.updateMember(principal.name, requestBody)
+        scheduleService.updateMember(principal.name, requestBody)
         return ResponseEntity.ok("ok")
     }
 
