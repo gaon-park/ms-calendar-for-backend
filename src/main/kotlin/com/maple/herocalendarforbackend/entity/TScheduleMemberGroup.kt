@@ -7,8 +7,8 @@ import jakarta.persistence.Id
 import jakarta.persistence.Table
 
 @Entity
-@Table(name = "t_schedule_group")
-data class TScheduleGroup(
+@Table(name = "t_schedule_member_group")
+data class TScheduleMemberGroup(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,

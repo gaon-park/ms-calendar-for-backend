@@ -11,7 +11,7 @@ import com.maple.herocalendarforbackend.dto.response.ScheduleMemberResponse
 import com.maple.herocalendarforbackend.dto.response.ScheduleResponse
 import com.maple.herocalendarforbackend.entity.TSchedule
 import com.maple.herocalendarforbackend.entity.TScheduleMember
-import com.maple.herocalendarforbackend.entity.TScheduleGroup
+import com.maple.herocalendarforbackend.entity.TScheduleMemberGroup
 import com.maple.herocalendarforbackend.entity.TUser
 import com.maple.herocalendarforbackend.exception.BaseException
 import com.maple.herocalendarforbackend.repository.TScheduleGroupRepository
@@ -25,7 +25,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
 import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
 
 @Service
 @Suppress("TooManyFunctions", "MagicNumber")
@@ -54,14 +53,14 @@ class ScheduleService(
     @Transactional
     fun save(requesterId: String, request: ScheduleAddRequest) {
         val owner = findUserById(requesterId)
-        tScheduleGroupRepository.save(TScheduleGroup()).let {
+        tScheduleGroupRepository.save(TScheduleMemberGroup()).let {
             saveSchedule(request, requesterId, it)
             saveScheduleMember(owner, request.memberIds, it)
         }
     }
 
     @Transactional
-    fun saveScheduleMember(owner: TUser, memberIds: List<String>, group: TScheduleGroup) {
+    fun saveScheduleMember(owner: TUser, memberIds: List<String>, group: TScheduleMemberGroup) {
         val members =
             tUserRepository.findPublicOrFriendByIdIn(memberIds.filter { it != owner.id }.toSet().toList(), owner.id!!)
         val memberData = mutableListOf(
@@ -79,15 +78,13 @@ class ScheduleService(
     }
 
     @Transactional
-    fun saveSchedule(
-        request: ScheduleAddRequest, ownerId: String, group: TScheduleGroup
-    ) {
+    fun saveSchedule(request: ScheduleAddRequest, ownerId: String, memberGroup: TScheduleMemberGroup) {
         val requestStart = request.start
         val diff = Duration.between(requestStart, request.end).toMinutes()
         val start = requestStart.toLocalDate()
         val end = when {
             (request.repeatInfo == null) -> request.end.toLocalDate()
-            (request.repeatInfo.end == null) -> LocalDate.of(start.year + 2, start.month, start.dayOfMonth)
+            (request.repeatInfo.end == null) -> LocalDate.of(start.year + 1, start.month, start.dayOfMonth)
             else -> request.repeatInfo.end
         }
         val period = when (request.repeatInfo?.repeatCode) {
@@ -97,15 +94,18 @@ class ScheduleService(
             RepeatCode.YEARS -> Period.ofYears(1)
             else -> Period.ofDays(1)
         }
-        val repeatSchedules = mutableListOf<TSchedule>()
-        repeatSchedules.addAll(start.datesUntil(end.plusDays(1), period).map {
+
+        val parentSchedule = tScheduleRepository.save(TSchedule.convert(request, ownerId, memberGroup))
+        val repeatSchedules = mutableListOf(parentSchedule.copy(parentId = parentSchedule.id))
+        repeatSchedules.addAll(start.datesUntil(end.plusDays(1), period).skip(1).map {
             val tempStart = LocalDateTime.of(
                 it.year, it.month, it.dayOfMonth, requestStart.hour, requestStart.minute
             )
             TSchedule.convert(
+                parentId = parentSchedule.id,
                 request = request,
                 ownerId = ownerId,
-                group = group,
+                memberGroup = memberGroup,
                 start = tempStart,
                 end = tempStart.plusMinutes(diff)
             )
@@ -120,7 +120,7 @@ class ScheduleService(
     @Transactional
     fun updateMember(requesterId: String, request: ScheduleMemberAddRequest) {
         val schedule = findById(request.scheduleId)
-        val alreadyMemberIds = tScheduleMemberRepository.findByGroupKeyGroupId(schedule.group.id!!)
+        val alreadyMemberIds = tScheduleMemberRepository.findByGroupKeyGroupId(schedule.memberGroup.id!!)
             .map { it.groupKey.user.id }
             .firstOrNull { it == requesterId }
             ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
@@ -131,7 +131,7 @@ class ScheduleService(
             tScheduleMemberRepository.saveAll(
                 tUserRepository.findPublicOrFriendByIdIn(request.newMemberIds, requesterId)
                     .map {
-                        TScheduleMember.initConvert(it, schedule.group, AcceptedStatus.WAITING)
+                        TScheduleMember.initConvert(it, schedule.memberGroup, AcceptedStatus.WAITING)
                     }
             )
         }
@@ -140,42 +140,47 @@ class ScheduleService(
     @Transactional
     fun update(requesterId: String, request: ScheduleUpdateRequest) {
         val schedule = findById(request.scheduleId)
-        schedule.group.id?.let {
+        schedule.memberGroup.id?.let {
             tScheduleMemberRepository.findByGroupKeyGroupId(it).firstOrNull { m ->
                 m.groupKey.user.id == requesterId
             } ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
         }
-        updateSchedule(schedule, request)
-    }
-
-    @Transactional
-    fun updateSchedule(schedule: TSchedule, request: ScheduleUpdateRequest) {
-        val entities = when (request.scheduleUpdateCode) {
-            ScheduleUpdateCode.ALL -> {
-                tScheduleRepository.findByGroup(schedule.group)
-            }
-            ScheduleUpdateCode.ONLY_THIS -> {
-                listOf(schedule)
-            }
-            ScheduleUpdateCode.THIS_AND_FUTURE -> {
-                tScheduleRepository.findByGroupAndAfterDay(schedule.group.id, schedule.start)
-            }
-        }
-
-        val startDiff = Duration.between(schedule.start, request.start).toMinutes()
-        val endDiff = Duration.between(schedule.end, request.end).toMinutes()
-        tScheduleRepository.saveAll(
-            entities.map {
-                it.copy(
-                    title = request.title,
-                    start = it.start.plusMinutes(startDiff),
-                    end = it.end.plusMinutes(endDiff),
-                    allDay = request.allDay,
-                    isPublic = request.isPublic
+        // 업데이트 사항이 있을 때만
+        if (updateDataCompare(schedule, request)) {
+            val entities = when (request.scheduleUpdateCode) {
+                ScheduleUpdateCode.ALL -> tScheduleRepository.findByParentId(schedule.parentId)
+                ScheduleUpdateCode.ONLY_THIS -> listOf(schedule)
+                ScheduleUpdateCode.THIS_AND_FUTURE -> tScheduleRepository.findByGroupAndAfterDay(
+                    schedule.memberGroup.id,
+                    schedule.start
                 )
             }
-        )
+
+            val startDiff = Duration.between(schedule.start, request.start).toMinutes()
+            val endDiff = Duration.between(schedule.end, request.end).toMinutes()
+            tScheduleRepository.saveAll(
+                entities.map {
+                    it.copy(
+                        title = request.title,
+                        start = it.start.plusMinutes(startDiff),
+                        end = it.end.plusMinutes(endDiff),
+                        allDay = request.allDay,
+                        isPublic = request.isPublic
+                    )
+                }
+            )
+        }
     }
+
+    fun updateDataCompare(schedule: TSchedule, request: ScheduleUpdateRequest): Boolean =
+        when {
+            schedule.title != request.title -> true
+            schedule.start != request.start -> true
+            schedule.end != request.end -> true
+            schedule.allDay != request.allDay -> true
+            schedule.isPublic != request.isPublic -> true
+            else -> false
+        }
 
     /**
      * 스케줄 추가 요청 수락
@@ -228,7 +233,7 @@ class ScheduleService(
             schedules.map {
                 ScheduleResponse.convert(
                     data = it,
-                    members = tScheduleMemberRepository.findByGroupKeyGroupId(it.group.id!!)
+                    members = tScheduleMemberRepository.findByGroupKeyGroupId(it.memberGroup.id!!)
                         .map { m -> ScheduleMemberResponse.convert(m) }
                 )
             }

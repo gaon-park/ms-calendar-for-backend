@@ -21,7 +21,7 @@ data class TScheduleMember(
     val createdAt: LocalDateTime,
 ) {
     companion object {
-        fun initConvert(user: TUser, group: TScheduleGroup, acceptedStatus: AcceptedStatus) = TScheduleMember(
+        fun initConvert(user: TUser, group: TScheduleMemberGroup, acceptedStatus: AcceptedStatus) = TScheduleMember(
             groupKey = GroupKey(group, user),
             acceptedStatus = acceptedStatus,
             createdAt = LocalDateTime.now()
@@ -32,7 +32,7 @@ data class TScheduleMember(
     data class GroupKey(
         @ManyToOne
         @JoinColumn(name = "group_id")
-        val group: TScheduleGroup,
+        val group: TScheduleMemberGroup,
         @ManyToOne
         @JoinColumn(name = "user_id")
         val user: TUser

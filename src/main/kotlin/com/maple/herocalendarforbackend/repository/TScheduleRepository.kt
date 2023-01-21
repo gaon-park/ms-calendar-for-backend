@@ -1,7 +1,7 @@
 package com.maple.herocalendarforbackend.repository
 
 import com.maple.herocalendarforbackend.entity.TSchedule
-import com.maple.herocalendarforbackend.entity.TScheduleGroup
+import com.maple.herocalendarforbackend.entity.TScheduleMemberGroup
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
@@ -27,7 +27,7 @@ interface TScheduleRepository : JpaRepository<TSchedule, Long> {
         @Param("to") to: LocalDate,
     ): List<TSchedule>
 
-    fun findByGroup(group: TScheduleGroup): List<TSchedule>
+    fun findByParentId(parentId: Long?): List<TSchedule>
 
     @Query(
         "select *\n" +

@@ -19,27 +19,30 @@ data class TSchedule(
     val end: LocalDateTime,
     val allDay: Boolean,
     val ownerId: String?,
-    @ManyToOne @JoinColumn(name = "group_id")
-    val group: TScheduleGroup,
+    @ManyToOne @JoinColumn(name = "member_group_id")
+    val memberGroup: TScheduleMemberGroup,
     val isPublic: Boolean,
+    val parentId: Long?,
 ) {
     companion object {
         // 첫 입력
-        fun convert(request: ScheduleAddRequest, ownerId: String?, group: TScheduleGroup) = TSchedule(
+        fun convert(request: ScheduleAddRequest, ownerId: String?, memberGroup: TScheduleMemberGroup) = TSchedule(
             title = request.title,
             start = request.start,
             end = request.end,
             allDay = request.allDay ?: false,
             ownerId = ownerId,
-            group = group,
-            isPublic = request.isPublic
+            memberGroup = memberGroup,
+            isPublic = request.isPublic,
+            parentId = null
         )
 
         // 반복 입력
         fun convert(
+            parentId: Long?,
             request: ScheduleAddRequest,
             ownerId: String?,
-            group: TScheduleGroup,
+            memberGroup: TScheduleMemberGroup,
             start: LocalDateTime,
             end: LocalDateTime
         ) = TSchedule(
@@ -48,8 +51,9 @@ data class TSchedule(
             end = end,
             allDay = request.allDay ?: false,
             ownerId = ownerId,
-            group = group,
-            isPublic = request.isPublic
+            memberGroup = memberGroup,
+            isPublic = request.isPublic,
+            parentId = parentId
         )
     }
 }
