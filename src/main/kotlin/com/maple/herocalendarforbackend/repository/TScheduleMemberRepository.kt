@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface TScheduleMemberRepository : JpaRepository<TScheduleMember, TScheduleMember.GroupKey> {
+    fun findByGroupKeyGroupId(groupId: Long): List<TScheduleMember>
 //    fun deleteByScheduleKeyScheduleId(scheduleId: Long)
 //    fun deleteByScheduleKey(key: TScheduleMember.GroupKey)
 //    fun findByScheduleKeyUserIdAndAcceptedStatus(userId: String, acceptedStatus: AcceptedStatus): List<TScheduleMember>

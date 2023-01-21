@@ -110,6 +110,11 @@ class ScheduleService(
     @Transactional
     fun updateMember(requesterId: String, request: ScheduleMemberAddRequest) {
         val schedule = findById(request.scheduleId)
+        schedule.memberGroup.id?.let {
+            tScheduleMemberRepository.findByGroupKeyGroupId(it).firstOrNull {
+                m -> m.groupKey.user.id == requesterId
+            } ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
+        }
         tScheduleMemberRepository.saveAll(
             tUserRepository.findPublicOrFriendByIdIn(request.newMemberIds, requesterId)
                 .map {
