@@ -16,7 +16,7 @@ data class TSchedule(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) val id: Long? = null,
     val title: String,
     val start: LocalDateTime,
-    val end: LocalDateTime?,
+    val end: LocalDateTime,
     val allDay: Boolean,
     val ownerId: String?,
     @ManyToOne @JoinColumn(name = "group_id")
@@ -41,7 +41,7 @@ data class TSchedule(
             ownerId: String?,
             group: TScheduleGroup,
             start: LocalDateTime,
-            end: LocalDateTime?
+            end: LocalDateTime
         ) = TSchedule(
             title = request.title,
             start = start,

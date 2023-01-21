@@ -1,5 +1,6 @@
 package com.maple.herocalendarforbackend.dto.request.schedule
 
+import com.maple.herocalendarforbackend.code.ScheduleUpdateCode
 import jakarta.validation.constraints.AssertTrue
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
@@ -20,6 +21,8 @@ data class ScheduleUpdateRequest(
     val end: LocalDateTime?,
     val allDay: Boolean,
     val note: String?,
+    val isPublic: Boolean,
+    val scheduleUpdateCode: ScheduleUpdateCode,
 ) {
     @AssertTrue
     fun isStart(): Boolean {

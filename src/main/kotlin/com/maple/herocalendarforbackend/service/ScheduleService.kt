@@ -3,8 +3,10 @@ package com.maple.herocalendarforbackend.service
 import com.maple.herocalendarforbackend.code.AcceptedStatus
 import com.maple.herocalendarforbackend.code.BaseResponseCode
 import com.maple.herocalendarforbackend.code.RepeatCode
+import com.maple.herocalendarforbackend.code.ScheduleUpdateCode
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleAddRequest
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleMemberAddRequest
+import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleUpdateRequest
 import com.maple.herocalendarforbackend.entity.TSchedule
 import com.maple.herocalendarforbackend.entity.TScheduleMember
 import com.maple.herocalendarforbackend.entity.TScheduleGroup
@@ -125,6 +127,46 @@ class ScheduleService(
                 .map {
                     TScheduleMember.initConvert(it, schedule.group, AcceptedStatus.WAITING)
                 }
+        )
+    }
+
+    @Transactional
+    fun update(requesterId: String, request: ScheduleUpdateRequest) {
+        val schedule = findById(request.scheduleId)
+        schedule.group.id?.let {
+            tScheduleMemberRepository.findByGroupKeyGroupId(it).firstOrNull { m ->
+                m.groupKey.user.id == requesterId
+            } ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
+        }
+        updateSchedule(schedule, request)
+    }
+
+    @Transactional
+    fun updateSchedule(schedule: TSchedule, request: ScheduleUpdateRequest) {
+        val entities = when (request.scheduleUpdateCode) {
+            ScheduleUpdateCode.ALL -> {
+                tScheduleRepository.findByGroup(schedule.group)
+            }
+            ScheduleUpdateCode.ONLY_THIS -> {
+                listOf(schedule)
+            }
+            ScheduleUpdateCode.THIS_AND_FUTURE -> {
+                tScheduleRepository.findByGroupAndAfterDay(schedule.group.id, schedule.start)
+            }
+        }
+
+        val startDiff = Duration.between(schedule.start, request.start).toMinutes()
+        val endDiff = Duration.between(schedule.end, request.end).toMinutes()
+        tScheduleRepository.saveAll(
+            entities.map {
+                it.copy(
+                    title = request.title,
+                    start = it.start.plusMinutes(startDiff),
+                    end = it.end.plusMinutes(endDiff),
+                    allDay = request.allDay,
+                    isPublic = request.isPublic
+                )
+            }
         )
     }
 
