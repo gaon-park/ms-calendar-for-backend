@@ -16,9 +16,11 @@ import com.maple.herocalendarforbackend.repository.TScheduleRepository
 import com.maple.herocalendarforbackend.repository.TUserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
+import java.time.temporal.ChronoUnit
 
 @Service
 @Suppress("TooManyFunctions", "MagicNumber")
@@ -76,10 +78,10 @@ class ScheduleService(
         request: ScheduleAddRequest, ownerId: String, group: TScheduleGroup
     ) {
         val requestStart = request.start
-        val requestEnd = request.end
+        val diff = Duration.between(requestStart, request.end).toMinutes()
         val start = requestStart.toLocalDate()
         val end = when {
-            (request.repeatInfo == null) -> requestEnd.toLocalDate()
+            (request.repeatInfo == null) -> request.end.toLocalDate()
             (request.repeatInfo.end == null) -> LocalDate.of(start.year + 2, start.month, start.dayOfMonth)
             else -> request.repeatInfo.end
         }
@@ -92,12 +94,15 @@ class ScheduleService(
         }
         val repeatSchedules = mutableListOf<TSchedule>()
         repeatSchedules.addAll(start.datesUntil(end.plusDays(1), period).map {
+            val tempStart = LocalDateTime.of(
+                it.year, it.month, it.dayOfMonth, requestStart.hour, requestStart.minute
+            )
             TSchedule.convert(
-                request = request, ownerId = ownerId, group = group, start = LocalDateTime.of(
-                    it.year, it.month, it.dayOfMonth, requestStart.hour, requestStart.minute
-                ), end = LocalDateTime.of(
-                    it.year, it.month, it.dayOfMonth, requestEnd.hour, requestEnd.minute
-                )
+                request = request,
+                ownerId = ownerId,
+                group = group,
+                start = tempStart,
+                end = tempStart.plusMinutes(diff)
             )
         }.toList())
 
