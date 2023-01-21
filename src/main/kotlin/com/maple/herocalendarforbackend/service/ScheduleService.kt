@@ -174,6 +174,35 @@ class ScheduleService(
         )
     }
 
+    /**
+     * 스케줄 추가 요청 수락
+     */
+    @Transactional
+    fun inviteAccept(scheduleId: Long, requesterId: String) {
+        tScheduleMemberRepository.findByScheduleIdAndUserIdAndAcceptedStatus(
+            scheduleId,
+            requesterId,
+            AcceptedStatus.ACCEPTED.toString()
+        )
+            ?.let {
+                tScheduleMemberRepository.save(it.copy(acceptedStatus = AcceptedStatus.ACCEPTED))
+            } ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
+    }
+
+    /**
+     * 스케줄 추가 요청 거절
+     */
+    @Transactional
+    fun inviteRefuse(scheduleId: Long, requesterId: String) {
+        tScheduleMemberRepository.findByScheduleIdAndUserIdAndAcceptedStatus(
+            scheduleId,
+            requesterId,
+            AcceptedStatus.REFUSED.toString()
+        )?.let {
+            tScheduleMemberRepository.save(it.copy(acceptedStatus = AcceptedStatus.REFUSED))
+        } ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
+    }
+
 //    /**
 //     * 스케줄 삭제
 //     */

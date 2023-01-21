@@ -189,8 +189,7 @@ class UserCalendarController(
         principal: Principal,
         @Valid @RequestBody requestBody: ScheduleRequest
     ): ResponseEntity<String> {
-        // todo
-//        scheduleService.scheduleAccept(requestBody.scheduleId, principal.name)
+        scheduleService.inviteAccept(requestBody.scheduleId, principal.name)
         return ResponseEntity.ok("ok")
     }
 
@@ -218,8 +217,7 @@ class UserCalendarController(
         principal: Principal,
         @Valid @RequestBody requestBody: ScheduleRequest
     ): ResponseEntity<String> {
-        // todo
-//        scheduleService.scheduleRefuse(requestBody.scheduleId, principal.name)
+        scheduleService.inviteRefuse(requestBody.scheduleId, principal.name)
         return ResponseEntity.ok("ok")
     }
 
