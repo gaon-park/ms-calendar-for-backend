@@ -1,7 +1,6 @@
 package com.maple.herocalendarforbackend.repository
 
 import com.maple.herocalendarforbackend.entity.TSchedule
-import com.maple.herocalendarforbackend.entity.TScheduleMemberGroup
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param

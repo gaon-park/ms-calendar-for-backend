@@ -10,7 +10,6 @@ import java.util.*
 @Repository
 interface TUserRepository : JpaRepository<TUser, String> {
     fun findByEmail(email: String): TUser?
-    fun findByIdIn(ids: List<String>): List<TUser>
 
     @Query(
         "select *\n" +
@@ -22,15 +21,6 @@ interface TUserRepository : JpaRepository<TUser, String> {
     fun findByEmailOrNickNameAndIsPublic(
         @Param("value") value: String,
     ): List<TUser>
-
-    @Query(
-        "select *\n" +
-                "from t_user  t\n" +
-                "where t.id in :ids \n" +
-                "and t.is_public = true",
-        nativeQuery = true
-    )
-    fun findPublicByIdIn(@Param("ids") ids: List<String>): List<TUser>
 
     @Query(
         "select * \n" +
