@@ -7,10 +7,10 @@ import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleAddRequest
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleMemberAddRequest
 import com.maple.herocalendarforbackend.entity.TSchedule
 import com.maple.herocalendarforbackend.entity.TScheduleMember
-import com.maple.herocalendarforbackend.entity.TScheduleMemberGroup
+import com.maple.herocalendarforbackend.entity.TScheduleGroup
 import com.maple.herocalendarforbackend.entity.TUser
 import com.maple.herocalendarforbackend.exception.BaseException
-import com.maple.herocalendarforbackend.repository.TScheduleMemberGroupRepository
+import com.maple.herocalendarforbackend.repository.TScheduleGroupRepository
 import com.maple.herocalendarforbackend.repository.TScheduleMemberRepository
 import com.maple.herocalendarforbackend.repository.TScheduleRepository
 import com.maple.herocalendarforbackend.repository.TUserRepository
@@ -26,7 +26,7 @@ class ScheduleService(
     private val tScheduleRepository: TScheduleRepository,
     private val tScheduleMemberRepository: TScheduleMemberRepository,
     private val tUserRepository: TUserRepository,
-    private val tScheduleMemberGroupRepository: TScheduleMemberGroupRepository,
+    private val tScheduleGroupRepository: TScheduleGroupRepository,
 ) {
 
     fun findById(scheduleId: Long): TSchedule {
@@ -47,14 +47,14 @@ class ScheduleService(
     @Transactional
     fun save(requesterId: String, request: ScheduleAddRequest) {
         val owner = findUserById(requesterId)
-        tScheduleMemberGroupRepository.save(TScheduleMemberGroup()).let {
+        tScheduleGroupRepository.save(TScheduleGroup()).let {
             saveSchedule(request, requesterId, it)
             saveScheduleMember(owner, request.memberIds, it)
         }
     }
 
     @Transactional
-    fun saveScheduleMember(owner: TUser, memberIds: List<String>, memberGroup: TScheduleMemberGroup) {
+    fun saveScheduleMember(owner: TUser, memberIds: List<String>, memberGroup: TScheduleGroup) {
         val members =
             tUserRepository.findPublicOrFriendByIdIn(memberIds.filter { it != owner.id }.toSet().toList(), owner.id!!)
         val memberData = mutableListOf(
@@ -73,7 +73,7 @@ class ScheduleService(
 
     @Transactional
     fun saveSchedule(
-        request: ScheduleAddRequest, ownerId: String, memberGroup: TScheduleMemberGroup
+        request: ScheduleAddRequest, ownerId: String, memberGroup: TScheduleGroup
     ) {
         val requestStart = request.start
         val requestEnd = request.end
@@ -93,7 +93,7 @@ class ScheduleService(
         val repeatSchedules = mutableListOf<TSchedule>()
         repeatSchedules.addAll(start.datesUntil(end.plusDays(1), period).map {
             TSchedule.convert(
-                request = request, ownerId = ownerId, memberGroup = memberGroup, start = LocalDateTime.of(
+                request = request, ownerId = ownerId, group = memberGroup, start = LocalDateTime.of(
                     it.year, it.month, it.dayOfMonth, requestStart.hour, requestStart.minute
                 ), end = LocalDateTime.of(
                     it.year, it.month, it.dayOfMonth, requestEnd.hour, requestEnd.minute
@@ -110,15 +110,15 @@ class ScheduleService(
     @Transactional
     fun updateMember(requesterId: String, request: ScheduleMemberAddRequest) {
         val schedule = findById(request.scheduleId)
-        schedule.memberGroup.id?.let {
-            tScheduleMemberRepository.findByGroupKeyGroupId(it).firstOrNull {
-                m -> m.groupKey.user.id == requesterId
+        schedule.group.id?.let {
+            tScheduleMemberRepository.findByGroupKeyGroupId(it).firstOrNull { m ->
+                m.groupKey.user.id == requesterId
             } ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
         }
         tScheduleMemberRepository.saveAll(
             tUserRepository.findPublicOrFriendByIdIn(request.newMemberIds, requesterId)
                 .map {
-                    TScheduleMember.initConvert(it, schedule.memberGroup, AcceptedStatus.WAITING)
+                    TScheduleMember.initConvert(it, schedule.group, AcceptedStatus.WAITING)
                 }
         )
     }
