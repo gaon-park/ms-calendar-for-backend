@@ -14,16 +14,15 @@ interface TScheduleRepository : JpaRepository<TSchedule, Long> {
     @Query(
         "select *\n" +
                 "from t_schedule s\n" +
-                "inner join (\n" +
-                "select distinct schedule_id, user_id\n" +
-                "from t_schedule_member\n" +
-                "where user_id = :user_id\n" +
-                ") as m on m.schedule_id = s.id\n" +
-                "where s.repeat_start <= :to and s.repeat_end >= :from",
+                "where :userId in (\n" +
+                "   select m.user_id\n" +
+                "   from t_schedule_member m\n" +
+                "   where m.group_id = s.group_id\n" +
+                ") and s.start <= :to and s.end >= :from",
         nativeQuery = true
     )
     fun findByFromToAndUserId(
-        @Param("user_id") userId: String,
+        @Param("userId") userId: String,
         @Param("from") from: LocalDate,
         @Param("to") to: LocalDate,
     ): List<TSchedule>

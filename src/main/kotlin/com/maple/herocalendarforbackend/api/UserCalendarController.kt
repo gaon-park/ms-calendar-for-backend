@@ -249,12 +249,6 @@ class UserCalendarController(
         @RequestParam from: LocalDate?,
         @RequestParam to: LocalDate?
     ): ResponseEntity<List<ScheduleResponse>> {
-        // todo
-        return ResponseEntity.ok(
-            emptyList()
-//            scheduleService.findSchedulesAndConvertToResponse(
-//                principal.name, from, to
-//            )
-        )
+        return ResponseEntity.ok(scheduleService.findForPersonal(principal.name, from, to))
     }
 }

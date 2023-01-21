@@ -25,6 +25,7 @@ data class ScheduleResponse(
             start = data.start,
             end = data.end,
             allDay = data.allDay,
+            // todo
             note = "",
             ownerId = data.ownerId!!,
             members = members

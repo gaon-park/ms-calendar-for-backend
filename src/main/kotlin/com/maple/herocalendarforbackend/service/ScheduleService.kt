@@ -7,6 +7,8 @@ import com.maple.herocalendarforbackend.code.ScheduleUpdateCode
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleAddRequest
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleMemberAddRequest
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleUpdateRequest
+import com.maple.herocalendarforbackend.dto.response.ScheduleMemberResponse
+import com.maple.herocalendarforbackend.dto.response.ScheduleResponse
 import com.maple.herocalendarforbackend.entity.TSchedule
 import com.maple.herocalendarforbackend.entity.TScheduleMember
 import com.maple.herocalendarforbackend.entity.TScheduleGroup
@@ -22,6 +24,7 @@ import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
+import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
 @Service
@@ -201,6 +204,35 @@ class ScheduleService(
         )?.let {
             tScheduleMemberRepository.save(it.copy(acceptedStatus = AcceptedStatus.REFUSED))
         } ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
+    }
+
+    /**
+     * 로그인 유저의 스케줄 검색
+     */
+    fun findForPersonal(loginUserId: String, from: LocalDate?, to: LocalDate?): List<ScheduleResponse> {
+        val now = LocalDate.now()
+        val fromV = from ?: LocalDate.of(
+            now.year, now.month, 1
+        )
+        val toV = to ?: LocalDate.of(
+            now.year, now.month, 31
+        )
+        fromV.format(DateTimeFormatter.ISO_DATE)
+        toV.format(DateTimeFormatter.ISO_DATE)
+
+        return convertToResponse(tScheduleRepository.findByFromToAndUserId(loginUserId, fromV, toV))
+    }
+
+    fun convertToResponse(schedules: List<TSchedule>): List<ScheduleResponse> {
+        return if (schedules.isNotEmpty()) {
+            schedules.map {
+                ScheduleResponse.convert(
+                    data = it,
+                    members = tScheduleMemberRepository.findByGroupKeyGroupId(it.group.id!!)
+                        .map { m -> ScheduleMemberResponse.convert(m) }
+                )
+            }
+        } else emptyList()
     }
 
 //    /**
