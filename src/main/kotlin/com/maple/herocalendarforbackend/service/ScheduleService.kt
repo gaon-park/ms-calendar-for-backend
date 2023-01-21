@@ -5,6 +5,7 @@ import com.maple.herocalendarforbackend.code.BaseResponseCode
 import com.maple.herocalendarforbackend.code.RepeatCode
 import com.maple.herocalendarforbackend.code.ScheduleUpdateCode
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleAddRequest
+import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleDeleteRequest
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleMemberAddRequest
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleUpdateRequest
 import com.maple.herocalendarforbackend.dto.response.ScheduleMemberResponse
@@ -116,14 +117,13 @@ class ScheduleService(
 
     /**
      * 멤버 추가
+     * // todo 차후 멤버 삭제도 가능하게
      */
     @Transactional
     fun updateMember(requesterId: String, request: ScheduleMemberAddRequest) {
         val schedule = findById(request.scheduleId)
         val alreadyMemberIds = tScheduleMemberRepository.findByGroupKeyGroupId(schedule.memberGroup.id!!)
-            .map { it.groupKey.user.id }
-            .firstOrNull { it == requesterId }
-            ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
+            .mapNotNull { it.groupKey.user.id }
         val inviteMembers = request.newMemberIds.filter {
             !alreadyMemberIds.contains(it)
         }
@@ -238,6 +238,77 @@ class ScheduleService(
                 )
             }
         } else emptyList()
+    }
+
+    @Transactional
+    fun delete(requesterId: String, request: ScheduleDeleteRequest) {
+        val schedule = findById(request.scheduleId)
+        val members = tScheduleMemberRepository.findByGroupKeyGroupId(schedule.memberGroup.id!!)
+        members.firstOrNull { it.groupKey.user.id == requesterId } ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
+        if (schedule.ownerId == requesterId) {
+            deleteScheduleByOwner(schedule, request.scheduleUpdateCode)
+        } else {
+            deleteScheduleByMember(requesterId, schedule, members, request.scheduleUpdateCode)
+        }
+    }
+
+    /**
+     * 요청자가 소유자인 경우, 스케줄 삭제
+     */
+    @Transactional
+    fun deleteScheduleByOwner(schedule: TSchedule, scheduleUpdateCode: ScheduleUpdateCode) {
+        val entities = when (scheduleUpdateCode) {
+            ScheduleUpdateCode.ALL -> tScheduleRepository.findByParentId(schedule.parentId)
+            ScheduleUpdateCode.ONLY_THIS -> listOf(schedule)
+            ScheduleUpdateCode.THIS_AND_FUTURE -> tScheduleRepository.findByGroupAndAfterDay(
+                schedule.memberGroup.id,
+                schedule.start
+            )
+        }
+
+        val groupIds = entities.mapNotNull { it.memberGroup.id }.toSet().toList()
+        tScheduleRepository.deleteAll(entities)
+        // todo 안쓰이는 group/member 데이터 삭제 배치
+    }
+
+    /**
+     * 요청자가 참석자인 경우, 스케줄 참석자 명단에서 거절로 변경
+     */
+    @Transactional
+    fun deleteScheduleByMember(
+        requesterId: String,
+        schedule: TSchedule,
+        members: List<TScheduleMember>,
+        scheduleUpdateCode: ScheduleUpdateCode
+    ) {
+        val entities = when (scheduleUpdateCode) {
+            ScheduleUpdateCode.ALL -> tScheduleRepository.findByParentId(schedule.parentId)
+            ScheduleUpdateCode.ONLY_THIS -> listOf(schedule)
+            ScheduleUpdateCode.THIS_AND_FUTURE -> tScheduleRepository.findByGroupAndAfterDay(
+                schedule.memberGroup.id,
+                schedule.start
+            )
+        }
+
+        tScheduleGroupRepository.save(TScheduleMemberGroup()).let {
+            tScheduleRepository.saveAll(entities.map { entity -> entity.copy(memberGroup = it) })
+            val newMemberData = members.map { m ->
+                if (m.groupKey.user.id == requesterId) {
+                    TScheduleMember.initConvert(
+                        user = m.groupKey.user,
+                        group = it,
+                        acceptedStatus = AcceptedStatus.REFUSED
+                    )
+                } else {
+                    TScheduleMember.initConvert(
+                        user = m.groupKey.user,
+                        group = it,
+                        acceptedStatus = m.acceptedStatus
+                    )
+                }
+            }
+            tScheduleMemberRepository.saveAll(newMemberData)
+        }
     }
 
 //    /**

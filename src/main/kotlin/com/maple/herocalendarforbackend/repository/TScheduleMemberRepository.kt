@@ -15,7 +15,7 @@ interface TScheduleMemberRepository : JpaRepository<TScheduleMember, TScheduleMe
         "select *\n" +
                 "from t_schedule_member m\n" +
                 "where (\n" +
-                "   select s.group_id\n" +
+                "   select s.member_group_id\n" +
                 "   from t_schedule s\n" +
                 "   where s.id = :scheduleId\n" +
                 ") and m.user_id = :userId\n" +
@@ -27,6 +27,9 @@ interface TScheduleMemberRepository : JpaRepository<TScheduleMember, TScheduleMe
         @Param("userId") userId: String,
         @Param("notEqualStatus") notEqualStatus: String
     ): TScheduleMember?
+
+    fun deleteByGroupKeyGroupIdIn(groupIds: List<Long>)
+
 //    fun deleteByScheduleKeyScheduleId(scheduleId: Long)
 //    fun deleteByScheduleKey(key: TScheduleMember.GroupKey)
 //    fun findByScheduleKeyUserIdAndAcceptedStatus(userId: String, acceptedStatus: AcceptedStatus): List<TScheduleMember>

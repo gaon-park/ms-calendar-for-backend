@@ -1,6 +1,7 @@
 package com.maple.herocalendarforbackend.api
 
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleAddRequest
+import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleDeleteRequest
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleMemberAddRequest
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleOwnerChangeRequest
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleRequest
@@ -67,12 +68,12 @@ class UserCalendarController(
 
     /**
      * 스케줄 삭제
-     * 0. 소유자인 경우, 파티 전체 삭제
-     * 1. 참석자인 경우, 파티 탈주로 간주
+     * 0. 소유자인 경우, 파티 폭발
+     * 1. 참석자인 경우, 단지 파티 탈주
      */
     @Operation(
         summary = "delete schedule", description = "スケジュール削除 API <br>" +
-                "- RequesterがSchedule Ownerである場合: 全ユーザのカレンダーから削除 <br>" +
+                "- RequesterがSchedule Ownerである場合: ScheduleUpdateCodeによってスケジュール自体を削除<br>" +
                 "- RequesterがSchedule Participantである場合: 個人のカレンダーからだけ削除"
     )
     @ApiResponses(
@@ -90,13 +91,12 @@ class UserCalendarController(
             )
         ]
     )
-    @DeleteMapping("/{scheduleId}")
+    @PutMapping("/delete")
     fun deleteSchedule(
         principal: Principal,
-        @PathVariable(name = "scheduleId") scheduleId: Long,
+        @Valid @RequestBody requestBody: ScheduleDeleteRequest
     ): ResponseEntity<String> {
-        // todo
-//        scheduleService.delete(scheduleId, principal.name)
+        scheduleService.delete(principal.name, requestBody)
         return ResponseEntity.ok("ok")
     }
 

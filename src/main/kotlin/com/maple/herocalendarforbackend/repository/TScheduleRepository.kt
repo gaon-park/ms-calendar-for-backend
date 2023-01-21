@@ -17,7 +17,7 @@ interface TScheduleRepository : JpaRepository<TSchedule, Long> {
                 "where :userId in (\n" +
                 "   select m.user_id\n" +
                 "   from t_schedule_member m\n" +
-                "   where m.group_id = s.group_id\n" +
+                "   where m.group_id = s.member_group_id\n" +
                 ") and s.start <= :to and s.end >= :from",
         nativeQuery = true
     )
