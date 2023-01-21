@@ -117,17 +117,21 @@ class ScheduleService(
     @Transactional
     fun updateMember(requesterId: String, request: ScheduleMemberAddRequest) {
         val schedule = findById(request.scheduleId)
-        schedule.group.id?.let {
-            tScheduleMemberRepository.findByGroupKeyGroupId(it).firstOrNull { m ->
-                m.groupKey.user.id == requesterId
-            } ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
+        val alreadyMemberIds = tScheduleMemberRepository.findByGroupKeyGroupId(schedule.group.id!!)
+            .map { it.groupKey.user.id }
+            .firstOrNull { it == requesterId }
+            ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
+        val inviteMembers = request.newMemberIds.filter {
+            !alreadyMemberIds.contains(it)
         }
-        tScheduleMemberRepository.saveAll(
-            tUserRepository.findPublicOrFriendByIdIn(request.newMemberIds, requesterId)
-                .map {
-                    TScheduleMember.initConvert(it, schedule.group, AcceptedStatus.WAITING)
-                }
-        )
+        if (inviteMembers.isNotEmpty()) {
+            tScheduleMemberRepository.saveAll(
+                tUserRepository.findPublicOrFriendByIdIn(request.newMemberIds, requesterId)
+                    .map {
+                        TScheduleMember.initConvert(it, schedule.group, AcceptedStatus.WAITING)
+                    }
+            )
+        }
     }
 
     @Transactional
