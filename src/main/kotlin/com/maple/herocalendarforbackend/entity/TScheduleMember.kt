@@ -15,24 +15,24 @@ import java.time.LocalDateTime
 @Table(name = "t_schedule_member")
 data class TScheduleMember(
     @EmbeddedId
-    val scheduleKey: ScheduleKey,
+    val groupKey: GroupKey,
     @Enumerated(value = EnumType.STRING)
     val acceptedStatus: AcceptedStatus,
     val createdAt: LocalDateTime,
 ) {
     companion object {
-        fun initConvert(user: TUser, schedule: TSchedule, acceptedStatus: AcceptedStatus) = TScheduleMember(
-            scheduleKey = ScheduleKey(schedule, user),
+        fun initConvert(user: TUser, group: TScheduleMemberGroup, acceptedStatus: AcceptedStatus) = TScheduleMember(
+            groupKey = GroupKey(group, user),
             acceptedStatus = acceptedStatus,
             createdAt = LocalDateTime.now()
         )
     }
 
     @Embeddable
-    data class ScheduleKey(
+    data class GroupKey(
         @ManyToOne
-        @JoinColumn(name = "schedule_id")
-        val schedule: TSchedule,
+        @JoinColumn(name = "group_id")
+        val group: TScheduleMemberGroup,
         @ManyToOne
         @JoinColumn(name = "user_id")
         val user: TUser

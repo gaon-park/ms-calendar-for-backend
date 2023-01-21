@@ -43,7 +43,9 @@ data class TUser(
     }
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority>? =
-        AuthorityUtils.createAuthorityList("ROLE_USER", userRole)
+        userRole?.let {
+            AuthorityUtils.createAuthorityList("ROLE_USER", it)
+        } ?: AuthorityUtils.createAuthorityList("ROLE_USER")
 
     // todo 본방 개시 전, 삭제
     override fun getPassword(): String = BCryptPasswordEncoder().encode(email.split("@")[0])

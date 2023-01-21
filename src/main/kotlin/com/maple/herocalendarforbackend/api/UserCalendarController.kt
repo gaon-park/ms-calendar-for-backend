@@ -95,7 +95,8 @@ class UserCalendarController(
         principal: Principal,
         @PathVariable(name = "scheduleId") scheduleId: Long,
     ): ResponseEntity<String> {
-        scheduleService.delete(scheduleId, principal.name)
+        // todo
+//        scheduleService.delete(scheduleId, principal.name)
         return ResponseEntity.ok("ok")
     }
 
@@ -127,7 +128,8 @@ class UserCalendarController(
         principal: Principal,
         @Valid @RequestBody requestBody: ScheduleMemberAddRequest
     ): ResponseEntity<String> {
-        scheduleService.updateMember(principal.name, requestBody)
+        // todo
+//        scheduleService.updateMember(principal.name, requestBody)
         return ResponseEntity.ok("ok")
     }
 
@@ -160,7 +162,8 @@ class UserCalendarController(
         principal: Principal,
         @Valid @RequestBody requestBody: ScheduleOwnerChangeRequest
     ): ResponseEntity<String> {
-        scheduleService.changeOwnerRequest(principal.name, requestBody)
+        // todo
+//        scheduleService.changeOwnerRequest(principal.name, requestBody)
         return ResponseEntity.ok("ok")
     }
 
@@ -191,7 +194,8 @@ class UserCalendarController(
         principal: Principal,
         @Valid @RequestBody requestBody: ScheduleRequest
     ): ResponseEntity<String> {
-        scheduleService.changeOwnerAccept(requestBody.scheduleId, principal.name)
+        // todo
+//        scheduleService.changeOwnerAccept(requestBody.scheduleId, principal.name)
         return ResponseEntity.ok("ok")
     }
 
@@ -223,7 +227,8 @@ class UserCalendarController(
         principal: Principal,
         @Valid @RequestBody requestBody: ScheduleRequest
     ): ResponseEntity<String> {
-        scheduleService.changeOwnerRefuse(requestBody.scheduleId, principal.name)
+        // todo
+//        scheduleService.changeOwnerRefuse(requestBody.scheduleId, principal.name)
         return ResponseEntity.ok("ok")
     }
 
@@ -255,7 +260,8 @@ class UserCalendarController(
         principal: Principal,
         @Valid @RequestBody requestBody: ScheduleUpdateRequest,
     ): ResponseEntity<String> {
-        scheduleService.update(principal.name, requestBody)
+        // todo
+//        scheduleService.update(principal.name, requestBody)
         return ResponseEntity.ok("ok")
     }
 
@@ -284,7 +290,8 @@ class UserCalendarController(
         principal: Principal,
         @Valid @RequestBody requestBody: ScheduleRequest
     ): ResponseEntity<String> {
-        scheduleService.scheduleAccept(requestBody.scheduleId, principal.name)
+        // todo
+//        scheduleService.scheduleAccept(requestBody.scheduleId, principal.name)
         return ResponseEntity.ok("ok")
     }
 
@@ -312,7 +319,8 @@ class UserCalendarController(
         principal: Principal,
         @Valid @RequestBody requestBody: ScheduleRequest
     ): ResponseEntity<String> {
-        scheduleService.scheduleRefuse(requestBody.scheduleId, principal.name)
+        // todo
+//        scheduleService.scheduleRefuse(requestBody.scheduleId, principal.name)
         return ResponseEntity.ok("ok")
     }
 
@@ -344,10 +352,12 @@ class UserCalendarController(
         @RequestParam from: LocalDate?,
         @RequestParam to: LocalDate?
     ): ResponseEntity<List<ScheduleResponse>> {
+        // todo
         return ResponseEntity.ok(
-            scheduleService.findSchedulesAndConvertToResponse(
-                principal.name, from, to
-            )
+            emptyList()
+//            scheduleService.findSchedulesAndConvertToResponse(
+//                principal.name, from, to
+//            )
         )
     }
 }

@@ -25,7 +25,9 @@ class JwtAuthenticationFilter(
         val EXCLUDE_URL = listOf(
             "/static/",
             "/favicon.ico",
-            "/api/oauth2/"
+            "/api/oauth2/",
+            // todo remove
+            "/oauth2/"
         )
     }
 

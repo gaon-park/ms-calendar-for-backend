@@ -9,14 +9,16 @@ import java.time.LocalDate
 
 @Builder
 data class RepeatInfo(
-    val repeatCodeValue: RepeatCode,
+    val repeatCode: RepeatCode,
     @field:NotNull
     @field:DateTimeFormat(pattern = "yyyy-MM-dd")
-    val start: LocalDate,
-    @field:NotNull
-    @field:DateTimeFormat(pattern = "yyyy-MM-dd")
-    val end: LocalDate
+    val end: LocalDate?
 ) {
     @AssertTrue
-    fun isStart() = end.isAfter(start)
+    fun isEnd(): Boolean {
+        if (end != null) {
+            return end.isAfter(LocalDate.now())
+        }
+        return true
+    }
 }

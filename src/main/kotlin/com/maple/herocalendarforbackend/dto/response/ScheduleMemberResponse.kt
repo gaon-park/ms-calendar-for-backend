@@ -12,9 +12,9 @@ data class ScheduleMemberResponse(
 ) {
     companion object {
         fun convert(data: TScheduleMember) = ScheduleMemberResponse(
-            email = data.scheduleKey.user.email,
-            nickName = data.scheduleKey.user.nickName,
-            acceptedStatus = data.acceptedStatus
+            email = "",
+            nickName = "",
+            acceptedStatus = AcceptedStatus.WAITING
         )
     }
 }

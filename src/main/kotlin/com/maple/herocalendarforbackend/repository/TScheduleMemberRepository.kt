@@ -6,11 +6,11 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface TScheduleMemberRepository : JpaRepository<TScheduleMember, TScheduleMember.ScheduleKey> {
-    fun deleteByScheduleKeyScheduleId(scheduleId: Long)
-    fun deleteByScheduleKey(key: TScheduleMember.ScheduleKey)
-    fun findByScheduleKeyUserIdAndAcceptedStatus(userId: String, acceptedStatus: AcceptedStatus): List<TScheduleMember>
-    fun findByScheduleKeyScheduleId(scheduleId: Long): List<TScheduleMember>
-    fun findByScheduleKeyScheduleIdIn(scheduleIds: List<Long>): List<TScheduleMember>
-    fun findByScheduleKeyScheduleIdAndScheduleKeyUserId(scheduleId: Long, userId: String): TScheduleMember?
+interface TScheduleMemberRepository : JpaRepository<TScheduleMember, TScheduleMember.GroupKey> {
+//    fun deleteByScheduleKeyScheduleId(scheduleId: Long)
+//    fun deleteByScheduleKey(key: TScheduleMember.GroupKey)
+//    fun findByScheduleKeyUserIdAndAcceptedStatus(userId: String, acceptedStatus: AcceptedStatus): List<TScheduleMember>
+//    fun findByScheduleKeyScheduleId(scheduleId: Long): List<TScheduleMember>
+//    fun findByScheduleKeyScheduleIdIn(scheduleIds: List<Long>): List<TScheduleMember>
+//    fun findByScheduleKeyScheduleIdAndScheduleKeyUserId(scheduleId: Long, userId: String): TScheduleMember?
 }
