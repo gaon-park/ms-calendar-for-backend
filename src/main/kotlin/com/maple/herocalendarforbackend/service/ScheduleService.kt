@@ -103,10 +103,8 @@ class ScheduleService(
                 it.year, it.month, it.dayOfMonth, requestStart.hour, requestStart.minute
             )
             TSchedule.convert(
-                parentId = parentSchedule.id,
                 request = request,
-                ownerId = ownerId,
-                memberGroup = memberGroup,
+                schedule = parentSchedule,
                 start = tempStart,
                 end = tempStart.plusMinutes(diff)
             )
@@ -266,7 +264,7 @@ class ScheduleService(
             )
         }
 
-        val groupIds = entities.mapNotNull { it.memberGroup.id }.toSet().toList()
+        entities.mapNotNull { it.memberGroup.id }.toSet().toList()
         tScheduleRepository.deleteAll(entities)
         // todo 안쓰이는 group/member 데이터 삭제 배치
     }

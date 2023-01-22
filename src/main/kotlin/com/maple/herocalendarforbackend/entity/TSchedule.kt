@@ -39,10 +39,8 @@ data class TSchedule(
 
         // 반복 입력
         fun convert(
-            parentId: Long?,
             request: ScheduleAddRequest,
-            ownerId: String?,
-            memberGroup: TScheduleMemberGroup,
+            schedule: TSchedule,
             start: LocalDateTime,
             end: LocalDateTime
         ) = TSchedule(
@@ -50,10 +48,10 @@ data class TSchedule(
             start = start,
             end = end,
             allDay = request.allDay ?: false,
-            ownerId = ownerId,
-            memberGroup = memberGroup,
+            ownerId = schedule.ownerId,
+            memberGroup = schedule.memberGroup,
             isPublic = request.isPublic,
-            parentId = parentId
+            parentId = schedule.id
         )
     }
 }

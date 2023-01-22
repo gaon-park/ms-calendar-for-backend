@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service
 import java.time.LocalDate
 
 @Service
+@Suppress("UnusedPrivateMember")
 class SearchService(
     private val userService: UserService,
     private val friendshipService: FriendshipService,

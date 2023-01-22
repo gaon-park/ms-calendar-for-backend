@@ -7,6 +7,7 @@ import com.maple.herocalendarforbackend.repository.TUserRepository
 import org.springframework.stereotype.Service
 
 @Service
+@Suppress("UnusedPrivateMember")
 class AlertService(
     private val tScheduleMemberRepository: TScheduleMemberRepository,
     private val tFriendshipRepository: TFriendshipRepository,
