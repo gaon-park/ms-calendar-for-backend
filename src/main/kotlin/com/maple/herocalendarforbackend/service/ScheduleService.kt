@@ -15,7 +15,7 @@ import com.maple.herocalendarforbackend.entity.TScheduleMember
 import com.maple.herocalendarforbackend.entity.TScheduleMemberGroup
 import com.maple.herocalendarforbackend.entity.TUser
 import com.maple.herocalendarforbackend.exception.BaseException
-import com.maple.herocalendarforbackend.repository.TScheduleGroupRepository
+import com.maple.herocalendarforbackend.repository.TScheduleMemberGroupRepository
 import com.maple.herocalendarforbackend.repository.TScheduleMemberRepository
 import com.maple.herocalendarforbackend.repository.TScheduleRepository
 import com.maple.herocalendarforbackend.repository.TUserRepository
@@ -33,7 +33,7 @@ class ScheduleService(
     private val tScheduleRepository: TScheduleRepository,
     private val tScheduleMemberRepository: TScheduleMemberRepository,
     private val tUserRepository: TUserRepository,
-    private val tScheduleGroupRepository: TScheduleGroupRepository,
+    private val tScheduleMemberGroupRepository: TScheduleMemberGroupRepository,
 ) {
 
     fun findById(scheduleId: Long): TSchedule {
@@ -54,7 +54,7 @@ class ScheduleService(
     @Transactional
     fun save(requesterId: String, request: ScheduleAddRequest) {
         val owner = findUserById(requesterId)
-        tScheduleGroupRepository.save(TScheduleMemberGroup()).let {
+        tScheduleMemberGroupRepository.save(TScheduleMemberGroup()).let {
             saveSchedule(request, requesterId, it)
             saveScheduleMember(owner, request.memberIds, it)
         }
@@ -266,7 +266,6 @@ class ScheduleService(
 
         entities.mapNotNull { it.memberGroup.id }.toSet().toList()
         tScheduleRepository.deleteAll(entities)
-        // todo 안쓰이는 group/member 데이터 삭제 배치
     }
 
     /**
@@ -288,7 +287,7 @@ class ScheduleService(
             )
         }
 
-        tScheduleGroupRepository.save(TScheduleMemberGroup()).let {
+        tScheduleMemberGroupRepository.save(TScheduleMemberGroup()).let {
             tScheduleRepository.saveAll(entities.map { entity -> entity.copy(memberGroup = it) })
             val newMemberData = members.map { m ->
                 if (m.groupKey.user.id == requesterId) {

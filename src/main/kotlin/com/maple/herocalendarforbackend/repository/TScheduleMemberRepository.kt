@@ -26,4 +26,6 @@ interface TScheduleMemberRepository : JpaRepository<TScheduleMember, TScheduleMe
         @Param("userId") userId: String,
         @Param("notEqualStatus") notEqualStatus: String
     ): TScheduleMember?
+
+    fun deleteByGroupKeyGroupIdIn(groupIds: List<Long>)
 }

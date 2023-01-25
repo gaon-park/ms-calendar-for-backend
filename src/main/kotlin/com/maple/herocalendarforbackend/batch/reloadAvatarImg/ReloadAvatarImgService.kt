@@ -1,6 +1,5 @@
-package com.maple.herocalendarforbackend.batch
+package com.maple.herocalendarforbackend.batch.reloadAvatarImg
 
-import com.maple.herocalendarforbackend.entity.TUser
 import com.maple.herocalendarforbackend.repository.TUserRepository
 import com.maple.herocalendarforbackend.util.MapleGGUtil
 import org.springframework.data.domain.PageRequest

@@ -2,6 +2,7 @@ package com.maple.herocalendarforbackend.repository
 
 import com.maple.herocalendarforbackend.entity.TJwtAuth
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
@@ -16,11 +17,12 @@ interface TJwtAuthRepository : JpaRepository<TJwtAuth, String> {
     fun findByUserPk(@Param("user_id") userPk: String): TJwtAuth?
 
     @Query(
-        "select *\n" +
+        "delete \n" +
                 "from t_jwt_auth t\n" +
                 "where t.expired=true\n" +
                 "or t.expiration_date<= :now",
         nativeQuery = true
     )
-    fun findExpired(@Param("now") now: LocalDateTime): List<TJwtAuth>
+    @Modifying
+    fun deleteExpired(@Param("now") now: LocalDateTime)
 }
