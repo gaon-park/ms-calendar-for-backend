@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "ms-calendar-374715",
+  "private_key_id": "4981d006bd9a12cc2ccd41f4d1b0434cfeef3687",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDH/OVYYUjO652Z\n4Kk/7+AY04/Z3vfo60JqmV9SCt5zRNgWnldbpadI9WeOdgoYUWW0YFcCWKt80ZKM\nkj9aVgOR6hGrBHYQPFN1qzNTp/XoiCzT0+uMNmtXEGxjxwdSotz7JWXOVbMxrcjN\nUVIJnBeAiqYm13pILWLRfkwpLJmIGRvV+swj/G4fBaJSF+fL59MjHoZUI6F0bt0w\n/UVod+1pqSUeRoWhCwo1fLBVyqIA/Oa4Koh8YHKiSUTmLa8RhDvX0OagwSz7/q7T\nlROK8cOFNdb+9P+/7UXLz9dkBK+SYHxZUrT0AHPyBskRebLFWIX9PwpEUiENTy8u\nVuGeW65lAgMBAAECggEAEpGLpeIahYPg9Tmj3VjjYMq774nBUPIPD6C/9fkmYGOD\nAM6g49SErMSEYfjZxRpBrDbJvWEIQyWeSskFctjLqg+mpk9auvUu9pz3vgu5TGbg\naqahlzoySzouJjGDn4uZowP86OSSJ8mv/EhRqqzAjeHRvYeCRhNYuoTUg3otozIv\nmKym+aKphfLF9ub+8mG6NErcRs1CQvvGwgneQqop6l5s8DgtyHaL2jeIDeiIqqyc\nnghKH4yurZ+KOzZylUxHil+mmYWGmkF9YKBEEvsh12rcl+amekrviJJhS6Zlotuv\nEoN1FcaVATp2exn6LaDoWyR1eF5bO/8tpkxMIIT4AQKBgQDn5cEHjdPpLEsl4198\nkNgElrelZydlrW8FoOWN0yMmZBuoYI1x0hGc8UNodkqe2Ntaiw0ILHi+tIRS3tbO\n+wrO9gY5m76fzlSFCEdRHKQDowd8S79VsbHXu8atBtqwwjOyOPvGV09gNcEDj13l\nKKdMyhkIqB0J+3+G156JV5DAZQKBgQDcxho6ywOoo/Wu441jDZjZMQWLlBwJSEfr\ngxvJD/MF2lTublSnk2NufxtF4JGzK/KgYpdKDDi4q3+0BuPc2+rwU0pRwtPZCn1f\nmQCSi0gemoFRM7mqhVEah/DarkoKikg4+WbkzMAbBYo7k6zEVL9xqBIUwnT4V9dp\n2AFnWHVWAQKBgQDRFOzqc6y50m7a9Vt1g17RHFbuMchqu2mbSItQSSqrBZ2OPaeq\nFP4+Y6UkPWtgNyPnSfHxCa/AOiAIW9SPf/cpzNamAE9p5G1+GI28izcx9D7eiak0\niWdQnIQwIzrwHdjgetI+7R+rHiwtmojNAc99w8W4cWLlSjWcDTJqoGHppQKBgQC8\n1PikZvaXLL48O0e4fG3K/4IFs8YTLm7NgxOl8u1jiS5xzY680nUOkstKBl24yZM6\nGXnbjP6K/a0511bYloWpzyPXMPQwRSedN+nkbhteibqoMLzSnDsVnUamVMLhpwtF\nKBUZCAQcWK22bYYtW2twFFh6xyRzMfb/AhGZSnD6AQKBgQCI7mXYWI8MeeIvcnf1\nwfKPMN0LeiH9kBOSTOR/6tritvoi/3nVAlMK6WcNtzPDAmD/B+DmkGHtc0ycONiy\n2vHgV7iKQVXpNm0Dxpmwe9lGcgi0OTpSSdPKqlGgc5P73t2pph/wbj6W4GqPEdh0\nZWc8OqWSFwVtzNjngAfNAmp5tg==\n-----END PRIVATE KEY-----\n",
+  "client_email": "ms-hero-gcs@ms-calendar-374715.iam.gserviceaccount.com",
+  "client_id": "106740355197956891348",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/ms-hero-gcs%40ms-calendar-374715.iam.gserviceaccount.com"
+}

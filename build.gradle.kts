@@ -47,6 +47,8 @@ dependencies {
 	implementation("org.springdoc:springdoc-openapi-starter-common:2.0.2")
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
 	implementation("org.jsoup:jsoup:1.15.3")
+	implementation("org.springframework.cloud:spring-cloud-gcp-starter:1.2.8.RELEASE")
+	implementation("org.springframework.cloud:spring-cloud-gcp-storage:1.2.8.RELEASE")
 
 	compileOnly("org.projectlombok:lombok")
 

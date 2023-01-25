@@ -6,7 +6,6 @@ import com.maple.herocalendarforbackend.dto.response.ErrorResponse
 import com.maple.herocalendarforbackend.dto.response.ProfileResponse
 import com.maple.herocalendarforbackend.service.AlertService
 import com.maple.herocalendarforbackend.service.UserService
-import com.maple.herocalendarforbackend.util.MapleGGUtil
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -88,7 +87,10 @@ class UserController(
     /**
      * 로그인 유저 프로필 수정
      */
-    @Operation(summary = "put user profile", description = "ログインユーザの加入情報を修正する API")
+    @Operation(
+        summary = "put user profile", description = "ログインユーザの加入情報を修正する API <br/>" +
+                "画像ファイルがある場合だけ、multipart/form-data　指定"
+    )
     @ApiResponses(
         value = [
             ApiResponse(
@@ -109,20 +111,16 @@ class UserController(
             ),
         ]
     )
-    @PutMapping("/profile")
+    @PutMapping(
+        "/profile",
+        produces = [MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE],
+        consumes = [MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE]
+    )
     fun putProfile(
         principal: Principal,
-        @Valid @RequestBody requestBody: ProfileRequest
+        @Valid @RequestBody requestBody: ProfileRequest,
     ): ResponseEntity<ProfileResponse> =
         ResponseEntity.ok(
             ProfileResponse.convert(userService.updateProfile(principal.name, requestBody))
-        )
-
-    @GetMapping("/reload/avatarImg")
-    fun avatar(
-        principal: Principal,
-    ): ResponseEntity<ProfileResponse> =
-        ResponseEntity.ok(
-            ProfileResponse.convert(userService.reloadAvatarImg(principal.name))
         )
 }

@@ -37,7 +37,7 @@ data class TUser(
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
             isPublic = false,
-            avatarImg = "",
+            avatarImg = "https://storage.googleapis.com/ms-hero-profile/default_profile.png",
             userRole = null
         )
     }
