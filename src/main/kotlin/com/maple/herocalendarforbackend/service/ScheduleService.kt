@@ -226,6 +226,20 @@ class ScheduleService(
         return convertToResponse(tScheduleRepository.findByFromToAndUserId(loginUserId, fromV, toV))
     }
 
+    fun findForPublic(userId: String, from: LocalDate?, to: LocalDate?): List<ScheduleResponse> {
+        val now = LocalDate.now()
+        val fromV = from ?: LocalDate.of(
+            now.year, now.month, 1
+        )
+        val toV = to ?: LocalDate.of(
+            now.year, now.month, 31
+        )
+        fromV.format(DateTimeFormatter.ISO_DATE)
+        toV.format(DateTimeFormatter.ISO_DATE)
+
+        return convertToResponse(tScheduleRepository.findByFromToAndUserIdOnlyPublic(userId, fromV, toV))
+    }
+
     fun convertToResponse(schedules: List<TSchedule>): List<ScheduleResponse> {
         return if (schedules.isNotEmpty()) {
             schedules.map {

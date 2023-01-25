@@ -45,8 +45,7 @@ class SearchService(
         userId: String, friendId: String, from: LocalDate?, to: LocalDate?
     ): List<ScheduleResponse> {
         if (!friendshipService.areTheyFriend(userId, friendId)) throw BaseException(BaseResponseCode.BAD_REQUEST)
-        // todo
-        return emptyList()
+        return scheduleService.findForPublic(friendId, from, to)
     }
 
     fun findPublicUserSchedules(
@@ -54,7 +53,6 @@ class SearchService(
     ): List<ScheduleResponse> {
         val user = userService.findById(searchUserId)
         if (!user.isPublic) throw BaseException(BaseResponseCode.BAD_REQUEST)
-        // todo
-        return emptyList()
+        return scheduleService.findForPublic(searchUserId, from, to)
     }
 }
