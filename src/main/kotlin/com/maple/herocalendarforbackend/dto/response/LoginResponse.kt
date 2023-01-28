@@ -7,6 +7,6 @@ import lombok.Builder
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class LoginResponse(
-    @JsonProperty("access_token")
+    @JsonProperty("accessToken")
     val accessToken: String?
 )
