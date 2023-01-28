@@ -52,7 +52,7 @@ class GoogleOAuthService(
             DataOutputStream(conn.outputStream).use { it.writeBytes(body) }
             val reader = BufferedReader(InputStreamReader(conn.inputStream, "UTF-8"))
             return jsonMapper().readValue(reader, GoogleOAuthGetToken::class.java)
-        } catch (e: java.lang.Exception) {
+        } catch (_: java.lang.Exception) {
             throw BaseException(BaseResponseCode.INVALID_TOKEN)
         }
     }
