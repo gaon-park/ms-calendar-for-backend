@@ -26,6 +26,8 @@ class SecurityConfig(
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http
             .csrf().disable()
+            .cors()
+            .and()
             .authorizeHttpRequests()
             // todo 본방 개시 전, 삭제
 //            .requestMatchers("/swagger/**", "/api-docs", "/api-docs/**")
@@ -46,8 +48,6 @@ class SecurityConfig(
                 JwtAuthenticationFilter(jwtAuthService),
                 UsernamePasswordAuthenticationFilter::class.java
             )
-            .csrf().disable()
-            .cors()
         return http.build()
     }
 
@@ -66,7 +66,7 @@ class SecurityConfig(
     fun corsConfigurationSource(): CorsConfigurationSource =
         CorsConfiguration().apply {
             allowedHeaders = listOf("*")
-            allowedOrigins = listOf("http://localhost:3000")
+            allowedOrigins = listOf("http://127.0.0.1:3000")
             allowedMethods = listOf("GET", "POST", "PUT", "OPTIONS", "DELETE", "PATCH")
             allowCredentials = true
         }.let { config ->
