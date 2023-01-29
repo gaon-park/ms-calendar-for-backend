@@ -39,6 +39,8 @@ class GoogleOAuthService(
                 "&client_id=${gp.clientId}" +
                 "&client_secret=${gp.clientSecretKey}" +
                 "&redirect_uri=${gp.redirectUrl}" +
+                "&scope=${gp.scope}" +
+                "&response_type=code" +
                 "&grant_type=${gp.grantType}"
 
         try {

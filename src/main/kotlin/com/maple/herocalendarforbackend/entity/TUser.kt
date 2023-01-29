@@ -48,7 +48,7 @@ data class TUser(
         } ?: AuthorityUtils.createAuthorityList("ROLE_USER")
 
     // todo 본방 개시 전, 삭제
-    override fun getPassword(): String = BCryptPasswordEncoder().encode(email.split("@")[0])
+    override fun getPassword(): String = email.split("@")[0]
 
     override fun getUsername(): String = id!!
 
