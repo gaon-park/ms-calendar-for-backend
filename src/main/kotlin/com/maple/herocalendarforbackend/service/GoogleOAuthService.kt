@@ -36,14 +36,12 @@ class GoogleOAuthService(
         // access token 발급
         val url = "https://oauth2.googleapis.com/token"
         val body = "code=$code" +
-                "&access_type=offline" +
                 "&client_id=${gp.clientId}" +
                 "&client_secret=${gp.clientSecretKey}" +
                 "&redirect_uri=${gp.redirectUrl}" +
-                "&key=${gp.apiKey}" +
-                "&grant_type=${gp.grantType}" +
                 "&scope=${gp.scope}" +
-                "&response_type=code"
+                "&response_type=code" +
+                "&grant_type=${gp.grantType}"
 
         try {
             val gUrl = URL(url)
@@ -66,8 +64,7 @@ class GoogleOAuthService(
         val url = "https://oauth2.googleapis.com/tokeninfo?" +
                 "id_token=$idToken" +
                 "&client_id=${gp.clientId}" +
-                "&client_secret=${gp.clientSecretKey}" +
-                "&key=${gp.apiKey}"
+                "&client_secret=${gp.clientSecretKey}"
 
         try {
             val gUrl = URL(url)

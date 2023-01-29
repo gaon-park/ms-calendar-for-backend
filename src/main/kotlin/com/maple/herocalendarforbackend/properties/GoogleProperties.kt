@@ -13,8 +13,6 @@ data class GoogleProperties(
     val clientSecretKey: String,
     @Value("\${google.redirectUrl}")
     val redirectUrl: String,
-    @Value("\${google.apiKey}")
-    val apiKey: String,
     @Value("\${google.grantType}")
     val grantType: String,
     @Value("\${google.scope}")
