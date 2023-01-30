@@ -5,7 +5,7 @@
   1. Member base
   2. Personal/shared schedule
   3. Member search
-  4. Making Friends
+  4. Based follower/following relationship
 
 # swagger
 

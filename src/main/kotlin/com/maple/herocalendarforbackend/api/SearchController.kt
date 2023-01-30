@@ -28,12 +28,11 @@ class SearchController(
 ) {
 
     /**
-     * email/nickName 으로 publicUser 검색
+     * accountId 로 user 검색
      */
     @SecurityRequirements(value = [])
     @Operation(
-        summary = "ユーザ検索", description = "Email/NickNameで公開ユーザを検索(部分一致) API <br/>" +
-                "ログインユーザの場合、友達関係である非公開ユーザを検索することが可能"
+        summary = "ユーザ検索", description = "accountIdでユーザを検索(部分一致)する API"
     )
     @ApiResponses(
         value = [
@@ -47,24 +46,24 @@ class SearchController(
         ]
     )
     @GetMapping("/user")
-    fun findUserByEmailOrNickName(
+    fun findUser(
         principal: Principal?,
         @RequestParam(name = "user") user: String
     ): ResponseEntity<List<UserResponse>> {
         return ResponseEntity.ok(
             principal?.name?.let {
-                searchService.findFriendByEmailOrNickName(it, user)
-            } ?: searchService.findPublicByEmailOrNickName(user))
+                searchService.findUser(user, it)
+            } ?: searchService.findUser(user))
     }
 
     /**
-     * 로그아웃 유저: 공개 유저의 공개 스케줄만
-     * 로그인 유저: 친구이면 모든 스케줄 공개
+     * 로그아웃 유저: 공개 유저의 공개 스케줄
+     * 로그인 유저: 공개/팔로우중인 비공개 유저의 공개 스케줄
      */
     @SecurityRequirements(value = [])
     @Operation(
-        summary = "スケジュール検索", description = "ログアウトユーザは公開ユーザのスケジュールを、" +
-                "ログインユーザは公開＋非公開友達ユーザのスケジュールを検索する API"
+        summary = "本人じゃないユーザのスケジュール取得", description = "ログアウトユーザは公開ユーザの公開スケジュールを、" +
+                "ログインユーザは公開＋Follow中の非公開ユーザの公開スケジュールを検索する API"
     )
     @ApiResponses(
         value = [
@@ -85,12 +84,11 @@ class SearchController(
         @RequestParam to: LocalDate?
     ): ResponseEntity<List<ScheduleResponse>> {
         return ResponseEntity.ok(
-            principal?.name?.let {
-                searchService.findFriendSchedules(
-                    it, userId, from, to
-                )
-            } ?: searchService.findPublicUserSchedules(
-                userId, from, to
+            searchService.findUserSchedules(
+                loginUserId = principal?.name,
+                targetUserId = userId,
+                from = from,
+                to = to
             )
         )
     }

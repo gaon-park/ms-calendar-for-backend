@@ -23,6 +23,8 @@ data class TUser(
     @Column(nullable = false)
     val email: String,
     val nickName: String,
+    @Column(unique = true)
+    val accountId: String,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
     val isPublic: Boolean,
@@ -33,6 +35,7 @@ data class TUser(
     companion object {
         fun generateOAuthSaveModel(email: String) = TUser(
             email = email,
+            accountId = email,
             nickName = email,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),

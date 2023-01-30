@@ -4,5 +4,5 @@ import lombok.Builder
 
 @Builder
 data class AlertsResponse(
-    val waitingFriendRequests: List<WaitingFriend>
+    val waitingFollowerRequests: List<WaitingFollower>
 )

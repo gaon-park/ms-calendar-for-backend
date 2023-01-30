@@ -27,17 +27,17 @@ class SwaggerConfig : WebMvcConfigurer {
     fun calendarAPI(): GroupedOpenApi {
         return GroupedOpenApi.builder()
             .group("Calendar CURD")
-            .pathsToMatch("/user/schedule")
-            .pathsToMatch("/user/schedule/**")
+            .pathsToMatch("/api/user/schedule")
+            .pathsToMatch("/api/user/schedule/**")
             .build()
     }
 
     @Bean
-    fun friendAPI(): GroupedOpenApi {
+    fun followAPI(): GroupedOpenApi {
         return GroupedOpenApi.builder()
-            .group("Friend CURD")
-            .pathsToMatch("/user/friend")
-            .pathsToMatch("/user/friend/**")
+            .group("Follow/Following CURD")
+            .pathsToMatch("/api/user/follow")
+            .pathsToMatch("/api/user/follow/**")
             .build()
     }
 
@@ -45,8 +45,8 @@ class SwaggerConfig : WebMvcConfigurer {
     fun userAPI(): GroupedOpenApi {
         return GroupedOpenApi.builder()
             .group("For Login User")
-            .pathsToMatch("/user")
-            .pathsToMatch("/user/**")
+            .pathsToMatch("/api/user")
+            .pathsToMatch("/api/user/**")
             .build()
     }
 

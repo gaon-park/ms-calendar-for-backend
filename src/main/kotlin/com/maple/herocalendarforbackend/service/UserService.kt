@@ -6,6 +6,7 @@ import com.maple.herocalendarforbackend.entity.TUser
 import com.maple.herocalendarforbackend.exception.BaseException
 import com.maple.herocalendarforbackend.repository.TUserRepository
 import com.maple.herocalendarforbackend.util.GCSUtil
+import org.hibernate.exception.ConstraintViolationException
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Service
@@ -21,8 +22,8 @@ class UserService(
         tUserRepository.findByEmail(it)
     }
 
-    fun findPublicByEmailOrNickName(user: String): List<TUser> =
-        tUserRepository.findByEmailOrNickNameAndIsPublic(user)
+    fun findByAccountIdLike(keyword: String) =
+        tUserRepository.findByAccountIdLike("%$keyword%")
 
     fun findById(id: String): TUser =
         tUserRepository.findById(id).let {
@@ -36,13 +37,27 @@ class UserService(
         val avatarImg = request.avatarImg?.let {
             GCSUtil().upload(id, request.avatarImg)
         }
-        return tUserRepository.save(
-            user.copy(
-                nickName = request.nickName,
-                isPublic = request.isPublic,
-                avatarImg = avatarImg ?: user.avatarImg,
-                updatedAt = LocalDateTime.now()
+        return if (diffCheck(user, request)) {
+            tUserRepository.save(
+                user.copy(
+                    nickName = request.nickName,
+                    isPublic = request.isPublic,
+                    avatarImg = avatarImg ?: user.avatarImg,
+                    updatedAt = LocalDateTime.now()
+                )
             )
-        )
+        } else user
     }
+
+    fun diffCheck(user: TUser, request: ProfileRequest): Boolean {
+        return when {
+            user.nickName != request.nickName -> true
+            user.accountId != request.accountId -> true
+            user.isPublic != request.isPublic -> true
+            else -> false
+        }
+    }
+
+    fun accountIdDuplicateCheck(accountId: String): Boolean =
+        tUserRepository.findByAccountId(accountId) == null
 }

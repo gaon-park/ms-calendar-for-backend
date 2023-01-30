@@ -10,6 +10,7 @@ data class ProfileResponse(
     val id: String?,
     val email: String,
     val nickName: String,
+    val accountId: String,
     @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm", timezone="Asia/Seoul")
     val createdAt: LocalDateTime,
     @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm", timezone="Asia/Seoul")
@@ -21,6 +22,7 @@ data class ProfileResponse(
         fun convert(data: TUser) = ProfileResponse(
             id = data.id,
             email = data.email,
+            accountId = data.accountId,
             nickName = data.nickName,
             createdAt = data.createdAt,
             updatedAt = data.updatedAt,

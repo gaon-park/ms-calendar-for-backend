@@ -63,7 +63,7 @@ class ScheduleService(
     @Transactional
     fun saveScheduleMember(owner: TUser, memberIds: List<String>, group: TScheduleMemberGroup) {
         val members =
-            tUserRepository.findPublicOrFriendByIdIn(memberIds.filter { it != owner.id }.toSet().toList(), owner.id!!)
+            tUserRepository.findPublicOrFollowing(memberIds.filter { it != owner.id }.toSet().toList(), owner.id!!)
         val memberData = mutableListOf(
             TScheduleMember.initConvert(
                 owner, group, AcceptedStatus.ACCEPTED
@@ -127,7 +127,7 @@ class ScheduleService(
         }
         if (inviteMembers.isNotEmpty()) {
             tScheduleMemberRepository.saveAll(
-                tUserRepository.findPublicOrFriendByIdIn(request.newMemberIds, requesterId)
+                tUserRepository.findPublicOrFollowing(request.newMemberIds, requesterId)
                     .map {
                         TScheduleMember.initConvert(it, schedule.memberGroup, AcceptedStatus.WAITING)
                     }
@@ -226,18 +226,20 @@ class ScheduleService(
         return convertToResponse(tScheduleRepository.findByFromToAndUserId(loginUserId, fromV, toV))
     }
 
-    fun findForPublic(userId: String, from: LocalDate?, to: LocalDate?): List<ScheduleResponse> {
-        val now = LocalDate.now()
-        val fromV = from ?: LocalDate.of(
-            now.year, now.month, 1
-        )
-        val toV = to ?: LocalDate.of(
-            now.year, now.month, 31
-        )
-        fromV.format(DateTimeFormatter.ISO_DATE)
-        toV.format(DateTimeFormatter.ISO_DATE)
-
-        return convertToResponse(tScheduleRepository.findByFromToAndUserIdOnlyPublic(userId, fromV, toV))
+    fun findForPublic(
+        loginUserId: String?,
+        searchUserId: String,
+        from: LocalDate?,
+        to: LocalDate?
+    ): List<ScheduleResponse> {
+        return findForPersonal(searchUserId, from, to).mapNotNull {
+            val memberIds = it.members.map { m -> m.id }
+            if (!it.isPublic && !memberIds.contains(loginUserId)) {
+                null
+            } else {
+                it
+            }
+        }
     }
 
     fun convertToResponse(schedules: List<TSchedule>): List<ScheduleResponse> {

@@ -27,14 +27,15 @@ class SecurityConfig(
             .csrf().disable()
             .cors()
             .and()
-            .authorizeHttpRequests()
             // todo 본방 개시 전, 삭제
-//            .requestMatchers("/swagger/**", "/api-docs", "/api-docs/**")
-            .requestMatchers("/", "/**")
-            .hasRole("ADMIN")
-            .and()
-            .httpBasic()
-            .and()
+//            .authorizeHttpRequests()
+////            .requestMatchers("/swagger/**", "/api-docs", "/api-docs/**")
+//            .requestMatchers("/", "/**")
+//            .hasRole("ADMIN")
+//            .and()
+//            .httpBasic()
+//
+//            .and()
             .sessionManagement()
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             // todo 본방 개시 전, 삭제

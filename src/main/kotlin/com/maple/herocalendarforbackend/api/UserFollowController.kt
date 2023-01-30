@@ -1,10 +1,9 @@
 package com.maple.herocalendarforbackend.api
 
-import com.maple.herocalendarforbackend.dto.request.friend.FriendAddRequest
-import com.maple.herocalendarforbackend.dto.request.friend.FriendRequest
+import com.maple.herocalendarforbackend.dto.request.follow.FollowRequest
 import com.maple.herocalendarforbackend.dto.response.ErrorResponse
-import com.maple.herocalendarforbackend.dto.response.FriendResponse
-import com.maple.herocalendarforbackend.service.FriendshipService
+import com.maple.herocalendarforbackend.dto.response.UserResponse
+import com.maple.herocalendarforbackend.service.FollowRelationshipService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Content
@@ -25,17 +24,17 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.security.Principal
 
-@Tag(name = "Friend CURD", description = "ユーザのFriend追加、更新、閲覧、削除関連 API")
+@Tag(name = "Follow/Follower CURD", description = "ユーザのFollow/Follower追加、更新、閲覧、削除関連 API")
 @RestController
-@RequestMapping("/api/user/friend", produces = [MediaType.APPLICATION_JSON_VALUE])
-class UserFriendController(
-    private val friendshipService: FriendshipService
+@RequestMapping("/api/user", produces = [MediaType.APPLICATION_JSON_VALUE])
+class UserFollowController(
+    private val followRelationshipService: FollowRelationshipService
 ) {
 
     /**
-     * 친구 요청 보내기
+     * 팔로우 요청
      */
-    @Operation(summary = "send a friend request", description = "ユーザ個人キーでFriendRequestを送る API")
+    @Operation(summary = "send a follow request", description = "ユーザ個人キーでfollow requestを送る API")
     @ApiResponses(
         value = [
             ApiResponse(
@@ -55,18 +54,18 @@ class UserFriendController(
             )
         ]
     )
-    @PostMapping("/add")
-    fun addFriend(
+    @PostMapping("/follow")
+    fun follow(
         principal: Principal,
-        @Valid @RequestBody requestBody: FriendAddRequest
+        @Valid @RequestBody requestBody: FollowRequest
     ) {
-        friendshipService.friendRequest(principal.name, requestBody)
+        followRelationshipService.followRequest(principal.name, requestBody)
     }
 
     /**
-     * 친구 삭제
+     * 팔로우 취소
      */
-    @Operation(summary = "delete friend", description = "ユーザ個人キーでFriend関係を削除する API")
+    @Operation(summary = "follow cancel", description = "ユーザ個人キーで該当ユーザをfollowをキャンセルする API")
     @ApiResponses(
         value = [
             ApiResponse(
@@ -86,18 +85,18 @@ class UserFriendController(
             )
         ]
     )
-    @DeleteMapping("/{personalKey}")
-    fun deleteFriend(
+    @DeleteMapping("/follow/{personalKey}")
+    fun followCancel(
         principal: Principal,
         @PathVariable(name = "personalKey") personalKey: String,
     ) {
-        friendshipService.deleteFriend(principal.name, personalKey)
+        followRelationshipService.followCancel(principal.name, personalKey)
     }
 
     /**
-     * 친구 요청 수락
+     * 팔로우 요청 수락
      */
-    @Operation(summary = "friend request accept", description = "Friend Requestを受け取る API")
+    @Operation(summary = "follow request accept", description = "follow Requestを受け取る API")
     @ApiResponses(
         value = [
             ApiResponse(
@@ -117,18 +116,18 @@ class UserFriendController(
             )
         ]
     )
-    @PutMapping("/accept")
-    fun friendRequestAccept(
+    @PutMapping("/follow/accept")
+    fun followRequestAccept(
         principal: Principal,
-        @Valid @RequestBody requestBody: FriendRequest
+        @Valid @RequestBody requestBody: FollowRequest
     ) {
-        friendshipService.friendRequestAccept(requestBody.personalKey, principal.name)
+        followRelationshipService.followRequestAccept(requestBody.personalKey, principal.name)
     }
 
     /**
-     * 친구 요청 거절
+     * 팔로우 요청 거절
      */
-    @Operation(summary = "friend request refuse", description = "Friend Requestを断る API")
+    @Operation(summary = "follow request refuse", description = "follow Requestを断る API")
     @ApiResponses(
         value = [
             ApiResponse(
@@ -148,25 +147,25 @@ class UserFriendController(
             )
         ]
     )
-    @PutMapping("/refuse")
-    fun friendRequestRefuse(
+    @PutMapping("/follow/refuse")
+    fun followRequestRefuse(
         principal: Principal,
-        @Valid @RequestBody requestBody: FriendRequest
+        @Valid @RequestBody requestBody: FollowRequest
     ) {
-        friendshipService.friendRequestRefuse(requestBody.personalKey, principal.name)
+        followRelationshipService.followRequestRefuse(requestBody.personalKey, principal.name)
     }
 
 
     /**
-     * 로그인 유저의 친구 리스트
+     * 로그인 유저가 팔로잉 중인 유저의 리스트
      */
-    @Operation(summary = "get friends", description = "承認済みのFriend一覧を取得する API")
+    @Operation(summary = "get followings", description = "ログインユーザがFollowしているユーザ一覧を取得する API")
     @ApiResponses(
         value = [
             ApiResponse(
                 responseCode = "200",
                 content = arrayOf(
-                    Content(array = ArraySchema(schema = Schema(implementation = FriendResponse::class)))
+                    Content(array = ArraySchema(schema = Schema(implementation = UserResponse::class)))
                 )
             ),
             ApiResponse(
@@ -175,12 +174,39 @@ class UserFriendController(
             ),
         ]
     )
-    @GetMapping
-    fun findFriends(
+    @GetMapping("/followings")
+    fun getFollowings(
         principal: Principal
-    ): ResponseEntity<List<FriendResponse>> {
+    ): ResponseEntity<List<UserResponse>> {
         return ResponseEntity.ok(
-            friendshipService.findFriendsAndConvertToResponse(principal.name)
+            followRelationshipService.findFollowings(principal.name)
+        )
+    }
+
+    /**
+     * 로그인 유저를 팔로우하는 유저의 리스트
+     */
+    @Operation(summary = "get followers", description = "ログインユーザをFollowしているユーザ一覧を取得する API")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                content = arrayOf(
+                    Content(array = ArraySchema(schema = Schema(implementation = UserResponse::class)))
+                )
+            ),
+            ApiResponse(
+                responseCode = "401",
+                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
+            ),
+        ]
+    )
+    @GetMapping("/followers")
+    fun getFollowers(
+        principal: Principal
+    ): ResponseEntity<List<UserResponse>> {
+        return ResponseEntity.ok(
+            followRelationshipService.findFollowers(principal.name)
         )
     }
 }

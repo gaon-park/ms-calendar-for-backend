@@ -16,6 +16,7 @@ data class ScheduleResponse(
     val allDay: Boolean,
     val note: String?,
     val ownerId: String,
+    val isPublic: Boolean,
     val members: List<ScheduleMemberResponse>,
 ) {
     companion object {
@@ -25,6 +26,7 @@ data class ScheduleResponse(
             start = data.start,
             end = data.end,
             allDay = data.allDay,
+            isPublic = data.isPublic,
             // todo
             note = "",
             ownerId = data.ownerId!!,

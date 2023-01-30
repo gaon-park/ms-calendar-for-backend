@@ -16,6 +16,7 @@ import jakarta.validation.Valid
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -34,8 +35,7 @@ class UserController(
      * 유저의 미응답 요청 리스트 검색
      */
     @Operation(
-        summary = "get unconfirmed request list", description = "まだ承認・拒否してないRequest一覧を取得する API <br>" +
-                "すでに相手からFriend Requestを受けている状態なら、承認にする"
+        summary = "get unconfirmed request list", description = "まだ承認・拒否してないRequest一覧を取得する API"
     )
     @ApiResponses(
         value = [
@@ -123,4 +123,25 @@ class UserController(
         ResponseEntity.ok(
             ProfileResponse.convert(userService.updateProfile(principal.name, requestBody))
         )
+
+    /**
+     * 해당 accountId 값이 사용되고 있는지(변경 가능한 값인지 확인)
+     */
+    @Operation(
+        summary = "is this account_id duplicated?",
+        description = "該当AccountIdに変更できるか確認する API"
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                content = arrayOf(Content(schema = Schema(implementation = Boolean::class)))
+            )
+        ]
+    )
+    @GetMapping("/validate/{accountId}")
+    fun accountIdDuplicateCheck(
+        @PathVariable(name = "accountId") accountId: String,
+    ): ResponseEntity<Boolean> =
+        ResponseEntity.ok(userService.accountIdDuplicateCheck(accountId))
 }

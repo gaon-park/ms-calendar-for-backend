@@ -8,51 +8,41 @@ import org.springframework.stereotype.Service
 import java.time.LocalDate
 
 @Service
-@Suppress("UnusedPrivateMember")
 class SearchService(
     private val userService: UserService,
-    private val friendshipService: FriendshipService,
+    private val followRelationshipService: FollowRelationshipService,
     private val scheduleService: ScheduleService,
 ) {
-    fun findFriendByEmailOrNickName(userId: String, searchUser: String): List<UserResponse> {
-        val friends = friendshipService.findAllAcceptedStatusByUserId(userId)
-            .map {
-                UserResponse.convert(
-                    if (it.key.requester.id == userId) it.key.respondent
-                    else it.key.requester,
-                    it.acceptedStatus
-                )
-            }.filter {
-                it.nickName.contains(searchUser) ||
-                        it.email.split("@")[0].contains(searchUser)
-            }
-
-        val friendIds = friends.mapNotNull { it.id }
-
-        val users = findPublicByEmailOrNickName(searchUser)
-            .filter { it.id != userId }
-            .filter { !friendIds.contains(it.id) }
-        return listOf<UserResponse>().plus(friends).plus(users)
+    fun findUser(searchWord: String): List<UserResponse> {
+        return userService.findByAccountIdLike(searchWord).map {
+            UserResponse.convert(it, null)
+        }
     }
 
-    fun findPublicByEmailOrNickName(user: String): List<UserResponse> =
-        userService.findPublicByEmailOrNickName(user)
-            .map {
-                UserResponse.convert(it, null)
-            }
-
-    fun findFriendSchedules(
-        userId: String, friendId: String, from: LocalDate?, to: LocalDate?
-    ): List<ScheduleResponse> {
-        if (!friendshipService.areTheyFriend(userId, friendId)) throw BaseException(BaseResponseCode.BAD_REQUEST)
-        return scheduleService.findForPublic(friendId, from, to)
+    fun findUser(searchWord: String, loginUserId: String): List<UserResponse> {
+        val followers = followRelationshipService.findFollowings(loginUserId).filter {
+            it.accountId.contains(searchWord)
+        }
+        val followerIds = followers.map { it.id }
+        val searchResult = findUser(searchWord).filter { !followerIds.contains(it.id) }
+        return listOf(followers, searchResult).flatten()
     }
 
-    fun findPublicUserSchedules(
-        searchUserId: String, from: LocalDate?, to: LocalDate?
+    fun findUserSchedules(
+        loginUserId: String?, targetUserId: String, from: LocalDate?, to: LocalDate?
     ): List<ScheduleResponse> {
-        val user = userService.findById(searchUserId)
-        if (!user.isPublic) throw BaseException(BaseResponseCode.BAD_REQUEST)
-        return scheduleService.findForPublic(searchUserId, from, to)
+        loginUserId?.let {
+            if (!followRelationshipService.followingCheck(loginUserId, targetUserId) &&
+                !userService.findById(targetUserId).isPublic
+            ) {
+                return emptyList()
+            }
+        }
+        return scheduleService.findForPublic(
+            loginUserId = loginUserId,
+            searchUserId = targetUserId,
+            from = from,
+            to = to
+        )
     }
 }

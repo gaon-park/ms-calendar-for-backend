@@ -13,7 +13,9 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "t_schedule")
 data class TSchedule(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) val id: Long? = null,
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long? = null,
     val title: String,
     val start: LocalDateTime,
     val end: LocalDateTime,

@@ -12,21 +12,19 @@ import jakarta.persistence.Table
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "t_friendship")
-data class TFriendship(
+@Table(name = "t_follow_relationship")
+data class TFollowRelationship(
     @EmbeddedId
     val key: Key,
-    val note: String,
     @Enumerated(value = EnumType.STRING)
     val acceptedStatus: AcceptedStatus,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
 ) {
     companion object {
-        fun generateSaveModel(requester: TUser, respondent: TUser, note: String?) = TFriendship(
+        fun generateSaveModel(requester: TUser, respondent: TUser) = TFollowRelationship(
             key = Key(requester, respondent),
-            note = note ?: "",
-            acceptedStatus = AcceptedStatus.WAITING,
+            acceptedStatus = if (respondent.isPublic) AcceptedStatus.ACCEPTED else AcceptedStatus.WAITING,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now()
         )

@@ -1,11 +1,10 @@
-package com.maple.herocalendarforbackend.dto.request.friend
+package com.maple.herocalendarforbackend.dto.request.follow
 
 import jakarta.validation.constraints.NotEmpty
 import lombok.Builder
 
 @Builder
-data class FriendAddRequest(
+data class FollowRequest(
     @field:NotEmpty
     val personalKey: String,
-    val note: String?
 )

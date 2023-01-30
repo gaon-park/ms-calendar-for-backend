@@ -10,46 +10,27 @@ import java.util.*
 @Repository
 interface TUserRepository : JpaRepository<TUser, String> {
     fun findByEmail(email: String): TUser?
+    fun findByAccountIdLike(accountId: String): List<TUser>
 
     @Query(
         "select *\n" +
-                "from t_user t\n" +
-                "where (substring_index(t.email, \"@\", 1) like %:value% or t.nick_name like %:value%)\n" +
-                "and t.is_public= true",
+                "from t_user u1\n" +
+                "where u1.id in :ids\n" +
+                "and u1.is_public = true\n" +
+                "union\n" +
+                "select *\n" +
+                "from t_user u2\n" +
+                "where u2.id in (\n" +
+                "   select f.respondent_id\n" +
+                "   from t_follow_relationship f\n" +
+                "   where f.requester_id = :userId\n" +
+                "   and accepted_status = \"ACCEPTED\"\n" +
+                ")",
         nativeQuery = true
     )
-    fun findByEmailOrNickNameAndIsPublic(
-        @Param("value") value: String,
+    fun findPublicOrFollowing(
+        @Param("ids") ids: List<String>, @Param("userId") userId: String
     ): List<TUser>
 
-    @Query(
-        "select * \n" +
-                "from t_user u1 \n" +
-                "where \n" +
-                "  u1.id in :ids\n" +
-                "  and u1.is_public = true \n" +
-                "union \n" +
-                "select * \n" +
-                "from t_user u2 \n" +
-                "where \n" +
-                "  u2.id in (\n" +
-                "    select \n" +
-                "      if (\n" +
-                "        f.requester_id = :userId, \n" +
-                "        f.respondent_id, f.requester_id\n" +
-                "      ) as id \n" +
-                "    from t_friendship f \n" +
-                "    where \n" +
-                "      (\n" +
-                "        f.requester_id = :userId \n" +
-                "        and f.respondent_id in :ids\n" +
-                "      ) \n" +
-                "      or (\n" +
-                "        f.requester_id in :ids\n" +
-                "        and f.respondent_id = :userId\n" +
-                "      )\n" +
-                "  )\n",
-        nativeQuery = true
-    )
-    fun findPublicOrFriendByIdIn(@Param("ids") ids: List<String>, @Param("userId") userId: String): List<TUser>
+    fun findByAccountId(accountId: String): TUser?
 }
