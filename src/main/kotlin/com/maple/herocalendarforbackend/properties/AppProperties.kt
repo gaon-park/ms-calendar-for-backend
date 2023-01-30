@@ -5,7 +5,7 @@ import org.springframework.context.annotation.PropertySource
 import org.springframework.stereotype.Component
 
 @Component
-@PropertySource("classpath:application.properties")
+@PropertySource("classpath:application\${spring.profiles.active}.properties")
 data class AppProperties(
     @Value("\${jwt.secretKey}")
     val jwtSecretKey: String,

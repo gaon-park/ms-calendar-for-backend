@@ -5,7 +5,7 @@ import org.springframework.context.annotation.PropertySource
 import org.springframework.stereotype.Component
 
 @Component
-@PropertySource("classpath:googleOAuth.properties")
+@PropertySource("classpath:googleOAuth\${spring.profiles.active}.properties")
 data class GoogleProperties(
     @Value("\${google.clientId}")
     val clientId: String,
