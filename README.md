@@ -30,7 +30,7 @@ $ sudo docker-compose up -d
 
 $ ./gradlew clean build -x test
 $ cd build/libs
-$ java -jar hero-for-backend-0.0.1-SNAPSHOT.jar 
+$ java -jar -Dspring.profiles.active=.{env} hero-for-backend-0.0.1-SNAPSHOT.jar 
 
 ## background start 
 ## $ nohup java -jar hero-for-backend-0.0.1-SNAPSHOT.jar &
