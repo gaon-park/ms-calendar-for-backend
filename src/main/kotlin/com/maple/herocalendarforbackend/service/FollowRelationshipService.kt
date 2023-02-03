@@ -109,7 +109,7 @@ class FollowRelationshipService(
      */
     fun findFollowers(userId: String): List<UserResponse> {
         return tFollowRelationshipRepository.findFollowersByUserId(userId).map {
-            UserResponse.convert(it.key.respondent, it.acceptedStatus)
+            UserResponse.convert(it.key.requester, it.acceptedStatus)
         }
     }
 }
