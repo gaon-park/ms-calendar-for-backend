@@ -16,7 +16,8 @@
 
 - dev
   
-   1. http://ms-hero.kr/swagger-ui/index.html (basic auth)
+   1. http://ms-hero.kr/swagger-ui/index.html
+      1. need admin basic(nginx config)
 
 # how to deploy
 
