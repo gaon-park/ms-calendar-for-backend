@@ -1,6 +1,7 @@
 package com.maple.herocalendarforbackend.service
 
 import com.maple.herocalendarforbackend.code.BaseResponseCode
+import com.maple.herocalendarforbackend.code.MagicVariables.AUTHORIZATION_REFRESH_JWT
 import com.maple.herocalendarforbackend.code.MagicVariables.JWT_ACCESS_TOKEN_EXPIRATION_TIME_VALUE
 import com.maple.herocalendarforbackend.entity.TJwtAuth
 import com.maple.herocalendarforbackend.entity.TUser
@@ -133,7 +134,7 @@ class JwtAuthService(
      * refresh token 으로 검증된 데이터 반환
      */
     fun getValidatedAuthDataByRefreshToken(request: HttpServletRequest, response: HttpServletResponse): String {
-        val refresh = request.cookies.firstOrNull { it.name == "X-AUTH-REFRESH-TOKEN" }?.value
+        val refresh = request.cookies.firstOrNull { it.name == AUTHORIZATION_REFRESH_JWT }?.value
             ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
         val tJwtAuthOptional = tJwtAuthRepository.findById(refresh)
         if (tJwtAuthOptional.isPresent) {
@@ -148,7 +149,7 @@ class JwtAuthService(
     }
 
     private fun setRefreshTokenToCookie(tJwtAuth: TJwtAuth, response: HttpServletResponse) {
-        val cookie = Cookie("X-AUTH-REFRESH-TOKEN", tJwtAuth.refreshToken)
+        val cookie = Cookie(AUTHORIZATION_REFRESH_JWT, tJwtAuth.refreshToken)
         cookie.maxAge = ChronoUnit.SECONDS.between(LocalDateTime.now(), tJwtAuth.expirationDate).toInt()
         cookie.path = "/"
         cookie.isHttpOnly = true

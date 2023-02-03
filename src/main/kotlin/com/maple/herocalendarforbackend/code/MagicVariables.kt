@@ -9,4 +9,6 @@ object MagicVariables {
 
     // 초대 가능한 최대 인원 수: 30
     const val MAX_VALUE_OF_MEMBERS = 30
+
+    const val AUTHORIZATION_REFRESH_JWT = "XXX-AUTH-REFRESH-TOKEN"
 }

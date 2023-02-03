@@ -27,22 +27,12 @@ class SecurityConfig(
             .csrf().disable()
             .cors()
             .and()
-            // todo 본방 개시 전, 삭제
-            .authorizeHttpRequests()
-//            .requestMatchers("/swagger/**", "/api-docs", "/api-docs/**")
-            .requestMatchers("/", "/**")
-            .hasRole("ADMIN")
-            .and()
-            .httpBasic()
-
-            .and()
             .sessionManagement()
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            // todo 본방 개시 전, 삭제
-//            .and()
-//            .authorizeHttpRequests() // 요청에 대한 권한 체크
-//            .requestMatchers("/api/user", "/api/user/**").hasRole("USER")
-//            .anyRequest().permitAll() // 그 외 나머지 요청은 누구나 접근 가능
+            .and()
+            .authorizeHttpRequests() // 요청에 대한 권한 체크
+            .requestMatchers("/api/user", "/api/user/**").hasRole("USER")
+            .anyRequest().permitAll() // 그 외 나머지 요청은 누구나 접근 가능
             .and()
             .addFilterBefore(
                 JwtAuthenticationFilter(jwtAuthService),
