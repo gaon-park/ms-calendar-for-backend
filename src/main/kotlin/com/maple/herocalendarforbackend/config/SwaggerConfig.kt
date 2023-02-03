@@ -33,15 +33,6 @@ class SwaggerConfig : WebMvcConfigurer {
     }
 
     @Bean
-    fun followAPI(): GroupedOpenApi {
-        return GroupedOpenApi.builder()
-            .group("Follow/Following CURD")
-            .pathsToMatch("/api/user/follow")
-            .pathsToMatch("/api/user/follow/**")
-            .build()
-    }
-
-    @Bean
     fun userAPI(): GroupedOpenApi {
         return GroupedOpenApi.builder()
             .group("For Login User")
