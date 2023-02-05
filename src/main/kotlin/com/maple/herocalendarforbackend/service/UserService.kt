@@ -6,12 +6,11 @@ import com.maple.herocalendarforbackend.entity.TUser
 import com.maple.herocalendarforbackend.exception.BaseException
 import com.maple.herocalendarforbackend.repository.TUserRepository
 import com.maple.herocalendarforbackend.util.GCSUtil
-import org.hibernate.exception.ConstraintViolationException
+import com.maple.herocalendarforbackend.util.ImageUtil
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDateTime
 
 @Service
@@ -28,24 +27,28 @@ class UserService(
     fun findById(id: String): TUser =
         tUserRepository.findById(id).let {
             if (it.isEmpty) throw BaseException(BaseResponseCode.USER_NOT_FOUND)
-            it.get()
+            val entity = it.get()
+            entity.copy(
+                avatarImg = ImageUtil().readToByteStringFromGCS(entity.avatarImg)
+            )
         }
 
     @Transactional
     fun updateProfile(id: String, request: ProfileRequest): TUser {
         val user = findById(id)
-        val avatarImg = if (request.avatarImg is MultipartFile) {
-            request.avatarImg.let {
-                GCSUtil().upload(id, request.avatarImg)
-            }
-        } else user.avatarImg
+        val avatarImg = request.encodedImg?.let {
+            GCSUtil().upload(
+                id,
+                ImageUtil().toByteArray(request.encodedImg)
+            )
+        }
         return if (diffCheck(user, request)) {
             tUserRepository.save(
                 user.copy(
-                    nickName = request.nickName,
-                    accountId = request.accountId,
-                    isPublic = request.isPublic,
-                    avatarImg = avatarImg,
+                    nickName = request.nickName ?: user.nickName,
+                    accountId = request.accountId ?: user.accountId,
+                    isPublic = request.isPublic ?: user.isPublic,
+                    avatarImg = avatarImg ?: user.avatarImg,
                     updatedAt = LocalDateTime.now()
                 )
             )

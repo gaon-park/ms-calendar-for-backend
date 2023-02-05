@@ -6,6 +6,7 @@ import com.maple.herocalendarforbackend.dto.response.ErrorResponse
 import com.maple.herocalendarforbackend.dto.response.ProfileResponse
 import com.maple.herocalendarforbackend.service.AlertService
 import com.maple.herocalendarforbackend.service.UserService
+import com.maple.herocalendarforbackend.util.ImageUtil
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -18,10 +19,15 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestAttribute
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.multipart.MultipartFile
 import java.security.Principal
 
 @Tag(name = "User tools", description = "Login User関連 API")
@@ -90,7 +96,7 @@ class UserController(
      */
     @Operation(
         summary = "put user profile", description = "ログインユーザの加入情報を修正する API <br/>" +
-                "画像ファイルがある場合だけ、multipart/form-data　指定"
+                "修正したデータだけ送信（もし、修正内側がニックネームだけなら、ニックネームだけのJson送信）"
     )
     @ApiResponses(
         value = [
@@ -112,17 +118,37 @@ class UserController(
             ),
         ]
     )
-    @PutMapping(
-        "/profile",
-        produces = [MediaType.MULTIPART_FORM_DATA_VALUE],
-        consumes = [MediaType.MULTIPART_FORM_DATA_VALUE]
-    )
+    @PutMapping("/profile")
     fun putProfile(
         principal: Principal,
-        @Valid @ModelAttribute requestBody: ProfileRequest,
+        @Valid @RequestBody requestBody: ProfileRequest,
     ): ResponseEntity<ProfileResponse> =
         ResponseEntity.ok(
             ProfileResponse.convert(userService.updateProfile(principal.name, requestBody))
+        )
+
+    @Operation(
+        summary = "get user profile image to base64 encoded string", description = "ログインユーザの画像ファイル取得 API <br/>" +
+                "プロフィール画像修正時に使うデータ"
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                content = arrayOf(Content(schema = Schema(implementation = String::class)))
+            )
+        ]
+    )
+    @PostMapping(
+        "/encodedImg",
+        produces = [MediaType.MULTIPART_FORM_DATA_VALUE],
+        consumes = [MediaType.MULTIPART_FORM_DATA_VALUE]
+    )
+    fun getByteImg(
+        @RequestParam avatarImg: MultipartFile,
+    ): ResponseEntity<String> =
+        ResponseEntity.ok(
+            ImageUtil().toByteString(avatarImg)
         )
 
     /**
