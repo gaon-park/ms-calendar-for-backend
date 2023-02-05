@@ -12,6 +12,7 @@ import java.time.LocalDateTime
 
 @Entity
 @Table(name = "t_schedule")
+@Suppress("MagicNumber")
 data class TSchedule(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
