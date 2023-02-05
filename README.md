@@ -30,9 +30,8 @@ $ git pull origin master
 $ sudo docker-compose up -d 
 
 $ ./gradlew clean build -x test
-$ cd build/libs
-$ java -jar -Dspring.profiles.active=.{env} hero-for-backend-0.0.1-SNAPSHOT.jar 
+$ java -jar -Dspring.profiles.active=.{env} build/libs/hero-for-backend-0.0.1-SNAPSHOT.jar 
 
 ## background start 
-## $ nohup java -jar -Dspring.profiles.active=.{env} hero-for-backend-0.0.1-SNAPSHOT.jar &
+## $ nohup java -jar -Dspring.profiles.active=.{env} build/libs/hero-for-backend-0.0.1-SNAPSHOT.jar &
 ```
