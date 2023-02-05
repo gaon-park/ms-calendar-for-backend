@@ -34,5 +34,5 @@ $ cd build/libs
 $ java -jar -Dspring.profiles.active=.{env} hero-for-backend-0.0.1-SNAPSHOT.jar 
 
 ## background start 
-## $ nohup java -jar hero-for-backend-0.0.1-SNAPSHOT.jar &
+## $ nohup java -jar -Dspring.profiles.active=.{env} hero-for-backend-0.0.1-SNAPSHOT.jar &
 ```
