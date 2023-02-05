@@ -9,7 +9,6 @@ import org.hibernate.annotations.GenericGenerator
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.userdetails.UserDetails
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import java.time.LocalDateTime
 
 @Entity
@@ -40,18 +39,15 @@ data class TUser(
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
             isPublic = false,
-            avatarImg = "https://storage.googleapis.com/ms-hero-profile/default_profile.png",
+            avatarImg = "default_profile.png",
             userRole = null
         )
     }
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority>? =
-        userRole?.let {
-            AuthorityUtils.createAuthorityList("ROLE_USER", it)
-        } ?: AuthorityUtils.createAuthorityList("ROLE_USER")
+        AuthorityUtils.createAuthorityList("ROLE_USER")
 
-    // todo 본방 개시 전, 삭제
-    override fun getPassword(): String = email.split("@")[0]
+    override fun getPassword(): String = ""
 
     override fun getUsername(): String = id!!
 
