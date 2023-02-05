@@ -26,6 +26,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 @Service
 @Suppress("TooManyFunctions", "MagicNumber")
@@ -81,10 +82,20 @@ class ScheduleService(
     @Transactional
     fun saveSchedule(request: ScheduleAddRequest, ownerId: String, memberGroup: TScheduleMemberGroup) {
         val requestStart = request.start
-        val diff = Duration.between(requestStart, request.end).toMinutes()
+        val requestEnd =
+            if (request.allDay == true) LocalDateTime.of(
+                requestStart.year,
+                requestStart.month,
+                requestStart.dayOfMonth,
+                23,
+                59
+            )
+            else request.end ?: requestStart
+
+        val diff = Duration.between(requestStart, requestEnd).toMinutes()
         val start = requestStart.toLocalDate()
         val end = when {
-            (request.repeatInfo == null) -> request.end.toLocalDate()
+            (request.repeatInfo == null) -> requestEnd.toLocalDate()
             (request.repeatInfo.end == null) -> LocalDate.of(start.year + 1, start.month, start.dayOfMonth)
             else -> request.repeatInfo.end
         }
@@ -155,7 +166,16 @@ class ScheduleService(
             }
 
             val startDiff = Duration.between(schedule.start, request.start).toMinutes()
-            val endDiff = Duration.between(schedule.end, request.end).toMinutes()
+            val requestEnd =
+                if (request.allDay) LocalDateTime.of(
+                    request.start.year,
+                    request.start.month,
+                    request.start.dayOfMonth,
+                    23,
+                    59
+                )
+                else request.end ?: request.start
+            val endDiff = Duration.between(schedule.end, requestEnd).toMinutes()
             tScheduleRepository.saveAll(
                 entities.map {
                     it.copy(

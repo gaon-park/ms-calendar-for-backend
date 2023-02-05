@@ -31,7 +31,14 @@ data class TSchedule(
         fun convert(request: ScheduleAddRequest, ownerId: String?, memberGroup: TScheduleMemberGroup) = TSchedule(
             title = request.title,
             start = request.start,
-            end = request.end,
+            end = if (request.allDay == true) LocalDateTime.of(
+                request.start.year,
+                request.start.month,
+                request.start.dayOfMonth,
+                23,
+                59
+            )
+            else request.end ?: request.start,
             allDay = request.allDay ?: false,
             ownerId = ownerId,
             memberGroup = memberGroup,

@@ -18,7 +18,7 @@ data class ScheduleAddRequest(
     @field:DateTimeFormat(pattern = "yyyy-MM-ddTHH:mm")
     val start: LocalDateTime,
     @field:DateTimeFormat(pattern = "yyyy-MM-ddTHH:mm")
-    val end: LocalDateTime,
+    val end: LocalDateTime?,
     val repeatInfo: RepeatInfo?,
     val allDay: Boolean?,
     val note: String?,
@@ -27,5 +27,10 @@ data class ScheduleAddRequest(
     val isPublic: Boolean,
 ) {
     @AssertTrue
-    fun isStart(): Boolean = (end.isAfter(start))
+    fun isStart(): Boolean {
+        if (end == null) {
+            return true
+        }
+        return end.isAfter(start)
+    }
 }
