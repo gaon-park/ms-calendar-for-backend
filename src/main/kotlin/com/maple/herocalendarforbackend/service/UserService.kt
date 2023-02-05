@@ -34,15 +34,18 @@ class UserService(
     @Transactional
     fun updateProfile(id: String, request: ProfileRequest): TUser {
         val user = findById(id)
-        val avatarImg = request.avatarImg?.let {
-            GCSUtil().upload(id, request.avatarImg)
-        }
+        val avatarImg = if (request.avatarImg is MultipartFile) {
+            request.avatarImg.let {
+                GCSUtil().upload(id, request.avatarImg)
+            }
+        } else user.avatarImg
         return if (diffCheck(user, request)) {
             tUserRepository.save(
                 user.copy(
                     nickName = request.nickName,
+                    accountId = request.accountId,
                     isPublic = request.isPublic,
-                    avatarImg = avatarImg ?: user.avatarImg,
+                    avatarImg = avatarImg,
                     updatedAt = LocalDateTime.now()
                 )
             )

@@ -16,6 +16,7 @@ import jakarta.validation.Valid
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -113,12 +114,12 @@ class UserController(
     )
     @PutMapping(
         "/profile",
-        produces = [MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE],
-        consumes = [MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE]
+        produces = [MediaType.MULTIPART_FORM_DATA_VALUE],
+        consumes = [MediaType.MULTIPART_FORM_DATA_VALUE]
     )
     fun putProfile(
         principal: Principal,
-        @Valid @RequestBody requestBody: ProfileRequest,
+        @Valid @ModelAttribute requestBody: ProfileRequest,
     ): ResponseEntity<ProfileResponse> =
         ResponseEntity.ok(
             ProfileResponse.convert(userService.updateProfile(principal.name, requestBody))
