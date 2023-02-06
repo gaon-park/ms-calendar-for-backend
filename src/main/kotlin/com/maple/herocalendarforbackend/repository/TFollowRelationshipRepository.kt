@@ -1,5 +1,6 @@
 package com.maple.herocalendarforbackend.repository
 
+import com.maple.herocalendarforbackend.code.MagicVariables.MAX_VALUE_OF_MEMBERS
 import com.maple.herocalendarforbackend.entity.TFollowRelationship
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
@@ -27,7 +28,8 @@ interface TFollowRelationshipRepository : JpaRepository<TFollowRelationship, TFo
     @Query(
         "select *\n" +
                 "from t_follow_relationship f\n" +
-                "where f.requester_id = :userId",
+                "where f.requester_id = :userId\n" +
+                "limit $MAX_VALUE_OF_MEMBERS",
         nativeQuery = true
     )
     fun findFollowingsByUserId(@Param("userId") userId: String): List<TFollowRelationship>
@@ -35,7 +37,8 @@ interface TFollowRelationshipRepository : JpaRepository<TFollowRelationship, TFo
     @Query(
         "select *\n" +
                 "from t_follow_relationship f\n" +
-                "where f.respondent_id = :userId",
+                "where f.respondent_id = :userId\n" +
+                "limit $MAX_VALUE_OF_MEMBERS",
         nativeQuery = true
     )
     fun findFollowersByUserId(@Param("userId") userId: String): List<TFollowRelationship>

@@ -1,9 +1,8 @@
 package com.maple.herocalendarforbackend.service
 
-import com.maple.herocalendarforbackend.code.BaseResponseCode
+import com.maple.herocalendarforbackend.code.MagicVariables.MAX_VALUE_OF_MEMBERS
 import com.maple.herocalendarforbackend.dto.response.ScheduleResponse
 import com.maple.herocalendarforbackend.dto.response.UserResponse
-import com.maple.herocalendarforbackend.exception.BaseException
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
@@ -24,7 +23,10 @@ class SearchService(
             it.accountId.contains(searchWord)
         }
         val followerIds = followers.map { it.id }
-        val searchResult = findUser(searchWord).filter { !followerIds.contains(it.id) }
+        var searchResult = emptyList<UserResponse>();
+        if (followers.size < MAX_VALUE_OF_MEMBERS) {
+            searchResult = findUser(searchWord).filter { !followerIds.contains(it.id) }
+        }
         return listOf(followers, searchResult).flatten()
     }
 

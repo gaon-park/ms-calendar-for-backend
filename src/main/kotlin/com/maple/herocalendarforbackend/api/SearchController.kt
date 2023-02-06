@@ -48,12 +48,12 @@ class SearchController(
     @GetMapping("/user")
     fun findUser(
         principal: Principal?,
-        @RequestParam(name = "user") user: String
+        @RequestParam(name = "keyword") keyword: String
     ): ResponseEntity<List<UserResponse>> {
         return ResponseEntity.ok(
             principal?.name?.let {
-                searchService.findUser(user, it)
-            } ?: searchService.findUser(user))
+                searchService.findUser(keyword, it)
+            } ?: searchService.findUser(keyword))
     }
 
     /**

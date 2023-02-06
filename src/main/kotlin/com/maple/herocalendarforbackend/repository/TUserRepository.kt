@@ -10,7 +10,7 @@ import java.util.*
 @Repository
 interface TUserRepository : JpaRepository<TUser, String> {
     fun findByEmail(email: String): TUser?
-    fun findByAccountIdLike(accountId: String): List<TUser>
+    fun findTop30ByAccountIdLike(accountId: String): List<TUser>
 
     @Query(
         "select *\n" +

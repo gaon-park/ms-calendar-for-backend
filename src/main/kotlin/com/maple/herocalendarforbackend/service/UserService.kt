@@ -22,7 +22,7 @@ class UserService(
     }
 
     fun findByAccountIdLike(keyword: String) =
-        tUserRepository.findByAccountIdLike("%$keyword%")
+        tUserRepository.findTop30ByAccountIdLike("%$keyword%")
 
     fun findById(id: String): TUser =
         tUserRepository.findById(id).let {
