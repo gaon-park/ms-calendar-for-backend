@@ -13,7 +13,7 @@ class SearchService(
     private val scheduleService: ScheduleService,
 ) {
     fun findUser(searchWord: String): List<UserResponse> {
-        return userService.findByAccountIdLike(searchWord).map {
+        return userService.findByAccountIdLike(searchWord, null).map {
             UserResponse.convert(it, null)
         }
     }
@@ -25,7 +25,9 @@ class SearchService(
         val followerIds = followers.map { it.id }
         var searchResult = emptyList<UserResponse>();
         if (followers.size < MAX_VALUE_OF_MEMBERS) {
-            searchResult = findUser(searchWord).filter { !followerIds.contains(it.id) }
+            searchResult = userService.findByAccountIdLike(searchWord, loginUserId).map {
+                UserResponse.convert(it, null)
+            }.filter { !followerIds.contains(it.id) }
         }
         return listOf(followers, searchResult).flatten()
     }

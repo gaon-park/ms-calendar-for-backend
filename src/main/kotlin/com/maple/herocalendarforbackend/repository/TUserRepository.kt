@@ -1,5 +1,6 @@
 package com.maple.herocalendarforbackend.repository
 
+import com.maple.herocalendarforbackend.code.MagicVariables.MAX_VALUE_OF_MEMBERS
 import com.maple.herocalendarforbackend.entity.TUser
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
@@ -10,7 +11,19 @@ import java.util.*
 @Repository
 interface TUserRepository : JpaRepository<TUser, String> {
     fun findByEmail(email: String): TUser?
-    fun findTop30ByAccountIdLike(accountId: String): List<TUser>
+
+    @Query(
+        "select *\n" +
+                "from t_user u\n" +
+                "where u.id != :loginUserId\n" +
+                "and u.account_id like :accountId\n" +
+                "limit $MAX_VALUE_OF_MEMBERS",
+        nativeQuery = true
+    )
+    fun findByAccountIdLike(
+        @Param("accountId") accountId: String,
+        @Param("loginUserId") loginUserId: String
+    ): List<TUser>
 
     @Query(
         "select *\n" +
