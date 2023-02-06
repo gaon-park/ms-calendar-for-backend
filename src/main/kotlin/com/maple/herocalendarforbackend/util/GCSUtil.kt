@@ -1,6 +1,7 @@
 package com.maple.herocalendarforbackend.util
 
 import com.google.auth.oauth2.GoogleCredentials
+import com.google.cloud.storage.Acl
 import com.google.cloud.storage.BlobId
 import com.google.cloud.storage.BlobInfo
 import com.google.cloud.storage.Storage
@@ -16,13 +17,14 @@ class GCSUtil {
         val filePath = "$userId.png"
         val blobId = BlobId.of("ms-hero-profile", filePath)
         val blobInfo = BlobInfo.newBuilder(blobId)
+            .setAcl(listOf(Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER)))
             .setContentType("image/png")
             .build()
         storage.create(
             blobInfo,
             byteArray
         )
-        return filePath
+        return "https://storage.googleapis.com/ms-hero-profile/$filePath"
     }
 
     fun readToByteArray(filePath: String): ByteArray {

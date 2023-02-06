@@ -27,12 +27,7 @@ class UserService(
     fun findById(id: String): TUser =
         tUserRepository.findById(id).let {
             if (it.isEmpty) throw BaseException(BaseResponseCode.USER_NOT_FOUND)
-            val entity = it.get()
-            entity.avatarImg?.let { img ->
-                entity.copy(
-                    avatarImg = ImageUtil().readToByteStringFromGCS(img)
-                )
-            } ?: entity
+            it.get()
         }
 
     @Transactional

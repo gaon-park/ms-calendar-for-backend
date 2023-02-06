@@ -11,10 +11,6 @@ class ImageUtil {
         return prefix + String(Base64.getEncoder().encode(multipartFile.bytes))
     }
 
-    fun readToByteStringFromGCS(filePath: String): String {
-        return prefix + String(Base64.getEncoder().encode(GCSUtil().readToByteArray(filePath)))
-    }
-
     fun toByteArray(encodedByteStr: String): ByteArray {
         return Base64.getDecoder().decode(encodedByteStr.replace(prefix, ""))
     }
