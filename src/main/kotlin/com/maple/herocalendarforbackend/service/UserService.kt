@@ -28,21 +28,25 @@ class UserService(
         tUserRepository.findById(id).let {
             if (it.isEmpty) throw BaseException(BaseResponseCode.USER_NOT_FOUND)
             val entity = it.get()
-            entity.copy(
-                avatarImg = ImageUtil().readToByteStringFromGCS(entity.avatarImg)
-            )
+            entity.avatarImg?.let { img ->
+                entity.copy(
+                    avatarImg = ImageUtil().readToByteStringFromGCS(img)
+                )
+            } ?: entity
         }
 
     @Transactional
     fun updateProfile(id: String, request: ProfileRequest): TUser {
         val user = findById(id)
         val avatarImg = request.encodedImg?.let {
-            GCSUtil().upload(
-                id,
-                ImageUtil().toByteArray(request.encodedImg)
-            )
+            if (it.isNotEmpty()) {
+                GCSUtil().upload(
+                    id,
+                    ImageUtil().toByteArray(request.encodedImg)
+                )
+            } else null
         }
-        return if (diffCheck(user, request)) {
+        return if (diffCheck(user, request) || avatarImg != null) {
             tUserRepository.save(
                 user.copy(
                     nickName = request.nickName ?: user.nickName,
@@ -57,8 +61,10 @@ class UserService(
 
     fun diffCheck(user: TUser, request: ProfileRequest): Boolean {
         return when {
-            user.nickName != request.nickName -> true
-            user.accountId != request.accountId -> true
+            request.nickName?.isNotEmpty() == true
+                    && user.nickName != request.nickName -> true
+            request.accountId?.isNotEmpty() == true
+                    && user.accountId != request.accountId -> true
             user.isPublic != request.isPublic -> true
             else -> false
         }

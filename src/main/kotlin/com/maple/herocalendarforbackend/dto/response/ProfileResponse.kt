@@ -16,7 +16,7 @@ data class ProfileResponse(
     @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm", timezone="Asia/Seoul")
     val updatedAt: LocalDateTime,
     val isPublic: Boolean,
-    val avatarImg: String,
+    val avatarImg: String?,
 ) {
     companion object {
         fun convert(data: TUser) = ProfileResponse(

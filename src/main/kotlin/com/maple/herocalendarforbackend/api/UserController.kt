@@ -1,5 +1,6 @@
 package com.maple.herocalendarforbackend.api
 
+import com.maple.herocalendarforbackend.dto.request.AvatarImgRequest
 import com.maple.herocalendarforbackend.dto.request.ProfileRequest
 import com.maple.herocalendarforbackend.dto.response.AlertsResponse
 import com.maple.herocalendarforbackend.dto.response.ErrorResponse
@@ -21,7 +22,6 @@ import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestAttribute
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -141,14 +141,13 @@ class UserController(
     )
     @PostMapping(
         "/encodedImg",
-        produces = [MediaType.MULTIPART_FORM_DATA_VALUE],
         consumes = [MediaType.MULTIPART_FORM_DATA_VALUE]
     )
     fun getByteImg(
-        @RequestParam avatarImg: MultipartFile,
+        @ModelAttribute request: AvatarImgRequest,
     ): ResponseEntity<String> =
         ResponseEntity.ok(
-            ImageUtil().toByteString(avatarImg)
+            ImageUtil().toByteString(request.avatarImg)
         )
 
     /**

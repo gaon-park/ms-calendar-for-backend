@@ -28,7 +28,7 @@ data class TUser(
     val updatedAt: LocalDateTime,
     val isPublic: Boolean,
     @Column(length = 10000)
-    val avatarImg: String,
+    val avatarImg: String?,
     val userRole: String?,
 ) : UserDetails {
     companion object {
@@ -39,7 +39,7 @@ data class TUser(
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
             isPublic = false,
-            avatarImg = "default_profile.png",
+            avatarImg = null,
             userRole = null
         )
     }

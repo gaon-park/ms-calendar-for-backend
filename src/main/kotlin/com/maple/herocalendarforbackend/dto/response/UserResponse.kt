@@ -10,7 +10,7 @@ data class UserResponse(
     val email: String,
     val nickName: String,
     val accountId: String,
-    val avatarImg: String,
+    val avatarImg: String?,
     val isPublic: Boolean,
     val acceptedStatus: AcceptedStatus?,
 ) {
