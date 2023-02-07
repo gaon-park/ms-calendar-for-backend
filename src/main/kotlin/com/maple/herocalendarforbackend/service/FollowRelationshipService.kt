@@ -1,7 +1,7 @@
 package com.maple.herocalendarforbackend.service
 
-import com.maple.herocalendarforbackend.code.AcceptedStatus
 import com.maple.herocalendarforbackend.code.BaseResponseCode
+import com.maple.herocalendarforbackend.code.FollowAcceptedStatus
 import com.maple.herocalendarforbackend.dto.request.follow.FollowRequest
 import com.maple.herocalendarforbackend.dto.response.UserResponse
 import com.maple.herocalendarforbackend.entity.TFollowRelationship
@@ -50,12 +50,9 @@ class FollowRelationshipService(
                 tFollowRelationshipRepository.save(TFollowRelationship.generateSaveModel(requester, respondent))
             } else {
                 val relationship = it.get()
-                val exceptionCode = if (listOf(
-                        AcceptedStatus.WAITING,
-                        AcceptedStatus.REFUSED
-                    ).contains(relationship.acceptedStatus)
-                ) BaseResponseCode.WAITING_FOR_RESPONDENT
-                else BaseResponseCode.ALREADY_FOLLOWING
+                val exceptionCode =
+                    if (FollowAcceptedStatus.WAITING == relationship.acceptedStatus) BaseResponseCode.WAITING_FOR_RESPONDENT
+                    else BaseResponseCode.ALREADY_FOLLOWING
                 throw BaseException(exceptionCode)
             }
         }
@@ -72,27 +69,23 @@ class FollowRelationshipService(
     }
 
     /**
-     * 팔로우 요청 수락
+     * 팔로우 승인
      */
     @Transactional
-    fun followRequestAccept(opponentId: String, loginUserId: String) {
+    fun followerAccept(opponentId: String, loginUserId: String) {
         tFollowRelationshipRepository.updateStatus(
-            statusValue = AcceptedStatus.ACCEPTED.toString(),
+            statusValue = FollowAcceptedStatus.ACCEPTED.toString(),
             requesterId = opponentId,
             respondentId = loginUserId
         )
     }
 
     /**
-     * 팔로우 요청 거절
+     * 팔로워 삭제
      */
     @Transactional
-    fun followRequestRefuse(opponentId: String, loginUserId: String) {
-        tFollowRelationshipRepository.updateStatus(
-            statusValue = AcceptedStatus.REFUSED.toString(),
-            requesterId = opponentId,
-            respondentId = loginUserId
-        )
+    fun followerDelete(opponentId: String, loginUserId: String) {
+        tFollowRelationshipRepository.deleteByRequestAndRespondentUserId(requesterId = opponentId, respondentId = loginUserId)
     }
 
     /**

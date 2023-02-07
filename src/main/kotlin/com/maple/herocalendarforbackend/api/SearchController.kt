@@ -76,12 +76,12 @@ class SearchController(
             )
         ]
     )
-    @GetMapping("/user/schedule")
+    @GetMapping("/schedule")
     fun findSchedules(
         principal: Principal?,
         @RequestParam(name = "userId") userId: String,
-        @RequestParam from: LocalDate?,
-        @RequestParam to: LocalDate?
+        @RequestParam from: LocalDate,
+        @RequestParam to: LocalDate
     ): ResponseEntity<List<ScheduleResponse>> {
         return ResponseEntity.ok(
             searchService.findUserSchedules(

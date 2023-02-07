@@ -26,6 +26,18 @@ interface TFollowRelationshipRepository : JpaRepository<TFollowRelationship, TFo
     )
 
     @Query(
+        "delete from t_follow_relationship f\n" +
+                "where f.requester_id = :requester\n" +
+                "and f.respondent_id = :respondent",
+        nativeQuery = true
+    )
+    @Modifying
+    fun deleteByRequestAndRespondentUserId(
+        @Param("requester") requesterId: String,
+        @Param("respondent") respondentId: String,
+    )
+
+    @Query(
         "select *\n" +
                 "from t_follow_relationship f\n" +
                 "where f.requester_id = :userId\n" +

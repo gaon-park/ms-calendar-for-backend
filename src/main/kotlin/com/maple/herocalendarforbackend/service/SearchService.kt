@@ -33,7 +33,7 @@ class SearchService(
     }
 
     fun findUserSchedules(
-        loginUserId: String?, targetUserId: String, from: LocalDate?, to: LocalDate?
+        loginUserId: String?, targetUserId: String, from: LocalDate, to: LocalDate
     ): List<ScheduleResponse> {
         loginUserId?.let {
             if (!followRelationshipService.followingCheck(loginUserId, targetUserId) &&

@@ -8,15 +8,12 @@ import java.time.LocalDate
 @Builder
 data class ScheduleGetRequest(
     @field:DateTimeFormat(pattern = "yyyy-MM-dd")
-    val from: LocalDate?,
+    val from: LocalDate,
     @field:DateTimeFormat(pattern = "yyyy-MM-dd")
-    val to: LocalDate?
+    val to: LocalDate
 ) {
     @AssertTrue
     fun isFrom(): Boolean {
-        if (to == null) {
-            return true
-        }
-        return to.isAfter(from)
+        return to.isAfter(from) || to.isEqual(from);
     }
 }

@@ -3,7 +3,6 @@ package com.maple.herocalendarforbackend.api
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleAddRequest
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleDeleteRequest
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleMemberAddRequest
-import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleOwnerChangeRequest
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleRequest
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleUpdateRequest
 import com.maple.herocalendarforbackend.dto.response.ErrorResponse
@@ -19,9 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -33,8 +30,8 @@ import java.time.LocalDate
 
 @Tag(name = "Calendar CURD", description = "Schedule作成、更新、閲覧、削除関連 API")
 @RestController
-@RequestMapping("/api/user/schedule", produces = [MediaType.APPLICATION_JSON_VALUE])
-class UserCalendarController(
+@RequestMapping("/api/schedule", produces = [MediaType.APPLICATION_JSON_VALUE])
+class CalendarController(
     private val scheduleService: ScheduleService,
 ) {
 
@@ -222,7 +219,9 @@ class UserCalendarController(
     }
 
     /**
-     * 로그인 유저의 스케줄
+     * 스케줄 검색
+     * 로그인 유저: 게임 내 공식 스케줄 + 등록 스케줄
+     * 비로그인 유저: 게임 내 공식 스케줄
      */
     @Operation(summary = "get schedules", description = "期間中の全てのScheduleを取得する API")
     @ApiResponses(
@@ -246,8 +245,8 @@ class UserCalendarController(
     @GetMapping
     fun getSchedules(
         principal: Principal,
-        @RequestParam from: LocalDate?,
-        @RequestParam to: LocalDate?
+        @RequestParam from: LocalDate,
+        @RequestParam to: LocalDate
     ): ResponseEntity<List<ScheduleResponse>> {
         return ResponseEntity.ok(scheduleService.findForPersonal(principal.name, from, to))
     }

@@ -29,19 +29,24 @@ class JwtAuthenticationFilter(
             "/favicon.ico",
             "/api/oauth2/"
         )
+        val GET_BOTH_URL = listOf(
+            "/api/search/user",
+            "/api/search/schedule",
+            "/api/schedule"
+        )
     }
 
     override fun doFilterInternal(
         request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain
     ) {
         try {
-            if (request.servletPath.startsWith("/api/search/")) {
+            if (needOptionalPrincipal(request)) {
                 try {
                     val token = jwtAuthService.getValidatedAuthData(request)
                     SecurityContextHolder.getContext().authentication = jwtAuthService.getAuthentication(token)
-                } catch (_: Exception) {  }
-            }
-            else if (request.servletPath.equals("/api/reissue/token")) {
+                } catch (_: Exception) {
+                }
+            } else if (request.servletPath.equals("/api/reissue/token")) {
                 val token = jwtAuthService.getValidatedAuthDataByRefreshToken(request, response)
                 request.setAttribute("accessToken", token)
                 SecurityContextHolder.getContext().authentication = jwtAuthService.getAuthentication(token)
@@ -61,6 +66,11 @@ class JwtAuthenticationFilter(
                 is java.lang.NullPointerException -> setErrorResponse(response, BaseResponseCode.UNAUTHORIZED)
             }
         }
+    }
+
+    fun needOptionalPrincipal(request: HttpServletRequest): Boolean {
+        return GET_BOTH_URL.any { url -> (request.servletPath.equals(url)) }
+            .and(request.method.equals("GET", true))
     }
 
     // filtering 제외 URL 설정

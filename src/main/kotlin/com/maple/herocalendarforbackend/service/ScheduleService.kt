@@ -1,6 +1,6 @@
 package com.maple.herocalendarforbackend.service
 
-import com.maple.herocalendarforbackend.code.AcceptedStatus
+import com.maple.herocalendarforbackend.code.ScheduleAcceptedStatus
 import com.maple.herocalendarforbackend.code.BaseResponseCode
 import com.maple.herocalendarforbackend.code.RepeatCode
 import com.maple.herocalendarforbackend.code.ScheduleUpdateCode
@@ -25,8 +25,6 @@ import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
-import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
 
 @Service
 @Suppress("TooManyFunctions", "MagicNumber")
@@ -67,12 +65,12 @@ class ScheduleService(
             tUserRepository.findPublicOrFollowing(memberIds.filter { it != owner.id }.toSet().toList(), owner.id!!)
         val memberData = mutableListOf(
             TScheduleMember.initConvert(
-                owner, group, AcceptedStatus.ACCEPTED
+                owner, group, ScheduleAcceptedStatus.ACCEPTED
             )
         )
         memberData.addAll(members.map {
             TScheduleMember.initConvert(
-                it, group, AcceptedStatus.WAITING
+                it, group, ScheduleAcceptedStatus.WAITING
             )
         })
 
@@ -140,7 +138,7 @@ class ScheduleService(
             tScheduleMemberRepository.saveAll(
                 tUserRepository.findPublicOrFollowing(request.newMemberIds, requesterId)
                     .map {
-                        TScheduleMember.initConvert(it, schedule.memberGroup, AcceptedStatus.WAITING)
+                        TScheduleMember.initConvert(it, schedule.memberGroup, ScheduleAcceptedStatus.WAITING)
                     }
             )
         }
@@ -208,10 +206,10 @@ class ScheduleService(
         tScheduleMemberRepository.findByScheduleIdAndUserIdAndAcceptedStatus(
             scheduleId,
             requesterId,
-            AcceptedStatus.ACCEPTED.toString()
+            ScheduleAcceptedStatus.ACCEPTED.toString()
         )
             ?.let {
-                tScheduleMemberRepository.save(it.copy(acceptedStatus = AcceptedStatus.ACCEPTED))
+                tScheduleMemberRepository.save(it.copy(acceptedStatus = ScheduleAcceptedStatus.ACCEPTED))
             } ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
     }
 
@@ -223,34 +221,24 @@ class ScheduleService(
         tScheduleMemberRepository.findByScheduleIdAndUserIdAndAcceptedStatus(
             scheduleId,
             requesterId,
-            AcceptedStatus.REFUSED.toString()
+            ScheduleAcceptedStatus.REFUSED.toString()
         )?.let {
-            tScheduleMemberRepository.save(it.copy(acceptedStatus = AcceptedStatus.REFUSED))
+            tScheduleMemberRepository.save(it.copy(acceptedStatus = ScheduleAcceptedStatus.REFUSED))
         } ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
     }
 
     /**
      * 로그인 유저의 스케줄 검색
      */
-    fun findForPersonal(loginUserId: String, from: LocalDate?, to: LocalDate?): List<ScheduleResponse> {
-        val now = LocalDate.now()
-        val fromV = from ?: LocalDate.of(
-            now.year, now.month, 1
-        )
-        val toV = to ?: LocalDate.of(
-            now.year, now.month, 31
-        )
-        fromV.format(DateTimeFormatter.ISO_DATE)
-        toV.format(DateTimeFormatter.ISO_DATE)
-
-        return convertToResponse(tScheduleRepository.findByFromToAndUserId(loginUserId, fromV, toV))
+    fun findForPersonal(loginUserId: String, from: LocalDate, to: LocalDate): List<ScheduleResponse> {
+        return convertToResponse(tScheduleRepository.findByFromToAndUserId(loginUserId, from, to))
     }
 
     fun findForPublic(
         loginUserId: String?,
         searchUserId: String,
-        from: LocalDate?,
-        to: LocalDate?
+        from: LocalDate,
+        to: LocalDate
     ): List<ScheduleResponse> {
         return findForPersonal(searchUserId, from, to).mapNotNull {
             val memberIds = it.members.map { m -> m.id }
@@ -330,7 +318,7 @@ class ScheduleService(
                     TScheduleMember.initConvert(
                         user = m.groupKey.user,
                         group = it,
-                        acceptedStatus = AcceptedStatus.REFUSED
+                        acceptedStatus = ScheduleAcceptedStatus.REFUSED
                     )
                 } else {
                     TScheduleMember.initConvert(

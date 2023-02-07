@@ -14,9 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -85,12 +83,12 @@ class UserFollowController(
             )
         ]
     )
-    @DeleteMapping("/follow/{personalKey}")
+    @PutMapping("/follow/delete")
     fun followCancel(
         principal: Principal,
-        @PathVariable(name = "personalKey") personalKey: String,
+        @Valid @RequestBody requestBody: FollowRequest
     ) {
-        followRelationshipService.followCancel(principal.name, personalKey)
+        followRelationshipService.followCancel(principal.name, requestBody.personalKey)
     }
 
     /**
@@ -116,12 +114,12 @@ class UserFollowController(
             )
         ]
     )
-    @PutMapping("/follow/accept")
-    fun followRequestAccept(
+    @PutMapping("/follower/accept")
+    fun followerAccept(
         principal: Principal,
         @Valid @RequestBody requestBody: FollowRequest
     ) {
-        followRelationshipService.followRequestAccept(requestBody.personalKey, principal.name)
+        followRelationshipService.followerAccept(requestBody.personalKey, principal.name)
     }
 
     /**
@@ -147,19 +145,19 @@ class UserFollowController(
             )
         ]
     )
-    @PutMapping("/follow/refuse")
-    fun followRequestRefuse(
+    @PutMapping("/follower/delete")
+    fun followerDelete(
         principal: Principal,
         @Valid @RequestBody requestBody: FollowRequest
     ) {
-        followRelationshipService.followRequestRefuse(requestBody.personalKey, principal.name)
+        followRelationshipService.followerDelete(requestBody.personalKey, principal.name)
     }
 
 
     /**
-     * 로그인 유저가 팔로잉 중인 유저의 리스트
+     * 로그인 유저가 팔로우 중인 유저의 리스트
      */
-    @Operation(summary = "get followings", description = "ログインユーザがFollowしているユーザ一覧を取得する API")
+    @Operation(summary = "get follows", description = "ログインユーザがFollowしているユーザ一覧を取得する API")
     @ApiResponses(
         value = [
             ApiResponse(
@@ -174,7 +172,7 @@ class UserFollowController(
             ),
         ]
     )
-    @GetMapping("/followings")
+    @GetMapping("/follow")
     fun getFollowings(
         principal: Principal
     ): ResponseEntity<List<UserResponse>> {
@@ -201,7 +199,7 @@ class UserFollowController(
             ),
         ]
     )
-    @GetMapping("/followers")
+    @GetMapping("/follower")
     fun getFollowers(
         principal: Principal
     ): ResponseEntity<List<UserResponse>> {

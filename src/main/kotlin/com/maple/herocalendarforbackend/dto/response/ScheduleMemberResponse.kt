@@ -1,6 +1,6 @@
 package com.maple.herocalendarforbackend.dto.response
 
-import com.maple.herocalendarforbackend.code.AcceptedStatus
+import com.maple.herocalendarforbackend.code.ScheduleAcceptedStatus
 import com.maple.herocalendarforbackend.entity.TScheduleMember
 import lombok.Builder
 
@@ -9,7 +9,7 @@ data class ScheduleMemberResponse(
     val id: String?,
     val email: String,
     val nickName: String,
-    val acceptedStatus: AcceptedStatus,
+    val acceptedStatus: ScheduleAcceptedStatus,
 ) {
     companion object {
         fun convert(data: TScheduleMember) = ScheduleMemberResponse(

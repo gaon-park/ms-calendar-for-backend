@@ -27,8 +27,8 @@ class SwaggerConfig : WebMvcConfigurer {
     fun calendarAPI(): GroupedOpenApi {
         return GroupedOpenApi.builder()
             .group("Calendar CURD")
-            .pathsToMatch("/api/user/schedule")
-            .pathsToMatch("/api/user/schedule/**")
+            .pathsToMatch("/api/schedule")
+            .pathsToMatch("/api/schedule/**")
             .build()
     }
 

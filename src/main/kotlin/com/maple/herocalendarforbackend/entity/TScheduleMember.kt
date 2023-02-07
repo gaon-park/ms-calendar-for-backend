@@ -1,6 +1,6 @@
 package com.maple.herocalendarforbackend.entity
 
-import com.maple.herocalendarforbackend.code.AcceptedStatus
+import com.maple.herocalendarforbackend.code.ScheduleAcceptedStatus
 import jakarta.persistence.Embeddable
 import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity
@@ -16,10 +16,10 @@ data class TScheduleMember(
     @EmbeddedId
     val groupKey: GroupKey,
     @Enumerated(value = EnumType.STRING)
-    val acceptedStatus: AcceptedStatus,
+    val acceptedStatus: ScheduleAcceptedStatus,
 ) {
     companion object {
-        fun initConvert(user: TUser, group: TScheduleMemberGroup, acceptedStatus: AcceptedStatus) = TScheduleMember(
+        fun initConvert(user: TUser, group: TScheduleMemberGroup, acceptedStatus: ScheduleAcceptedStatus) = TScheduleMember(
             groupKey = GroupKey(group, user),
             acceptedStatus = acceptedStatus,
         )
