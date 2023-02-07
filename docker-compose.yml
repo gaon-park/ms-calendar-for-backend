@@ -7,9 +7,9 @@ services:
     command: --default-authentication-plugin=mysql_native_password
     container_name: mysql_container
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_USER: hero
-      MYSQL_PASSWORD: hero
+      MYSQL_ROOT_PASSWORD: qctjimkol9134677890wlasdcgkkl!@
+      MYSQL_USER: admin_dol
+      MYSQL_PASSWORD: afghjKlsdhijkvhlzxc&*%-bnmaedt3r2=
       MYSQL_DATABASE: hero
       TZ: "Asia/Seoul"
     volumes:
