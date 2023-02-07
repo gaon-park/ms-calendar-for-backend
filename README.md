@@ -32,9 +32,8 @@ $ sudo docker-compose up -d
 ## and external host connection blocking set
 $ mysql -uroot -p -h127.0.0.1
 mysql$ use mysql;
-mysql$ delete
-       from user
-       where host = "%";
+mysql$ update user set host="localhost" where user.user="admin_dol";
+mysql$ delete from user where host = "%";
 
 $ ./gradlew clean build -x test
 $ java -jar -Dspring.profiles.active=.{env} build/libs/hero-for-backend-0.0.1-SNAPSHOT.jar 
