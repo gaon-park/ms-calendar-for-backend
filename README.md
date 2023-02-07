@@ -28,6 +28,13 @@ $ git pull origin master
 
 ## If the server instance is newly started (for dabatase server)
 $ sudo docker-compose up -d 
+## access db
+## and external host connection blocking set
+$ mysql -uroot -p -h127.0.0.1:3306
+mysql$ use mysql;
+mysql$ delete
+       from user
+       where host = "%";
 
 $ ./gradlew clean build -x test
 $ java -jar -Dspring.profiles.active=.{env} build/libs/hero-for-backend-0.0.1-SNAPSHOT.jar 
