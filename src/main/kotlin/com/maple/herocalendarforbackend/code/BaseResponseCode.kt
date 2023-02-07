@@ -6,6 +6,7 @@ enum class BaseResponseCode(
     val httpStatus: HttpStatus,
     val message: String,
 ) {
+    DUPLICATED_ACCOUNT_ID(HttpStatus.BAD_REQUEST, "accountId 가 중복되어 DB갱신에 실패했습니다."),
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
     NOT_FOUND(HttpStatus.BAD_REQUEST, "데이터가 존재하지 않습니다."),

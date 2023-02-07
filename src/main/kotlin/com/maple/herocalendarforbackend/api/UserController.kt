@@ -149,25 +149,4 @@ class UserController(
         ResponseEntity.ok(
             ImageUtil().toByteString(request.avatarImg)
         )
-
-    /**
-     * 해당 accountId 값이 사용되고 있는지(변경 가능한 값인지 확인)
-     */
-    @Operation(
-        summary = "is this account_id duplicated?",
-        description = "該当AccountIdに変更できるか確認する API"
-    )
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                content = arrayOf(Content(schema = Schema(implementation = Boolean::class)))
-            )
-        ]
-    )
-    @GetMapping("/validate/{accountId}")
-    fun accountIdDuplicateCheck(
-        @PathVariable(name = "accountId") accountId: String,
-    ): ResponseEntity<Boolean> =
-        ResponseEntity.ok(userService.accountIdDuplicateCheck(accountId))
 }

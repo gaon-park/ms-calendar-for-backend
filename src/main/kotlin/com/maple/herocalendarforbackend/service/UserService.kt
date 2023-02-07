@@ -34,12 +34,15 @@ class UserService(
     fun updateProfile(id: String, request: ProfileRequest): TUser {
         val user = findById(id)
         val avatarImg = request.encodedImg?.let {
-            if (it.isNotEmpty()) {
+            if (it.isNotEmpty() && it != user.avatarImg) {
                 GCSUtil().upload(
                     id,
                     ImageUtil().toByteArray(request.encodedImg)
                 )
             } else null
+        }
+        if (user.accountId != request.accountId && request.accountId?.let { accountIdDuplicateCheck(it) } == false) {
+            throw BaseException(BaseResponseCode.DUPLICATED_ACCOUNT_ID)
         }
         return if (diffCheck(user, request) || avatarImg != null) {
             tUserRepository.save(
@@ -54,7 +57,7 @@ class UserService(
         } else user
     }
 
-    fun diffCheck(user: TUser, request: ProfileRequest): Boolean {
+    private fun diffCheck(user: TUser, request: ProfileRequest): Boolean {
         return when {
             request.nickName?.isNotEmpty() == true
                     && user.nickName != request.nickName -> true
@@ -65,6 +68,6 @@ class UserService(
         }
     }
 
-    fun accountIdDuplicateCheck(accountId: String): Boolean =
+    private fun accountIdDuplicateCheck(accountId: String): Boolean =
         tUserRepository.findByAccountId(accountId) == null
 }
