@@ -17,7 +17,8 @@ import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
-import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.core.authority.AuthorityUtils
+import org.springframework.security.core.userdetails.User
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
@@ -27,7 +28,6 @@ import java.util.*
 
 @Component
 class JwtAuthService(
-    private val userDetailsService: UserDetailsService,
     private val tJwtAuthRepository: TJwtAuthRepository,
     private val tUserRepository: TUserRepository,
     appProperties: AppProperties,
@@ -60,7 +60,7 @@ class JwtAuthService(
     @Transactional
     fun createToken(userPk: TUser, roles: List<String>, response: HttpServletResponse): String {
         // create access token
-        val claims = Jwts.claims().setSubject(userPk.email)
+        val claims = Jwts.claims().setSubject(userPk.id)
         claims["roles"] = roles
         val now = Date()
         val accessToken = Jwts.builder()
@@ -113,10 +113,12 @@ class JwtAuthService(
 
     /**
      * JWT 토큰에서 인증 정보 조회
+     * DB 를 거치지 않고 토큰에서 갑ㅇ슬 꺼내 바로 시큐리티 유저 객체를 만듦
      */
     fun getAuthentication(token: String): Authentication {
-        val userDetails = userDetailsService.loadUserByUsername(getUserPkOnValidatedAccessToken(token))
-        return UsernamePasswordAuthenticationToken(userDetails, "", userDetails.authorities)
+        val claimSubject = getUserPkOnValidatedAccessToken(token)
+        val principal = User(claimSubject, "", AuthorityUtils.createAuthorityList("ROLE_USER"))
+        return UsernamePasswordAuthenticationToken(principal, "", AuthorityUtils.createAuthorityList("ROLE_USER"))
     }
 
     /**
