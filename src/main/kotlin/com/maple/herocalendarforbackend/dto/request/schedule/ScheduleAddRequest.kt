@@ -28,8 +28,11 @@ data class ScheduleAddRequest(
 ) {
     @AssertTrue
     fun isStart(): Boolean {
-        if (end == null) {
+        if (end == null && allDay == true) {
             return true
+        }
+        if (end == null) {
+            return false
         }
         return end.isAfter(start)
     }
