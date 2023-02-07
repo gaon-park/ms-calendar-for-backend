@@ -19,7 +19,9 @@ data class TScheduleMember(
     val acceptedStatus: ScheduleAcceptedStatus,
 ) {
     companion object {
-        fun initConvert(user: TUser, group: TScheduleMemberGroup, acceptedStatus: ScheduleAcceptedStatus) = TScheduleMember(
+        fun initConvert(
+            user: TUser, group: TScheduleMemberGroup, acceptedStatus: ScheduleAcceptedStatus
+        ) = TScheduleMember(
             groupKey = GroupKey(group, user),
             acceptedStatus = acceptedStatus,
         )

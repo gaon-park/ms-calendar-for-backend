@@ -51,7 +51,8 @@ class FollowRelationshipService(
             } else {
                 val relationship = it.get()
                 val exceptionCode =
-                    if (FollowAcceptedStatus.WAITING == relationship.acceptedStatus) BaseResponseCode.WAITING_FOR_RESPONDENT
+                    if (FollowAcceptedStatus.WAITING == relationship.acceptedStatus)
+                        BaseResponseCode.WAITING_FOR_RESPONDENT
                     else BaseResponseCode.ALREADY_FOLLOWING
                 throw BaseException(exceptionCode)
             }
@@ -85,7 +86,10 @@ class FollowRelationshipService(
      */
     @Transactional
     fun followerDelete(opponentId: String, loginUserId: String) {
-        tFollowRelationshipRepository.deleteByRequestAndRespondentUserId(requesterId = opponentId, respondentId = loginUserId)
+        tFollowRelationshipRepository.deleteByRequestAndRespondentUserId(
+            requesterId = opponentId,
+            respondentId = loginUserId
+        )
     }
 
     /**
