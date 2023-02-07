@@ -30,7 +30,7 @@ $ git pull origin master
 $ sudo docker-compose up -d 
 ## access db
 ## and external host connection blocking set
-$ mysql -uroot -p -h127.0.0.1:3306
+$ mysql -uroot -p -h127.0.0.1
 mysql$ use mysql;
 mysql$ delete
        from user
