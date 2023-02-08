@@ -67,6 +67,7 @@ class SecurityConfig(
         CorsConfiguration().apply {
             allowedHeaders = listOf("*")
             allowedOrigins = listOf("http://127.0.0.1:3000")
+            allowedOrigins = listOf("http://ms-hero.kr")
             allowedMethods = listOf("GET", "POST", "PUT", "OPTIONS", "DELETE", "PATCH")
             allowCredentials = true
         }.let { config ->
