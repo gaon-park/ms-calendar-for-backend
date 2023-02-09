@@ -88,7 +88,7 @@ class ScheduleService(
         request: ScheduleAddRequest,
         ownerId: String,
         memberGroup: TScheduleMemberGroup,
-        noteGroup: TScheduleNote?
+        note: TScheduleNote?
     ) {
         val requestStart = request.start
         val requestEnd =
@@ -116,7 +116,7 @@ class ScheduleService(
             else -> Period.ofDays(1)
         }
 
-        val parentSchedule = tScheduleRepository.save(TSchedule.convert(request, ownerId, memberGroup, noteGroup))
+        val parentSchedule = tScheduleRepository.save(TSchedule.convert(request, ownerId, memberGroup, note))
         val repeatSchedules = mutableListOf(parentSchedule.copy(parentId = parentSchedule.id))
         repeatSchedules.addAll(start.datesUntil(end.plusDays(1), period).skip(1).map {
             val tempStart = LocalDateTime.of(
@@ -126,7 +126,7 @@ class ScheduleService(
                 request = request,
                 schedule = parentSchedule,
                 start = tempStart,
-                end = tempStart.plusMinutes(diff)
+                end = tempStart.plusMinutes(diff),
             )
         }.toList())
 
@@ -275,7 +275,8 @@ class ScheduleService(
                 ScheduleResponse.convert(
                     data = it,
                     members = tScheduleMemberRepository.findByGroupKeyGroupId(it.memberGroup.id!!)
-                        .map { m -> ScheduleMemberResponse.convert(m) }
+                        .map { m -> ScheduleMemberResponse.convert(m) },
+                    note = it.note?.note
                 )
             }
         } else emptyList()

@@ -20,15 +20,14 @@ data class ScheduleResponse(
     val members: List<ScheduleMemberResponse>,
 ) {
     companion object {
-        fun convert(data: TSchedule, members: List<ScheduleMemberResponse>) = ScheduleResponse(
+        fun convert(data: TSchedule, members: List<ScheduleMemberResponse>, note: String?) = ScheduleResponse(
             scheduleId = data.id!!,
             title = data.title,
             start = data.start,
             end = data.end,
             allDay = data.allDay,
             isPublic = data.isPublic,
-            // todo
-            note = "",
+            note = note,
             ownerId = data.ownerId!!,
             members = members
         )
