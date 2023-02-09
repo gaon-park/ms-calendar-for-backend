@@ -16,8 +16,8 @@ interface TUserRepository : JpaRepository<TUser, String> {
         "select *\n" +
                 "from t_user u\n" +
                 "where u.id != :loginUserId\n" +
-                "and u.account_id like :keyword\n" +
-                "or u.nick_name like :keyword\n" +
+                "and (u.account_id like :keyword\n" +
+                "or u.nick_name like :keyword)\n" +
                 "limit $MAX_VALUE_OF_MEMBERS",
         nativeQuery = true
     )
