@@ -80,16 +80,25 @@ class JwtAuthService(
             )
         tJwtAuthRepository.save(tJwtAuth)
 
-        // refresh token save to httpOnly cookie
-        setRefreshTokenToCookie(tJwtAuth, response)
-
-        val cookie = ResponseCookie.from("M_SESSION", accessToken)
+        val accessCookie = ResponseCookie.from("M_SESSION", accessToken)
             .path("/")
             .httpOnly(false)
             .maxAge(JWT_ACCESS_TOKEN_COOKIE)
             .domain("ms-hero.kr")
             .build()
-        response.setHeader("Set-Cookie", cookie.toString())
+        response.setHeader("Set-Cookie", accessCookie.toString())
+
+        // refresh token save to httpOnly cookie
+        tJwtAuth.refreshToken?.let {
+            val refreshCookie = ResponseCookie.from(AUTHORIZATION_REFRESH_JWT, it)
+                .path("/")
+                .httpOnly(true)
+                .maxAge(ChronoUnit.SECONDS.between(LocalDateTime.now(), tJwtAuth.expirationDate))
+                .domain("ms-hero.kr")
+                .build()
+            response.addHeader("Set-Cookie", refreshCookie.toString())
+        }
+
 
         return accessToken
     }
@@ -158,13 +167,5 @@ class JwtAuthService(
             }
         }
         throw BaseException(BaseResponseCode.INVALID_TOKEN)
-    }
-
-    private fun setRefreshTokenToCookie(tJwtAuth: TJwtAuth, response: HttpServletResponse) {
-        val cookie = Cookie(AUTHORIZATION_REFRESH_JWT, tJwtAuth.refreshToken)
-        cookie.maxAge = ChronoUnit.SECONDS.between(LocalDateTime.now(), tJwtAuth.expirationDate).toInt()
-        cookie.path = "/"
-        cookie.isHttpOnly = true
-        response.addCookie(cookie)
     }
 }
