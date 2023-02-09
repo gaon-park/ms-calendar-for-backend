@@ -1,6 +1,5 @@
 package com.maple.herocalendarforbackend.config
 
-import ch.qos.logback.classic.LoggerContext
 import com.fasterxml.jackson.module.kotlin.jsonMapper
 import com.maple.herocalendarforbackend.code.BaseResponseCode
 import com.maple.herocalendarforbackend.exception.BaseException
@@ -12,7 +11,6 @@ import io.jsonwebtoken.io.IOException
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import org.slf4j.Logger
 import org.springframework.http.MediaType
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
@@ -24,9 +22,6 @@ import java.security.SignatureException
 class JwtAuthenticationFilter(
     private val jwtAuthService: JwtAuthService,
 ) : OncePerRequestFilter() {
-
-    private val context = LoggerContext()
-    private val logger: Logger = context.getLogger(JwtAuthenticationFilter::class.java)
 
     companion object {
         val EXCLUDE_URL = listOf(
@@ -49,10 +44,7 @@ class JwtAuthenticationFilter(
                 try {
                     val token = jwtAuthService.getValidatedAuthData(request)
                     SecurityContextHolder.getContext().authentication = jwtAuthService.getAuthentication(token)
-                    logger.info("optional principal")
-                } catch (e: Exception) {
-                    logger.info("optional principal exception!: " + e.cause)
-                    logger.info("but this area is skip exception ^^")
+                } catch (_: Exception) {
                 }
             } else if (request.servletPath.equals("/api/reissue/token")) {
                 val token = jwtAuthService.getValidatedAuthDataByRefreshToken(request, response)
@@ -64,8 +56,6 @@ class JwtAuthenticationFilter(
             }
             filterChain.doFilter(request, response)
         } catch (exception: Exception) {
-            logger.info("principal exception!: " + exception.cause)
-            logger.info(exception.stackTrace)
             when (exception) {
                 is ExpiredJwtException -> setErrorResponse(response, BaseResponseCode.TOKEN_EXPIRED)
                 is MalformedJwtException,
@@ -79,13 +69,8 @@ class JwtAuthenticationFilter(
     }
 
     fun needOptionalPrincipal(request: HttpServletRequest): Boolean {
-        logger.info("needOptionalPrincipal check")
         val resURL = GET_BOTH_URL.any { url -> (request.servletPath.equals(url)) }
-            val resMethod = (request.method.equals("GET", true))
-        val url: String = request.servletPath
-        logger.info("url:$url")
-        logger.info("resURL:$resURL")
-        logger.info("resMethod:$resMethod")
+        val resMethod = (request.method.equals("GET", true))
         return resURL && resMethod
     }
 
