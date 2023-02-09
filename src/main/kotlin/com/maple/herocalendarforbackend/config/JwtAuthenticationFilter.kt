@@ -78,6 +78,10 @@ class JwtAuthenticationFilter(
     }
 
     fun needOptionalPrincipal(request: HttpServletRequest): Boolean {
+        logger.info("needOptionalPrincipal check")
+        GET_BOTH_URL.forEach {
+            logger.info(it + "compare " + request.servletPath + ": " + it == request.servletPath)
+        }
         return GET_BOTH_URL.any { url -> (request.servletPath.equals(url)) }
             .and(request.method.equals("GET", true))
     }
