@@ -13,4 +13,5 @@ object MagicVariables {
     const val MAX_VALUE_OF_MEMBERS = 30
 
     const val AUTHORIZATION_REFRESH_JWT = "X-AUTH-REFRESH-TOKEN"
+    const val AUTHORIZATION_ACCESS_JWT = "M_SESSION"
 }

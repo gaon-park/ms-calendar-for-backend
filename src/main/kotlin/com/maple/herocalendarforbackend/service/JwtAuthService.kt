@@ -1,6 +1,7 @@
 package com.maple.herocalendarforbackend.service
 
 import com.maple.herocalendarforbackend.code.BaseResponseCode
+import com.maple.herocalendarforbackend.code.MagicVariables.AUTHORIZATION_ACCESS_JWT
 import com.maple.herocalendarforbackend.code.MagicVariables.AUTHORIZATION_REFRESH_JWT
 import com.maple.herocalendarforbackend.code.MagicVariables.JWT_ACCESS_TOKEN_COOKIE
 import com.maple.herocalendarforbackend.code.MagicVariables.JWT_ACCESS_TOKEN_EXPIRATION_TIME_VALUE
@@ -79,8 +80,12 @@ class JwtAuthService(
                 userPk
             )
         tJwtAuthRepository.save(tJwtAuth)
+        setCookie(accessToken, tJwtAuth, response)
+        return accessToken
+    }
 
-        val accessCookie = ResponseCookie.from("M_SESSION", accessToken)
+    fun setCookie(accessToken: String, tJwtAuth: TJwtAuth, response: HttpServletResponse) {
+        val accessCookie = ResponseCookie.from(AUTHORIZATION_ACCESS_JWT, accessToken)
             .path("/")
             .httpOnly(false)
             .maxAge(JWT_ACCESS_TOKEN_COOKIE)
@@ -98,9 +103,6 @@ class JwtAuthService(
                 .build()
             response.addHeader("Set-Cookie", refreshCookie.toString())
         }
-
-
-        return accessToken
     }
 
     /**
@@ -167,5 +169,20 @@ class JwtAuthService(
             }
         }
         throw BaseException(BaseResponseCode.INVALID_TOKEN)
+    }
+
+    fun logout(response: HttpServletResponse) {
+        val accessCookie = ResponseCookie.from(AUTHORIZATION_ACCESS_JWT)
+            .maxAge(0)
+            .domain("ms-hero.kr")
+            .value(null)
+            .build()
+        val refreshCookie = ResponseCookie.from(AUTHORIZATION_REFRESH_JWT)
+            .maxAge(0)
+            .domain("ms-hero.kr")
+            .value(null)
+            .build()
+        response.setHeader("Set-Cookie", accessCookie.toString())
+        response.addHeader("Set-Cookie", refreshCookie.toString())
     }
 }

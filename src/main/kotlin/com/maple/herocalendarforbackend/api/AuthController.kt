@@ -98,4 +98,9 @@ class AuthController(
             LoginResponse(request.getAttribute("accessToken").toString())
         )
     }
+    @Operation(summary = "Logout", description = "CookieのAccessToken, RefreshToken を削除する API")
+    @GetMapping("/logout")
+    fun logout(response: HttpServletResponse) {
+        return jwtAuthService.logout(response)
+    }
 }
