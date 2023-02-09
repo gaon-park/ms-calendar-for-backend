@@ -1,9 +1,7 @@
 package com.maple.herocalendarforbackend.service
 
-import ch.qos.logback.classic.LoggerContext
 import com.fasterxml.jackson.module.kotlin.jsonMapper
 import com.maple.herocalendarforbackend.code.BaseResponseCode
-import com.maple.herocalendarforbackend.config.JwtAuthenticationFilter
 import com.maple.herocalendarforbackend.dto.oauth2.GoogleOAuthGetToken
 import com.maple.herocalendarforbackend.dto.oauth2.GoogleOAuthTokenInfo
 import com.maple.herocalendarforbackend.entity.TUser
@@ -11,6 +9,7 @@ import com.maple.herocalendarforbackend.exception.BaseException
 import com.maple.herocalendarforbackend.properties.GoogleProperties
 import com.maple.herocalendarforbackend.repository.TUserRepository
 import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -26,8 +25,7 @@ class GoogleOAuthService(
     private val gp: GoogleProperties
 ) {
 
-    private val context = LoggerContext()
-    private val logger: Logger = context.getLogger(GoogleOAuthService::class.java)
+    private val logger: Logger = LoggerFactory.getLogger(GoogleOAuthService::class.java)
 
     fun process(code: String): String? {
         logger.info("start process!!")
