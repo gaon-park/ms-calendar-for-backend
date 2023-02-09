@@ -42,22 +42,6 @@ class SecurityConfig(
         return auth.authenticationManager
     }
 
-    // todo 본방 개시 전, 삭제
-    @Bean
-    fun passwordEncoder(): PasswordEncoder {
-        return PlainTextPasswordEncoder()
-    }
-
-    class PlainTextPasswordEncoder: PasswordEncoder {
-        override fun encode(rawPassword: CharSequence?): String {
-            return rawPassword.toString()
-        }
-
-        override fun matches(rawPassword: CharSequence?, encodedPassword: String?): Boolean {
-            return rawPassword.toString() == encodedPassword
-        }
-    }
-
     @Bean
     fun corsConfigurationSource(): CorsConfigurationSource =
         CorsConfiguration().apply {
