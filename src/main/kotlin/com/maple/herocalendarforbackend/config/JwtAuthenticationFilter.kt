@@ -11,6 +11,8 @@ import io.jsonwebtoken.io.IOException
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.http.MediaType
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
@@ -22,6 +24,8 @@ import java.security.SignatureException
 class JwtAuthenticationFilter(
     private val jwtAuthService: JwtAuthService,
 ) : OncePerRequestFilter() {
+
+    private var logger: Logger = LoggerFactory.getLogger(JwtAuthenticationFilter::class.java)
 
     companion object {
         val EXCLUDE_URL = listOf(
@@ -44,7 +48,10 @@ class JwtAuthenticationFilter(
                 try {
                     val token = jwtAuthService.getValidatedAuthData(request)
                     SecurityContextHolder.getContext().authentication = jwtAuthService.getAuthentication(token)
-                } catch (_: Exception) {
+                    logger.info("optional principal")
+                } catch (e: Exception) {
+                    logger.info("optional principal exception!: " + e.cause)
+                    logger.info("but this area is skip exception ^^")
                 }
             } else if (request.servletPath.equals("/api/reissue/token")) {
                 val token = jwtAuthService.getValidatedAuthDataByRefreshToken(request, response)
@@ -56,6 +63,7 @@ class JwtAuthenticationFilter(
             }
             filterChain.doFilter(request, response)
         } catch (exception: Exception) {
+            logger.info("principal exception!: " + exception.cause)
             when (exception) {
                 is ExpiredJwtException -> setErrorResponse(response, BaseResponseCode.TOKEN_EXPIRED)
                 is MalformedJwtException,
