@@ -64,6 +64,7 @@ class JwtAuthenticationFilter(
             filterChain.doFilter(request, response)
         } catch (exception: Exception) {
             logger.info("principal exception!: " + exception.cause)
+            logger.info(exception.stackTrace)
             when (exception) {
                 is ExpiredJwtException -> setErrorResponse(response, BaseResponseCode.TOKEN_EXPIRED)
                 is MalformedJwtException,
