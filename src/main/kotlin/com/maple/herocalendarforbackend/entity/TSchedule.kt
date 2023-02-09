@@ -24,12 +24,19 @@ data class TSchedule(
     val ownerId: String?,
     @ManyToOne @JoinColumn(name = "member_group_id")
     val memberGroup: TScheduleMemberGroup,
+    @ManyToOne @JoinColumn(name = "note_id")
+    val note: TScheduleNote?,
     val isPublic: Boolean,
     val parentId: Long?,
 ) {
     companion object {
         // 첫 입력
-        fun convert(request: ScheduleAddRequest, ownerId: String?, memberGroup: TScheduleMemberGroup) = TSchedule(
+        fun convert(
+            request: ScheduleAddRequest,
+            ownerId: String?,
+            memberGroup: TScheduleMemberGroup,
+            note: TScheduleNote?
+        ) = TSchedule(
             title = request.title,
             start = request.start,
             end = if (request.allDay == true) LocalDateTime.of(
@@ -43,6 +50,7 @@ data class TSchedule(
             allDay = request.allDay ?: false,
             ownerId = ownerId,
             memberGroup = memberGroup,
+            note = note,
             isPublic = request.isPublic,
             parentId = null
         )
@@ -60,6 +68,7 @@ data class TSchedule(
             allDay = request.allDay ?: false,
             ownerId = schedule.ownerId,
             memberGroup = schedule.memberGroup,
+            note = schedule.note,
             isPublic = request.isPublic,
             parentId = schedule.id
         )

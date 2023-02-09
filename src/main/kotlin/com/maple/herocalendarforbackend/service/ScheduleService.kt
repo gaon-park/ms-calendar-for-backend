@@ -6,17 +6,18 @@ import com.maple.herocalendarforbackend.code.RepeatCode
 import com.maple.herocalendarforbackend.code.ScheduleUpdateCode
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleAddRequest
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleDeleteRequest
-import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleMemberAddRequest
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleUpdateRequest
 import com.maple.herocalendarforbackend.dto.response.ScheduleMemberResponse
 import com.maple.herocalendarforbackend.dto.response.ScheduleResponse
 import com.maple.herocalendarforbackend.entity.TSchedule
 import com.maple.herocalendarforbackend.entity.TScheduleMember
 import com.maple.herocalendarforbackend.entity.TScheduleMemberGroup
+import com.maple.herocalendarforbackend.entity.TScheduleNote
 import com.maple.herocalendarforbackend.entity.TUser
 import com.maple.herocalendarforbackend.exception.BaseException
 import com.maple.herocalendarforbackend.repository.TScheduleMemberGroupRepository
 import com.maple.herocalendarforbackend.repository.TScheduleMemberRepository
+import com.maple.herocalendarforbackend.repository.TScheduleNoteRepository
 import com.maple.herocalendarforbackend.repository.TScheduleRepository
 import com.maple.herocalendarforbackend.repository.TUserRepository
 import org.springframework.stereotype.Service
@@ -33,6 +34,7 @@ class ScheduleService(
     private val tScheduleMemberRepository: TScheduleMemberRepository,
     private val tUserRepository: TUserRepository,
     private val tScheduleMemberGroupRepository: TScheduleMemberGroupRepository,
+    private val tScheduleNoteRepository: TScheduleNoteRepository,
 ) {
 
     fun findById(scheduleId: Long): TSchedule {
@@ -54,7 +56,11 @@ class ScheduleService(
     fun save(requesterId: String, request: ScheduleAddRequest) {
         val owner = findUserById(requesterId)
         tScheduleMemberGroupRepository.save(TScheduleMemberGroup()).let {
-            saveSchedule(request, requesterId, it)
+            val tNote = if (request.note != null)
+                tScheduleNoteRepository.save(TScheduleNote.convert(request.note))
+            else null
+
+            saveSchedule(request, requesterId, it, tNote)
             saveScheduleMember(owner, request.memberIds, it)
         }
     }
@@ -78,7 +84,12 @@ class ScheduleService(
     }
 
     @Transactional
-    fun saveSchedule(request: ScheduleAddRequest, ownerId: String, memberGroup: TScheduleMemberGroup) {
+    fun saveSchedule(
+        request: ScheduleAddRequest,
+        ownerId: String,
+        memberGroup: TScheduleMemberGroup,
+        noteGroup: TScheduleNote?
+    ) {
         val requestStart = request.start
         val requestEnd =
             if (request.allDay == true) LocalDateTime.of(
@@ -105,7 +116,7 @@ class ScheduleService(
             else -> Period.ofDays(1)
         }
 
-        val parentSchedule = tScheduleRepository.save(TSchedule.convert(request, ownerId, memberGroup))
+        val parentSchedule = tScheduleRepository.save(TSchedule.convert(request, ownerId, memberGroup, noteGroup))
         val repeatSchedules = mutableListOf(parentSchedule.copy(parentId = parentSchedule.id))
         repeatSchedules.addAll(start.datesUntil(end.plusDays(1), period).skip(1).map {
             val tempStart = LocalDateTime.of(
@@ -122,26 +133,24 @@ class ScheduleService(
         tScheduleRepository.saveAll(repeatSchedules)
     }
 
-    /**
-     * 멤버 추가
-     * // todo 차후 멤버 삭제도 가능하게
-     */
     @Transactional
-    fun updateMember(requesterId: String, request: ScheduleMemberAddRequest) {
-        val schedule = findById(request.scheduleId)
-        val alreadyMemberIds = tScheduleMemberRepository.findByGroupKeyGroupId(schedule.memberGroup.id!!)
+    fun updateMember(requesterId: String, schedule: TSchedule, requestMemberIds: List<String>): TScheduleMemberGroup? {
+        val exist = tScheduleMemberRepository.findByGroupKeyGroupId(schedule.memberGroup.id!!)
             .mapNotNull { it.groupKey.user.id }
-        val inviteMembers = request.newMemberIds.filter {
-            !alreadyMemberIds.contains(it)
+        val invite = requestMemberIds.filter {
+            !exist.contains(it)
         }
-        if (inviteMembers.isNotEmpty()) {
-            tScheduleMemberRepository.saveAll(
-                tUserRepository.findPublicOrFollowing(request.newMemberIds, requesterId)
-                    .map {
-                        TScheduleMember.initConvert(it, schedule.memberGroup, ScheduleAcceptedStatus.WAITING)
-                    }
-            )
-        }
+        return if (invite.isNotEmpty()) {
+            tScheduleMemberGroupRepository.save(TScheduleMemberGroup()).let { group ->
+                tScheduleMemberRepository.saveAll(
+                    tUserRepository.findPublicOrFollowing(invite, requesterId)
+                        .map {
+                            TScheduleMember.initConvert(it, group, ScheduleAcceptedStatus.WAITING)
+                        }
+                )
+                group
+            }
+        } else null
     }
 
     @Transactional
@@ -152,8 +161,16 @@ class ScheduleService(
                 m.groupKey.user.id == requesterId
             } ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
         }
+
+        // note update
+        val updateNote = if (request.note != null && schedule.note?.note != request.note) {
+            tScheduleNoteRepository.save(TScheduleNote.convert(request.note))
+        } else null
+
+        val memberUpdate = updateMember(requesterId, schedule, request.memberIds)
+
         // 업데이트 사항이 있을 때만
-        if (updateDataCompare(schedule, request)) {
+        if (updateDataCompare(schedule, request) || updateNote != null) {
             val entities = when (request.scheduleUpdateCode) {
                 ScheduleUpdateCode.ALL -> tScheduleRepository.findByParentId(schedule.parentId)
                 ScheduleUpdateCode.ONLY_THIS -> listOf(schedule)
@@ -181,7 +198,9 @@ class ScheduleService(
                         start = it.start.plusMinutes(startDiff),
                         end = it.end.plusMinutes(endDiff),
                         allDay = request.allDay,
-                        isPublic = request.isPublic
+                        isPublic = request.isPublic,
+                        note = updateNote ?: schedule.note,
+                        memberGroup = memberUpdate ?: schedule.memberGroup
                     )
                 }
             )

@@ -2,7 +2,6 @@ package com.maple.herocalendarforbackend.api
 
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleAddRequest
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleDeleteRequest
-import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleMemberAddRequest
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleRequest
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleUpdateRequest
 import com.maple.herocalendarforbackend.dto.response.ErrorResponse
@@ -94,38 +93,6 @@ class CalendarController(
         @Valid @RequestBody requestBody: ScheduleDeleteRequest
     ): ResponseEntity<String> {
         scheduleService.delete(principal.name, requestBody)
-        return ResponseEntity.ok("ok")
-    }
-
-    /**
-     * 스케줄 수정(멤버 추가)
-     */
-    @Operation(summary = "invite new members", description = "スケジュール更新（メンバー追加） API")
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-            ),
-            ApiResponse(
-                responseCode = "400",
-                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
-            ),
-            ApiResponse(
-                responseCode = "401",
-                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
-            ),
-            ApiResponse(
-                responseCode = "404",
-                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
-            )
-        ]
-    )
-    @PutMapping("/members")
-    fun putScheduleMember(
-        principal: Principal,
-        @Valid @RequestBody requestBody: ScheduleMemberAddRequest
-    ): ResponseEntity<String> {
-        scheduleService.updateMember(principal.name, requestBody)
         return ResponseEntity.ok("ok")
     }
 
