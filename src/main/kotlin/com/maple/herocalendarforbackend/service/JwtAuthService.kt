@@ -15,6 +15,7 @@ import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpHeaders.AUTHORIZATION
+import org.springframework.http.ResponseCookie
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.AuthorityUtils
@@ -80,6 +81,14 @@ class JwtAuthService(
 
         // refresh token save to httpOnly cookie
         setRefreshTokenToCookie(tJwtAuth, response)
+
+        val cookie = ResponseCookie.from("M_SESSION", accessToken)
+            .path("/")
+            .httpOnly(false)
+            .maxAge(60 * 60 * 24)
+            .domain("ms-hero.kr")
+            .build()
+        response.setHeader("Set-Cookie", cookie.toString())
 
         return accessToken
     }
