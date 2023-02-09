@@ -2,6 +2,7 @@ package com.maple.herocalendarforbackend.service
 
 import com.maple.herocalendarforbackend.code.BaseResponseCode
 import com.maple.herocalendarforbackend.code.MagicVariables.AUTHORIZATION_REFRESH_JWT
+import com.maple.herocalendarforbackend.code.MagicVariables.JWT_ACCESS_TOKEN_COOKIE
 import com.maple.herocalendarforbackend.code.MagicVariables.JWT_ACCESS_TOKEN_EXPIRATION_TIME_VALUE
 import com.maple.herocalendarforbackend.entity.TJwtAuth
 import com.maple.herocalendarforbackend.entity.TUser
@@ -85,7 +86,7 @@ class JwtAuthService(
         val cookie = ResponseCookie.from("M_SESSION", accessToken)
             .path("/")
             .httpOnly(false)
-            .maxAge(60 * 60 * 24)
+            .maxAge(JWT_ACCESS_TOKEN_COOKIE)
             .domain("ms-hero.kr")
             .build()
         response.setHeader("Set-Cookie", cookie.toString())
