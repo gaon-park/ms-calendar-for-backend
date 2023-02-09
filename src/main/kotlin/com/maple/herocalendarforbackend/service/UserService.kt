@@ -47,8 +47,8 @@ class UserService(
         return if (diffCheck(user, request) || avatarImg != null) {
             tUserRepository.save(
                 user.copy(
-                    nickName = request.nickName ?: user.nickName,
-                    accountId = request.accountId ?: user.accountId,
+                    nickName = request.nickName?.trim() ?: user.nickName,
+                    accountId = request.accountId?.trim() ?: user.accountId,
                     isPublic = request.isPublic ?: user.isPublic,
                     avatarImg = avatarImg ?: user.avatarImg,
                     updatedAt = LocalDateTime.now()
