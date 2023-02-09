@@ -21,8 +21,8 @@ class UserService(
         tUserRepository.findByEmail(it)
     }
 
-    fun findByAccountIdLike(keyword: String, loginUserId: String?) =
-        tUserRepository.findByAccountIdLike("%$keyword%", loginUserId ?: "")
+    fun findByKeywordLike(keyword: String, loginUserId: String?) =
+        tUserRepository.findByKeywordLike("%$keyword%", loginUserId ?: "")
 
     fun findById(id: String): TUser =
         tUserRepository.findById(id).let {
