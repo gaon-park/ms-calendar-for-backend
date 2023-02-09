@@ -1,5 +1,6 @@
 package com.maple.herocalendarforbackend.config
 
+import ch.qos.logback.classic.LoggerContext
 import com.fasterxml.jackson.module.kotlin.jsonMapper
 import com.maple.herocalendarforbackend.code.BaseResponseCode
 import com.maple.herocalendarforbackend.exception.BaseException
@@ -12,7 +13,6 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.http.MediaType
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
@@ -25,7 +25,8 @@ class JwtAuthenticationFilter(
     private val jwtAuthService: JwtAuthService,
 ) : OncePerRequestFilter() {
 
-    private var logger: Logger = LoggerFactory.getLogger(JwtAuthenticationFilter::class.java)
+    private val context = LoggerContext()
+    private val logger: Logger = context.getLogger(JwtAuthenticationFilter::class.java)
 
     companion object {
         val EXCLUDE_URL = listOf(
@@ -79,12 +80,12 @@ class JwtAuthenticationFilter(
 
     fun needOptionalPrincipal(request: HttpServletRequest): Boolean {
         logger.info("needOptionalPrincipal check")
+        val resURL = GET_BOTH_URL.any { url -> (request.servletPath.equals(url)) }
+            val resMethod = (request.method.equals("GET", true))
 
-        logger.info(GET_BOTH_URL[0] + " compare with" + request.servletPath + ": " + GET_BOTH_URL[0] == request.servletPath)
-        logger.info(GET_BOTH_URL[1] + " compare with" + request.servletPath + ": " + GET_BOTH_URL[1] == request.servletPath)
-        logger.info(GET_BOTH_URL[2] + " compare with" + request.servletPath + ": " + GET_BOTH_URL[2] == request.servletPath)
-        return GET_BOTH_URL.any { url -> (request.servletPath.equals(url)) }
-            .and(request.method.equals("GET", true))
+        logger.info("resURL:$resURL")
+        logger.info("resMethod:$resMethod")
+        return resURL && resMethod
     }
 
     // filtering 제외 URL 설정
