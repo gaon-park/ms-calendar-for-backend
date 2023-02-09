@@ -1,13 +1,16 @@
 package com.maple.herocalendarforbackend.service
 
+import ch.qos.logback.classic.LoggerContext
 import com.fasterxml.jackson.module.kotlin.jsonMapper
 import com.maple.herocalendarforbackend.code.BaseResponseCode
+import com.maple.herocalendarforbackend.config.JwtAuthenticationFilter
 import com.maple.herocalendarforbackend.dto.oauth2.GoogleOAuthGetToken
 import com.maple.herocalendarforbackend.dto.oauth2.GoogleOAuthTokenInfo
 import com.maple.herocalendarforbackend.entity.TUser
 import com.maple.herocalendarforbackend.exception.BaseException
 import com.maple.herocalendarforbackend.properties.GoogleProperties
 import com.maple.herocalendarforbackend.repository.TUserRepository
+import org.slf4j.Logger
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -23,7 +26,11 @@ class GoogleOAuthService(
     private val gp: GoogleProperties
 ) {
 
+    private val context = LoggerContext()
+    private val logger: Logger = context.getLogger(GoogleOAuthService::class.java)
+
     fun process(code: String): String? {
+        logger.info("start process!!")
         googleAccessToken(code).also {
             googleTokenInfo(it.idToken).let { info ->
                 dataProcess(info.email)
@@ -52,9 +59,14 @@ class GoogleOAuthService(
             conn.setRequestProperty("Content-Length", body.length.toString())
             conn.useCaches = false
             DataOutputStream(conn.outputStream).use { it.writeBytes(body) }
+            logger.info("googleAccessToken: before read")
             val reader = BufferedReader(InputStreamReader(conn.inputStream, "UTF-8"))
-            return jsonMapper().readValue(reader, GoogleOAuthGetToken::class.java)
-        } catch (_: java.lang.Exception) {
+            logger.info("googleAccessToken: after read")
+            val json =jsonMapper().readValue(reader, GoogleOAuthGetToken::class.java)
+            logger.info("json:$json")
+            return json
+        } catch (e: java.lang.Exception) {
+            logger.error(e.toString())
             throw BaseException(BaseResponseCode.INVALID_TOKEN)
         }
     }
@@ -71,9 +83,14 @@ class GoogleOAuthService(
             val conn = gUrl.openConnection() as HttpURLConnection
             conn.requestMethod = "GET"
             conn.useCaches = false
+            logger.info("googleTokenInfo: before read")
             val reader = BufferedReader(InputStreamReader(conn.inputStream, "UTF-8"))
-            return jsonMapper().readValue(reader, GoogleOAuthTokenInfo::class.java)
-        } catch (_: java.lang.Exception) {
+            logger.info("googleTokenInfo: after read")
+            val json = jsonMapper().readValue(reader, GoogleOAuthTokenInfo::class.java)
+            logger.info("json:$json")
+            return json
+        } catch (e: java.lang.Exception) {
+            logger.error(e.toString())
             throw BaseException(BaseResponseCode.INVALID_TOKEN)
         }
     }
