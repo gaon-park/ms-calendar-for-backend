@@ -82,7 +82,8 @@ class JwtAuthenticationFilter(
         logger.info("needOptionalPrincipal check")
         val resURL = GET_BOTH_URL.any { url -> (request.servletPath.equals(url)) }
             val resMethod = (request.method.equals("GET", true))
-
+        val url: String = request.servletPath
+        logger.info("url:$url")
         logger.info("resURL:$resURL")
         logger.info("resMethod:$resMethod")
         return resURL && resMethod
