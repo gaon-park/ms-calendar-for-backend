@@ -13,13 +13,23 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
+import org.springframework.web.servlet.config.annotation.CorsRegistry
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(
     private val jwtAuthService: JwtAuthService
-) {
+): WebMvcConfigurer {
+
+    override fun addCorsMappings(registry: CorsRegistry) {
+        registry.addMapping("/**")
+            .allowedOrigins("http://127.0.0.1:3000", "http://ms-hero.kr", "http://10.178.0.4")
+            .allowCredentials(true)
+            .allowedMethods("GET", "POST", "PUT", "OPTIONS", "DELETE", "PATCH")
+    }
+
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http
@@ -40,17 +50,4 @@ class SecurityConfig(
     fun authenticationManager(auth: AuthenticationConfiguration): AuthenticationManager {
         return auth.authenticationManager
     }
-
-    @Bean
-    fun corsConfigurationSource(): CorsConfigurationSource =
-        CorsConfiguration().apply {
-            allowedHeaders = listOf("*")
-            allowedOrigins = listOf("http://127.0.0.1:3000", "http://ms-hero.kr", "http://10.178.0.4")
-            allowedMethods = listOf("GET", "POST", "PUT", "OPTIONS", "DELETE", "PATCH")
-            allowCredentials = true
-        }.let { config ->
-            UrlBasedCorsConfigurationSource().apply {
-                registerCorsConfiguration("/**", config)
-            }
-        }
 }
