@@ -5,6 +5,7 @@ import com.maple.herocalendarforbackend.code.MagicVariables.AUTHORIZATION_ACCESS
 import com.maple.herocalendarforbackend.code.MagicVariables.AUTHORIZATION_REFRESH_JWT
 import com.maple.herocalendarforbackend.code.MagicVariables.JWT_ACCESS_TOKEN_COOKIE
 import com.maple.herocalendarforbackend.code.MagicVariables.JWT_ACCESS_TOKEN_EXPIRATION_TIME_VALUE
+import com.maple.herocalendarforbackend.dto.response.LoginResponse
 import com.maple.herocalendarforbackend.entity.TJwtAuth
 import com.maple.herocalendarforbackend.entity.TUser
 import com.maple.herocalendarforbackend.exception.BaseException
@@ -41,7 +42,7 @@ class JwtAuthService(
      * 최초 로그인 토큰 생성
      */
     @Transactional
-    fun firstTokenForLogin(email: String, roles: List<String>, response: HttpServletResponse): String {
+    fun firstTokenForLogin(email: String, roles: List<String>): LoginResponse {
         val tUser = tUserRepository.findByEmail(email) ?: throw BaseException(
             BaseResponseCode.USER_NOT_FOUND
         )
@@ -49,9 +50,9 @@ class JwtAuthService(
         // 없다면 신규 발급
         tUser.id?.let {
             tJwtAuthRepository.findByUserPk(it)?.let { jwt ->
-                return reIssue(jwt, response)
+                return reIssue(jwt)
             } ?: kotlin.run {
-                return createToken(tUser, roles, response)
+                return createToken(tUser, roles)
             }
         } ?: throw BaseException(BaseResponseCode.DATA_ERROR)
     }
@@ -61,7 +62,7 @@ class JwtAuthService(
      * JWT 토큰 생성
      */
     @Transactional
-    fun createToken(userPk: TUser, roles: List<String>, response: HttpServletResponse): String {
+    fun createToken(userPk: TUser, roles: List<String>): LoginResponse {
         // create access token
         val claims = Jwts.claims().setSubject(userPk.id)
         claims["roles"] = roles
@@ -80,43 +81,21 @@ class JwtAuthService(
                 userPk
             )
         tJwtAuthRepository.save(tJwtAuth)
-        setCookie(accessToken, tJwtAuth, response)
-        return accessToken
-    }
-
-    fun setCookie(accessToken: String, tJwtAuth: TJwtAuth, response: HttpServletResponse) {
-        val accessCookie = ResponseCookie.from(AUTHORIZATION_ACCESS_JWT, accessToken)
-            .path("/")
-            .httpOnly(false)
-            .maxAge(JWT_ACCESS_TOKEN_COOKIE)
-            .domain("ms-hero.kr")
-            .build()
-        response.setHeader("Set-Cookie", accessCookie.toString())
-
-        // refresh token save to httpOnly cookie
-        tJwtAuth.refreshToken?.let {
-            val refreshCookie = ResponseCookie.from(AUTHORIZATION_REFRESH_JWT, it)
-                .path("/")
-                .httpOnly(true)
-                .maxAge(ChronoUnit.SECONDS.between(LocalDateTime.now(), tJwtAuth.expirationDate))
-                .domain("ms-hero.kr")
-                .build()
-            response.addHeader("Set-Cookie", refreshCookie.toString())
-        }
+        return LoginResponse(accessToken, tJwtAuth.refreshToken)
     }
 
     /**
      * 토큰 재발급
      */
     @Transactional
-    fun reIssue(tJwtAuth: TJwtAuth, response: HttpServletResponse): String {
+    fun reIssue(tJwtAuth: TJwtAuth): LoginResponse {
         val userPk = tJwtAuth.userPk
-        var newAuth: String?
+        var newAuth: LoginResponse
         userPk.let {
-            newAuth = createToken(it, listOf("ROLE_USER"), response)
+            newAuth = createToken(it, listOf("ROLE_USER"))
             tJwtAuthRepository.delete(tJwtAuth)
         }
-        return newAuth ?: throw BaseException(BaseResponseCode.INVALID_TOKEN)
+        return newAuth
     }
 
     /**
@@ -156,16 +135,14 @@ class JwtAuthService(
     /**
      * refresh token 으로 검증된 데이터 반환
      */
-    fun getValidatedAuthDataByRefreshToken(request: HttpServletRequest, response: HttpServletResponse): String {
-        val refresh = request.cookies.firstOrNull { it.name == AUTHORIZATION_REFRESH_JWT }?.value
-            ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
+    fun getValidatedAuthDataByRefreshToken(refresh: String): LoginResponse {
         val tJwtAuthOptional = tJwtAuthRepository.findById(refresh)
         if (tJwtAuthOptional.isPresent) {
             val tJwtAuth = tJwtAuthOptional.get()
             if (!tJwtAuth.expired && tJwtAuth.expirationDate.isAfter(LocalDateTime.now())
             ) {
                 // reIssue
-                return reIssue(tJwtAuth, response)
+                return reIssue(tJwtAuth)
             }
         }
         throw BaseException(BaseResponseCode.INVALID_TOKEN)

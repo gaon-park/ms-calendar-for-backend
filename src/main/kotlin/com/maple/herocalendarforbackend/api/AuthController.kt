@@ -1,6 +1,7 @@
 package com.maple.herocalendarforbackend.api
 
 import com.maple.herocalendarforbackend.code.BaseResponseCode
+import com.maple.herocalendarforbackend.dto.request.schedule.ReissueRequest
 import com.maple.herocalendarforbackend.dto.response.ErrorResponse
 import com.maple.herocalendarforbackend.dto.response.LoginResponse
 import com.maple.herocalendarforbackend.exception.BaseException
@@ -16,9 +17,12 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import jakarta.validation.Valid
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -54,21 +58,16 @@ class AuthController(
     @GetMapping("/oauth2/google")
     fun googleLogin(
         @RequestParam(name = "code") code: String,
-        response: HttpServletResponse,
     ): ResponseEntity<Any> {
         val email = googleOAuthService.process(code)
         return with(userService.loadUserByUsername(email)) {
             this?.let {
                 ResponseEntity.ok(
-                    LoginResponse(
-                        email?.let {
-                            jwtAuthService.firstTokenForLogin(
-                                it,
-                                authorities.mapNotNull { a -> a.authority },
-                                response
-                            )
-                        }
-                    )
+                    email?.let {
+                        jwtAuthService.firstTokenForLogin(
+                            it, authorities.mapNotNull { a -> a.authority },
+                        )
+                    }
                 )
             } ?: throw BaseException(BaseResponseCode.USER_NOT_FOUND)
         }
@@ -92,15 +91,12 @@ class AuthController(
             )
         ]
     )
-    @GetMapping("/reissue/token")
-    fun accessTokenReIssue(request: HttpServletRequest): ResponseEntity<LoginResponse> {
+    @PostMapping("/reissue/token")
+    fun accessTokenReIssue(
+        @Valid @RequestBody requestBody: ReissueRequest
+    ): ResponseEntity<LoginResponse> {
         return ResponseEntity.ok(
-            LoginResponse(request.getAttribute("accessToken").toString())
+            jwtAuthService.getValidatedAuthDataByRefreshToken(requestBody.refreshToken)
         )
-    }
-    @Operation(summary = "Logout", description = "CookieのAccessToken, RefreshToken を削除する API")
-    @GetMapping("/logout")
-    fun logout(response: HttpServletResponse) {
-        return jwtAuthService.logout(response)
     }
 }
