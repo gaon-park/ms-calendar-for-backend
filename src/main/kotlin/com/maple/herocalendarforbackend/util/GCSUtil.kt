@@ -6,6 +6,7 @@ import com.google.cloud.storage.BlobId
 import com.google.cloud.storage.BlobInfo
 import com.google.cloud.storage.Storage
 import com.google.cloud.storage.StorageOptions
+import com.maple.herocalendarforbackend.code.MagicVariables.GCS_BASE_URL
 import org.springframework.scheduling.annotation.Async
 import java.io.FileInputStream
 
@@ -14,7 +15,7 @@ class GCSUtil {
     @Async
     fun upload(userId: String, byteArray: ByteArray): String {
         val storage = getStorage()
-        val filePath = "$userId.png"
+        val filePath = "$userId/${getRandomString()}.png"
         val blobId = BlobId.of("ms-hero-profile", filePath)
         val blobInfo = BlobInfo.newBuilder(blobId)
             .setAcl(listOf(Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER)))
@@ -24,13 +25,22 @@ class GCSUtil {
             blobInfo,
             byteArray
         )
-        return "https://storage.googleapis.com/ms-hero-profile/$filePath"
+
+        return "$GCS_BASE_URL$filePath"
     }
 
-    fun readToByteArray(filePath: String): ByteArray {
+    fun removeUnusedImg(filePath: String) {
         val storage = getStorage()
-        val blob = storage.get(BlobId.of("ms-hero-profile", filePath))
-        return blob.getContent()
+        val blobId = BlobId.of("ms-hero-profile", filePath.replace(GCS_BASE_URL, ""))
+        storage.delete(blobId)
+    }
+
+    @Suppress("MagicNumber")
+    private fun getRandomString(): String {
+        val charset = ('a'..'z') + ('A'..'Z') + ('0'..'9')
+        return (1..10)
+            .map { charset.random() }
+            .joinToString("")
     }
 
     private fun getStorage(): Storage {

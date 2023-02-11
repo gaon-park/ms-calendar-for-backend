@@ -44,10 +44,18 @@ class UserService(
         val user = findById(id)
         val avatarImg = request.avatarImg?.let {
             if (it.isNotEmpty() && it != user.avatarImg) {
-                GCSUtil().upload(
+                val gcsUtil = GCSUtil()
+                val newImg = gcsUtil.upload(
                     id,
                     ImageUtil().toByteArray(request.avatarImg)
                 )
+
+                // 이미지 저장 후, 사용하지 않는 이미지 삭제
+                user.avatarImg?.let { exist ->
+                    gcsUtil.removeUnusedImg(exist)
+                }
+
+                newImg
             } else null
         }
         if (user.accountId != request.accountId && !accountIdDuplicateCheck(request.accountId)) {
