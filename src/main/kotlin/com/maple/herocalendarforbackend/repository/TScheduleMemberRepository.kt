@@ -28,4 +28,6 @@ interface TScheduleMemberRepository : JpaRepository<TScheduleMember, TScheduleMe
     ): TScheduleMember?
 
     fun deleteByGroupKeyGroupIdIn(groupIds: List<Long>)
+
+    fun deleteByGroupKeyUserId(userId: String)
 }

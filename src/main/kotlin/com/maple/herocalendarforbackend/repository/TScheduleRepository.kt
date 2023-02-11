@@ -56,4 +56,6 @@ interface TScheduleRepository : JpaRepository<TSchedule, Long> {
         @Param("groupId") groupId: Long?,
         @Param("after") after: LocalDateTime
     ): List<TSchedule>
+
+    fun findByOwnerId(ownerId: String): List<TSchedule>
 }

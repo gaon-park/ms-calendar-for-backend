@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
@@ -126,4 +127,23 @@ class UserController(
         ResponseEntity.ok(
             ProfileResponse.convert(userService.updateProfile(principal.name, requestBody))
         )
+
+    @Operation(
+        summary = "deactivate account", description = "退会 API"
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                content = arrayOf(Content(schema = Schema(implementation = String::class)))
+            )
+        ]
+    )
+    @DeleteMapping
+    fun deleteUser(
+        principal: Principal
+    ): ResponseEntity<String> {
+        userService.deleteUser(principal.name)
+        return ResponseEntity.ok("ok")
+    }
 }

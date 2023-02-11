@@ -2,8 +2,13 @@ package com.maple.herocalendarforbackend.service
 
 import com.maple.herocalendarforbackend.code.BaseResponseCode
 import com.maple.herocalendarforbackend.dto.request.ProfileRequest
+import com.maple.herocalendarforbackend.entity.TSchedule
 import com.maple.herocalendarforbackend.entity.TUser
 import com.maple.herocalendarforbackend.exception.BaseException
+import com.maple.herocalendarforbackend.repository.TFollowRelationshipRepository
+import com.maple.herocalendarforbackend.repository.TJwtAuthRepository
+import com.maple.herocalendarforbackend.repository.TScheduleMemberRepository
+import com.maple.herocalendarforbackend.repository.TScheduleRepository
 import com.maple.herocalendarforbackend.repository.TUserRepository
 import com.maple.herocalendarforbackend.util.GCSUtil
 import com.maple.herocalendarforbackend.util.ImageUtil
@@ -15,7 +20,11 @@ import java.time.LocalDateTime
 
 @Service
 class UserService(
-    private val tUserRepository: TUserRepository
+    private val tUserRepository: TUserRepository,
+    private val tJwtAuthRepository: TJwtAuthRepository,
+    private val tScheduleRepository: TScheduleRepository,
+    private val tScheduleMemberRepository: TScheduleMemberRepository,
+    private val tFollowRelationshipRepository: TFollowRelationshipRepository,
 ) : UserDetailsService {
     override fun loadUserByUsername(username: String?): UserDetails? = username?.let {
         tUserRepository.findByEmail(it)
@@ -58,6 +67,31 @@ class UserService(
                 )
             )
         } else user
+    }
+
+    @Transactional
+    fun deleteUser(id: String) {
+        tJwtAuthRepository.deleteByUserId(id)
+        tFollowRelationshipRepository.deleteByUserId(id)
+        tScheduleMemberRepository.deleteByGroupKeyUserId(id)
+
+        val schedules = tScheduleRepository.findByOwnerId(id)
+        val deleteSchedules = mutableListOf<TSchedule>()
+        val updatedSchedules = mutableListOf<TSchedule>()
+        schedules.map {
+            val members = tScheduleMemberRepository.findByGroupKeyGroupId(it.memberGroup.id!!)
+            if (members.isEmpty()) {
+                deleteSchedules.add(it)
+            } else {
+                updatedSchedules.add(
+                    it.copy(ownerId = members[0].groupKey.user.id)
+                )
+            }
+        }
+        tScheduleRepository.deleteAll(deleteSchedules)
+        tScheduleRepository.saveAll(updatedSchedules)
+
+        tUserRepository.deleteById(id)
     }
 
     private fun diffCheck(user: TUser, request: ProfileRequest): Boolean {

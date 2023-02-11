@@ -25,4 +25,11 @@ interface TJwtAuthRepository : JpaRepository<TJwtAuth, String> {
     )
     @Modifying
     fun deleteExpired(@Param("now") now: LocalDateTime)
+
+    @Query(
+        "delete from t_jwt_auth t where t.user_id= :user_id",
+        nativeQuery = true
+    )
+    @Modifying
+    fun deleteByUserId(@Param("user_id") userId: String)
 }
