@@ -1,7 +1,5 @@
 package com.maple.herocalendarforbackend.api
 
-import com.maple.herocalendarforbackend.code.MagicVariables.MAX_SEARCH_LIMIT
-import com.maple.herocalendarforbackend.code.MagicVariables.SEARCH_DEFAULT_LIMIT
 import com.maple.herocalendarforbackend.dto.request.PageInfo
 import com.maple.herocalendarforbackend.dto.request.friend.FriendRequest
 import com.maple.herocalendarforbackend.dto.response.ErrorResponse
@@ -181,14 +179,7 @@ class FriendController(
         return ResponseEntity.ok(
             friendshipService.findAllStatusFriends(
                 principal.name,
-                PageInfo(
-                    limit = when {
-                        (limit == null) -> SEARCH_DEFAULT_LIMIT
-                        (limit > MAX_SEARCH_LIMIT) -> MAX_SEARCH_LIMIT
-                        else -> limit
-                    },
-                    offset = offset
-                )
+                PageInfo.convert(limit, offset)
             )
         )
     }

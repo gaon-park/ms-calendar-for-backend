@@ -96,8 +96,8 @@ class FriendshipService(
         return convertToUserResponse(
             loginUserId, tFriendshipRepository.findByUserIdPagination(
                 loginUserId,
-                pageInfo.limit ?: SEARCH_DEFAULT_LIMIT,
-                pageInfo.offset ?: SEARCH_DEFAULT_LIMIT
+                pageInfo.limit,
+                pageInfo.offset
             )
         )
     }

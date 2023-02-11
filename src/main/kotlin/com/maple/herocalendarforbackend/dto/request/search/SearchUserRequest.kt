@@ -6,5 +6,5 @@ import lombok.Builder
 @Builder
 data class SearchUserRequest(
     val keyword: String,
-    val pageInfo: PageInfo?,
+    val pageInfo: PageInfo,
 )

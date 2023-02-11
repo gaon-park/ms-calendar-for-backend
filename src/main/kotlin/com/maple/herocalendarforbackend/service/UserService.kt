@@ -1,9 +1,6 @@
 package com.maple.herocalendarforbackend.service
 
 import com.maple.herocalendarforbackend.code.BaseResponseCode
-import com.maple.herocalendarforbackend.code.MagicVariables.SEARCH_DEFAULT_LIMIT
-import com.maple.herocalendarforbackend.code.MagicVariables.SEARCH_DEFAULT_OFFSET
-import com.maple.herocalendarforbackend.dto.request.PageInfo
 import com.maple.herocalendarforbackend.dto.request.ProfileRequest
 import com.maple.herocalendarforbackend.dto.request.search.SearchUserRequest
 import com.maple.herocalendarforbackend.entity.TSchedule
@@ -37,8 +34,8 @@ class UserService(
     fun findByKeywordLike(request: SearchUserRequest) =
         tUserRepository.findByKeywordLike(
             "%${request.keyword}%",
-            request.pageInfo?.offset ?: SEARCH_DEFAULT_OFFSET,
-            request.pageInfo?.limit ?: SEARCH_DEFAULT_LIMIT
+            request.pageInfo.limit,
+            request.pageInfo.offset
         )
 
     fun findById(id: String): TUser =

@@ -1,5 +1,6 @@
 package com.maple.herocalendarforbackend.api
 
+import com.maple.herocalendarforbackend.dto.request.PageInfo
 import com.maple.herocalendarforbackend.dto.request.search.SearchUserRequest
 import com.maple.herocalendarforbackend.dto.response.ScheduleResponse
 import com.maple.herocalendarforbackend.dto.response.UserResponse
@@ -50,10 +51,17 @@ class SearchController(
     @GetMapping("/user")
     fun findUser(
         principal: Principal,
-        @Valid @RequestBody requestBody: SearchUserRequest
+        @RequestParam("keyword") keyword: String,
+        @RequestParam("limit") limit: Int?,
+        @RequestParam("offset") offset: Int?
     ): ResponseEntity<List<UserResponse>> {
         return ResponseEntity.ok(
-            searchService.findUser(principal.name, requestBody)
+            searchService.findUser(
+                principal.name, SearchUserRequest(
+                    keyword,
+                    PageInfo.convert(limit, offset)
+                )
+            )
         )
     }
 
