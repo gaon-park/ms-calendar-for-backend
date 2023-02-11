@@ -9,6 +9,4 @@ import lombok.Builder
 data class LoginResponse(
     @JsonProperty("accessToken")
     val accessToken: String?,
-    @JsonProperty("refreshToken")
-    val refreshToken: String?
 )

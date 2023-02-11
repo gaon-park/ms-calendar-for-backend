@@ -42,7 +42,7 @@ class JwtAuthService(
      * 최초 로그인 토큰 생성
      */
     @Transactional
-    fun firstTokenForLogin(email: String, roles: List<String>): LoginResponse {
+    fun firstTokenForLogin(email: String, roles: List<String>, response: HttpServletResponse): LoginResponse {
         val tUser = tUserRepository.findByEmail(email) ?: throw BaseException(
             BaseResponseCode.USER_NOT_FOUND
         )
@@ -50,9 +50,9 @@ class JwtAuthService(
         // 없다면 신규 발급
         tUser.id?.let {
             tJwtAuthRepository.findByUserPk(it)?.let { jwt ->
-                return reIssue(jwt)
+                return reIssue(jwt, response)
             } ?: kotlin.run {
-                return createToken(tUser, roles)
+                return createToken(tUser, roles, response)
             }
         } ?: throw BaseException(BaseResponseCode.DATA_ERROR)
     }
@@ -62,7 +62,7 @@ class JwtAuthService(
      * JWT 토큰 생성
      */
     @Transactional
-    fun createToken(userPk: TUser, roles: List<String>): LoginResponse {
+    fun createToken(userPk: TUser, roles: List<String>, response: HttpServletResponse): LoginResponse {
         // create access token
         val claims = Jwts.claims().setSubject(userPk.id)
         claims["roles"] = roles
@@ -81,18 +81,19 @@ class JwtAuthService(
                 userPk
             )
         tJwtAuthRepository.save(tJwtAuth)
-        return LoginResponse(accessToken, tJwtAuth.refreshToken)
+        setCookie(tJwtAuth, response)
+        return LoginResponse(accessToken)
     }
 
     /**
      * 토큰 재발급
      */
     @Transactional
-    fun reIssue(tJwtAuth: TJwtAuth): LoginResponse {
+    fun reIssue(tJwtAuth: TJwtAuth, response: HttpServletResponse): LoginResponse {
         val userPk = tJwtAuth.userPk
         var newAuth: LoginResponse
         userPk.let {
-            newAuth = createToken(it, listOf("ROLE_USER"))
+            newAuth = createToken(it, listOf("ROLE_USER"), response)
             tJwtAuthRepository.delete(tJwtAuth)
         }
         return newAuth
@@ -135,14 +136,14 @@ class JwtAuthService(
     /**
      * refresh token 으로 검증된 데이터 반환
      */
-    fun getValidatedAuthDataByRefreshToken(refresh: String): LoginResponse {
+    fun getValidatedAuthDataByRefreshToken(refresh: String, response: HttpServletResponse): LoginResponse {
         val tJwtAuthOptional = tJwtAuthRepository.findById(refresh)
         if (tJwtAuthOptional.isPresent) {
             val tJwtAuth = tJwtAuthOptional.get()
             if (!tJwtAuth.expired && tJwtAuth.expirationDate.isAfter(LocalDateTime.now())
             ) {
                 // reIssue
-                return reIssue(tJwtAuth)
+                return reIssue(tJwtAuth, response)
             }
         }
         throw BaseException(BaseResponseCode.INVALID_TOKEN)
@@ -161,5 +162,16 @@ class JwtAuthService(
             .build()
         response.setHeader("Set-Cookie", accessCookie.toString())
         response.addHeader("Set-Cookie", refreshCookie.toString())
+    }
+
+    fun setCookie(tJwtAuth: TJwtAuth, response: HttpServletResponse) {
+        tJwtAuth.refreshToken?.let {
+            val refreshCookie = ResponseCookie.from(AUTHORIZATION_REFRESH_JWT, it)
+                .path("/")
+                .httpOnly(true)
+                .maxAge(ChronoUnit.SECONDS.between(LocalDateTime.now(), tJwtAuth.expirationDate))
+                .build()
+            response.addHeader("Set-Cookie", refreshCookie.toString())
+        }
     }
 }

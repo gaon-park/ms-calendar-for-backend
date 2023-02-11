@@ -58,6 +58,7 @@ class AuthController(
     @GetMapping("/oauth2/google")
     fun googleLogin(
         @RequestParam(name = "code") code: String,
+        response: HttpServletResponse
     ): ResponseEntity<Any> {
         val email = googleOAuthService.process(code)
         return with(userService.loadUserByUsername(email)) {
@@ -66,6 +67,7 @@ class AuthController(
                     email?.let {
                         jwtAuthService.firstTokenForLogin(
                             it, authorities.mapNotNull { a -> a.authority },
+                            response
                         )
                     }
                 )
@@ -93,10 +95,11 @@ class AuthController(
     )
     @PostMapping("/reissue/token")
     fun accessTokenReIssue(
-        @Valid @RequestBody requestBody: ReissueRequest
+        @Valid @RequestBody requestBody: ReissueRequest,
+        response: HttpServletResponse
     ): ResponseEntity<LoginResponse> {
         return ResponseEntity.ok(
-            jwtAuthService.getValidatedAuthDataByRefreshToken(requestBody.refreshToken)
+            jwtAuthService.getValidatedAuthDataByRefreshToken(requestBody.refreshToken, response)
         )
     }
 }
