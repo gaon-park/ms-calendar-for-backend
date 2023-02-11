@@ -134,7 +134,10 @@ class JwtAuthService(
     /**
      * refresh token 으로 검증된 데이터 반환
      */
-    fun getValidatedAuthDataByRefreshToken(refresh: String, response: HttpServletResponse): LoginResponse {
+    fun getValidatedAuthDataByRefreshToken(request: HttpServletRequest, response: HttpServletResponse): LoginResponse {
+        val refresh = request.cookies.firstOrNull { it.name == AUTHORIZATION_REFRESH_JWT }?.value
+            ?: throw BaseException(BaseResponseCode.NO_REFRESH_TOKEN)
+
         val tJwtAuthOptional = tJwtAuthRepository.findById(refresh)
         if (tJwtAuthOptional.isPresent) {
             val tJwtAuth = tJwtAuthOptional.get()
