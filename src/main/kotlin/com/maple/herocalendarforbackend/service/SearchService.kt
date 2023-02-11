@@ -1,6 +1,6 @@
 package com.maple.herocalendarforbackend.service
 
-import com.maple.herocalendarforbackend.code.MagicVariables.MAX_VALUE_OF_MEMBERS
+import com.maple.herocalendarforbackend.dto.request.search.SearchUserRequest
 import com.maple.herocalendarforbackend.dto.response.ScheduleResponse
 import com.maple.herocalendarforbackend.dto.response.UserResponse
 import org.springframework.stereotype.Service
@@ -9,34 +9,29 @@ import java.time.LocalDate
 @Service
 class SearchService(
     private val userService: UserService,
-    private val followRelationshipService: FollowRelationshipService,
+    private val friendshipService: FriendshipService,
     private val scheduleService: ScheduleService,
 ) {
-    fun findUser(searchWord: String): List<UserResponse> {
-        return userService.findByKeywordLike(searchWord, null).map {
-            UserResponse.convert(it, null)
-        }
-    }
+    fun findUser(loginUserId: String, request: SearchUserRequest): List<UserResponse> {
+        val results = userService.findByKeywordLike(request)
+        val friends = friendshipService.findByUserIdAndOppIn(loginUserId, results)
+        val friendsId = friends.mapNotNull { it.id }
 
-    fun findUser(searchWord: String, loginUserId: String): List<UserResponse> {
-        val followers = followRelationshipService.findFollowings(loginUserId).filter {
-            it.accountId.contains(searchWord)
-        }
-        val followerIds = followers.map { it.id }
-        var searchResult = emptyList<UserResponse>();
-        if (followers.size < MAX_VALUE_OF_MEMBERS) {
-            searchResult = userService.findByKeywordLike(searchWord, loginUserId).map {
-                UserResponse.convert(it, null)
-            }.filter { !followerIds.contains(it.id) }
-        }
-        return listOf(followers, searchResult).flatten()
+        return friends.plus(
+            results.filter { !friendsId.contains(it.id) }
+                .map {
+                    UserResponse.convert(
+                        it, null
+                    )
+                }
+        )
     }
 
     fun findUserSchedules(
         loginUserId: String?, targetUserId: String, from: LocalDate, to: LocalDate
     ): List<ScheduleResponse> {
         loginUserId?.let {
-            if (!followRelationshipService.followingCheck(loginUserId, targetUserId) &&
+            if (!friendshipService.friendCheck(loginUserId, targetUserId) &&
                 !userService.findById(targetUserId).isPublic
             ) {
                 return emptyList()

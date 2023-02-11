@@ -1,11 +1,15 @@
 package com.maple.herocalendarforbackend.service
 
 import com.maple.herocalendarforbackend.code.BaseResponseCode
+import com.maple.herocalendarforbackend.code.MagicVariables.SEARCH_DEFAULT_LIMIT
+import com.maple.herocalendarforbackend.code.MagicVariables.SEARCH_DEFAULT_OFFSET
+import com.maple.herocalendarforbackend.dto.request.PageInfo
 import com.maple.herocalendarforbackend.dto.request.ProfileRequest
+import com.maple.herocalendarforbackend.dto.request.search.SearchUserRequest
 import com.maple.herocalendarforbackend.entity.TSchedule
 import com.maple.herocalendarforbackend.entity.TUser
 import com.maple.herocalendarforbackend.exception.BaseException
-import com.maple.herocalendarforbackend.repository.TFollowRelationshipRepository
+import com.maple.herocalendarforbackend.repository.TFriendshipRepository
 import com.maple.herocalendarforbackend.repository.TJwtAuthRepository
 import com.maple.herocalendarforbackend.repository.TScheduleMemberRepository
 import com.maple.herocalendarforbackend.repository.TScheduleRepository
@@ -24,14 +28,18 @@ class UserService(
     private val tJwtAuthRepository: TJwtAuthRepository,
     private val tScheduleRepository: TScheduleRepository,
     private val tScheduleMemberRepository: TScheduleMemberRepository,
-    private val tFollowRelationshipRepository: TFollowRelationshipRepository,
+    private val tFriendshipRepository: TFriendshipRepository,
 ) : UserDetailsService {
     override fun loadUserByUsername(username: String?): UserDetails? = username?.let {
         tUserRepository.findByEmail(it)
     }
 
-    fun findByKeywordLike(keyword: String, loginUserId: String?) =
-        tUserRepository.findByKeywordLike("%$keyword%", loginUserId ?: "")
+    fun findByKeywordLike(request: SearchUserRequest) =
+        tUserRepository.findByKeywordLike(
+            "%${request.keyword}%",
+            request.pageInfo?.offset ?: SEARCH_DEFAULT_OFFSET,
+            request.pageInfo?.limit ?: SEARCH_DEFAULT_LIMIT
+        )
 
     fun findById(id: String): TUser =
         tUserRepository.findById(id).let {
@@ -79,8 +87,8 @@ class UserService(
 
     @Transactional
     fun deleteUser(id: String) {
-        tJwtAuthRepository.deleteByUserId(id)
-        tFollowRelationshipRepository.deleteByUserId(id)
+        tJwtAuthRepository.deleteByDeletedAccount(id)
+        tFriendshipRepository.deleteByDeletedAccount(id)
         tScheduleMemberRepository.deleteByGroupKeyUserId(id)
 
         val schedules = tScheduleRepository.findByOwnerId(id)

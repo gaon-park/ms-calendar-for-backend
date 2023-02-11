@@ -1,6 +1,6 @@
 package com.maple.herocalendarforbackend.code
 
-enum class FollowAcceptedStatus(
+enum class FriendshipAcceptStatusCode(
     val status: Int,
     val info: String,
 ) {

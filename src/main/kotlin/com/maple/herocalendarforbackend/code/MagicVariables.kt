@@ -7,8 +7,13 @@ object MagicVariables {
     // JWT 리프레시 토큰 유효 시간: 2주
     const val JWT_REFRESH_TOKEN_EXPIRATION_WEEK_VALUE = 2L
 
-    // 검색, 초대 최대 인원 수: 30
-    const val MAX_VALUE_OF_MEMBERS = 30
+    // 초대 최대 인원 수: 50
+    const val MAX_VALUE_OF_MEMBERS = 50
+
+    const val SEARCH_DEFAULT_OFFSET = 0
+    const val SEARCH_DEFAULT_LIMIT = 10
+
+    const val MAX_SEARCH_LIMIT = 50
 
     const val AUTHORIZATION_REFRESH_JWT = "X-AUTH-REFRESH-TOKEN"
     const val AUTHORIZATION_ACCESS_JWT = "M_SESSION"

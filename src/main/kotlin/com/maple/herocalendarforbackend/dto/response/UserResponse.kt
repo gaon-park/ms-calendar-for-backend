@@ -1,6 +1,6 @@
 package com.maple.herocalendarforbackend.dto.response
 
-import com.maple.herocalendarforbackend.code.FollowAcceptedStatus
+import com.maple.herocalendarforbackend.code.FriendshipStatusCode
 import com.maple.herocalendarforbackend.entity.TUser
 import lombok.Builder
 
@@ -12,17 +12,17 @@ data class UserResponse(
     val accountId: String,
     val avatarImg: String?,
     val isPublic: Boolean,
-    val acceptedStatus: FollowAcceptedStatus?,
+    val status: FriendshipStatusCode?,
 ) {
     companion object {
-        fun convert(user: TUser, acceptedStatus: FollowAcceptedStatus?) = UserResponse(
+        fun convert(user: TUser, status: FriendshipStatusCode?) = UserResponse(
             id = user.id,
             email = user.email,
             nickName = user.nickName,
             accountId = user.accountId,
             avatarImg = user.avatarImg,
             isPublic = user.isPublic,
-            acceptedStatus = acceptedStatus
+            status = status
         )
     }
 }

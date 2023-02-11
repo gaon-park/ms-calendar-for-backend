@@ -15,15 +15,15 @@ interface TUserRepository : JpaRepository<TUser, String> {
     @Query(
         "select *\n" +
                 "from t_user u\n" +
-                "where u.id != :loginUserId\n" +
-                "and (u.account_id like :keyword\n" +
-                "or u.nick_name like :keyword)\n" +
-                "limit $MAX_VALUE_OF_MEMBERS",
+                "where u.account_id like :keyword\n" +
+                "or u.nick_name like :keyword\n" +
+                "limit :offset, :limit",
         nativeQuery = true
     )
     fun findByKeywordLike(
         @Param("keyword") keyword: String,
-        @Param("loginUserId") loginUserId: String
+        @Param("limit") limit: Int,
+        @Param("offset") offset: Int,
     ): List<TUser>
 
     @Query(

@@ -31,5 +31,5 @@ interface TJwtAuthRepository : JpaRepository<TJwtAuth, String> {
         nativeQuery = true
     )
     @Modifying
-    fun deleteByUserId(@Param("user_id") userId: String)
+    fun deleteByDeletedAccount(@Param("user_id") userId: String)
 }
