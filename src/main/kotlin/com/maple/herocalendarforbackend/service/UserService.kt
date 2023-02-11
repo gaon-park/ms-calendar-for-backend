@@ -33,24 +33,27 @@ class UserService(
     @Transactional
     fun updateProfile(id: String, request: ProfileRequest): TUser {
         val user = findById(id)
-        val avatarImg = request.encodedImg?.let {
+        val avatarImg = request.avatarImg?.let {
             if (it.isNotEmpty() && it != user.avatarImg) {
                 GCSUtil().upload(
                     id,
-                    ImageUtil().toByteArray(request.encodedImg)
+                    ImageUtil().toByteArray(request.avatarImg)
                 )
             } else null
         }
-        if (user.accountId != request.accountId && request.accountId?.let { accountIdDuplicateCheck(it) } == false) {
+        if (user.accountId != request.accountId && !accountIdDuplicateCheck(request.accountId)) {
             throw BaseException(BaseResponseCode.DUPLICATED_ACCOUNT_ID)
         }
         return if (diffCheck(user, request) || avatarImg != null) {
             tUserRepository.save(
                 user.copy(
-                    nickName = request.nickName?.trim() ?: user.nickName,
-                    accountId = request.accountId?.trim() ?: user.accountId,
-                    isPublic = request.isPublic ?: user.isPublic,
+                    nickName = request.nickName.replace(" ", ""),
+                    accountId = request.accountId.replace(" ", ""),
+                    isPublic = request.isPublic,
                     avatarImg = avatarImg ?: user.avatarImg,
+                    world = request.world,
+                    job = request.job,
+                    jobDetail = request.jobDetail,
                     updatedAt = LocalDateTime.now()
                 )
             )
@@ -59,11 +62,13 @@ class UserService(
 
     private fun diffCheck(user: TUser, request: ProfileRequest): Boolean {
         return when {
-            request.nickName?.isNotEmpty() == true
-                    && user.nickName != request.nickName -> true
-            request.accountId?.isNotEmpty() == true
-                    && user.accountId != request.accountId -> true
+            request.nickName.isNotEmpty() && user.nickName != request.nickName -> true
+            request.accountId.isNotEmpty() && user.accountId != request.accountId -> true
+            request.world != user.world -> true
+            request.job != user.job -> true
+            request.jobDetail != user.jobDetail -> true
             user.isPublic != request.isPublic -> true
+
             else -> false
         }
     }

@@ -126,27 +126,4 @@ class UserController(
         ResponseEntity.ok(
             ProfileResponse.convert(userService.updateProfile(principal.name, requestBody))
         )
-
-    @Operation(
-        summary = "get user profile image to base64 encoded string", description = "ログインユーザの画像ファイル取得 API <br/>" +
-                "プロフィール画像修正時に使うデータ"
-    )
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                content = arrayOf(Content(schema = Schema(implementation = String::class)))
-            )
-        ]
-    )
-    @PostMapping(
-        "/encodedImg",
-        consumes = [MediaType.MULTIPART_FORM_DATA_VALUE]
-    )
-    fun getByteImg(
-        @ModelAttribute request: AvatarImgRequest,
-    ): ResponseEntity<String> =
-        ResponseEntity.ok(
-            ImageUtil().toByteString(request.avatarImg)
-        )
 }

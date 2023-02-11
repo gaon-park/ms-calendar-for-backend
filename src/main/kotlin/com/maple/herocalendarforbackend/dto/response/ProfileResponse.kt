@@ -16,6 +16,9 @@ data class ProfileResponse(
     @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm", timezone="Asia/Seoul")
     val updatedAt: LocalDateTime,
     val isPublic: Boolean,
+    val world: String,
+    val job: String,
+    val jobDetail: String,
     val avatarImg: String?,
 ) {
     companion object {
@@ -27,6 +30,9 @@ data class ProfileResponse(
             createdAt = data.createdAt,
             updatedAt = data.updatedAt,
             isPublic = data.isPublic,
+            world = data.world,
+            job = data.job,
+            jobDetail = data.jobDetail,
             avatarImg = data.avatarImg,
         )
     }

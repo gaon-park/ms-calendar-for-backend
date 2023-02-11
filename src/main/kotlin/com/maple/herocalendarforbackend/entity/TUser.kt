@@ -29,6 +29,9 @@ data class TUser(
     val isPublic: Boolean,
     @Column(length = 10000)
     val avatarImg: String?,
+    val world: String,
+    val job: String,
+    val jobDetail: String,
     val userRole: String?,
 ) : UserDetails {
     companion object {
@@ -40,6 +43,9 @@ data class TUser(
             updatedAt = LocalDateTime.now(),
             isPublic = false,
             avatarImg = null,
+            world = "",
+            job = "",
+            jobDetail = "",
             userRole = null
         )
     }
