@@ -13,7 +13,6 @@ import com.maple.herocalendarforbackend.repository.TJwtAuthRepository
 import com.maple.herocalendarforbackend.repository.TUserRepository
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
-import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpHeaders.AUTHORIZATION
