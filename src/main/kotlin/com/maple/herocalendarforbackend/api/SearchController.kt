@@ -1,5 +1,6 @@
 package com.maple.herocalendarforbackend.api
 
+import com.maple.herocalendarforbackend.code.MagicVariables.MAX_LENGTH_OF_USER_COLUMN
 import com.maple.herocalendarforbackend.dto.request.PageInfo
 import com.maple.herocalendarforbackend.dto.request.search.SearchUserRequest
 import com.maple.herocalendarforbackend.dto.response.ScheduleResponse
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController
 import java.security.Principal
 import java.time.LocalDate
 
+@Suppress("LongParameterList")
 @Tag(name = "Search", description = "検索関連(ログアウト状態でもアクセス) API")
 @RestController
 @RequestMapping("/api/search", produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -49,7 +51,6 @@ class SearchController(
         ]
     )
     @GetMapping("/user")
-    @Suppress("LongParameterList")
     fun findUser(
         principal: Principal,
         @RequestParam("keyword", required = false) keyword: String?,
@@ -62,7 +63,10 @@ class SearchController(
         return ResponseEntity.ok(
             searchService.findUser(
                 principal.name, SearchUserRequest(
-                    keyword,
+                    if (keyword != null && keyword.length > MAX_LENGTH_OF_USER_COLUMN) keyword.substring(
+                        MAX_LENGTH_OF_USER_COLUMN
+                    )
+                    else keyword,
                     world,
                     job,
                     jobDetail,

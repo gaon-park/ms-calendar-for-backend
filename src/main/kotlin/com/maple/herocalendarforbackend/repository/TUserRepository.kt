@@ -36,6 +36,18 @@ interface TUserRepository : JpaRepository<TUser, String> {
 
     @Query(
         "select *\n" +
+                "from t_user u\n" +
+                "order by updated_at desc\n" +
+                "limit :offset, :limit",
+        nativeQuery = true
+    )
+    fun findByUpdatedAt(
+        @Param("limit") limit: Int,
+        @Param("offset") offset: Int,
+    ): List<TUser>
+
+    @Query(
+        "select *\n" +
                 "from t_user u1\n" +
                 "where u1.id in :ids\n" +
                 "and u1.is_public = true\n" +

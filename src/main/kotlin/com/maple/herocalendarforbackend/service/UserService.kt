@@ -1,6 +1,7 @@
 package com.maple.herocalendarforbackend.service
 
 import com.maple.herocalendarforbackend.code.BaseResponseCode
+import com.maple.herocalendarforbackend.dto.request.PageInfo
 import com.maple.herocalendarforbackend.dto.request.ProfileRequest
 import com.maple.herocalendarforbackend.dto.request.search.SearchUserRequest
 import com.maple.herocalendarforbackend.entity.TSchedule
@@ -40,6 +41,13 @@ class UserService(
             limit = request.pageInfo.limit,
             offset = request.pageInfo.offset
         )
+
+    fun findByUpdatedAt(pageInfo: PageInfo) =
+        tUserRepository.findByUpdatedAt(
+            limit = pageInfo.limit,
+            offset = pageInfo.offset
+        )
+
 
     fun findById(id: String): TUser =
         tUserRepository.findById(id).let {

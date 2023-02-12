@@ -13,7 +13,9 @@ class SearchService(
     private val scheduleService: ScheduleService,
 ) {
     fun findUser(loginUserId: String, request: SearchUserRequest): List<UserResponse> {
-        val results = userService.findByCondition(request)
+        val results =
+            if (checkAllConditionIsNull(request)) userService.findByUpdatedAt(request.pageInfo)
+            else userService.findByCondition(request)
         val friends = friendshipService.findByUserIdAndOppIn(loginUserId, results)
         val friendsId = friends.mapNotNull { it.id }
 
@@ -26,6 +28,15 @@ class SearchService(
                 }
         )
     }
+
+    private fun checkAllConditionIsNull(request: SearchUserRequest) =
+        when {
+            (!request.keyword.isNullOrEmpty()) -> false
+            (!request.world.isNullOrEmpty()) -> false
+            (!request.job.isNullOrEmpty()) -> false
+            (!request.jobDetail.isNullOrEmpty()) -> false
+            else -> true
+        }
 
     fun findUserSchedules(
         loginUserId: String?, targetUserId: String, from: LocalDate, to: LocalDate
