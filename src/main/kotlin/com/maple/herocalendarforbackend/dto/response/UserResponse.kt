@@ -12,6 +12,9 @@ data class UserResponse(
     val accountId: String,
     val avatarImg: String?,
     val isPublic: Boolean,
+    val world: String,
+    val job: String,
+    val jobDetail: String,
     val status: FriendshipStatusCode?,
 ) {
     companion object {
@@ -22,6 +25,9 @@ data class UserResponse(
             accountId = user.accountId,
             avatarImg = user.avatarImg,
             isPublic = user.isPublic,
+            world = user.world,
+            job = user.job,
+            jobDetail = user.jobDetail,
             status = status
         )
     }
