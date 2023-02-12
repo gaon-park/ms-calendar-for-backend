@@ -31,11 +31,14 @@ class UserService(
         tUserRepository.findByEmail(it)
     }
 
-    fun findByKeywordLike(request: SearchUserRequest) =
-        tUserRepository.findByKeywordLike(
-            "%${request.keyword}%",
-            request.pageInfo.limit,
-            request.pageInfo.offset
+    fun findByCondition(request: SearchUserRequest) =
+        tUserRepository.findByCondition(
+            keyword = if (request.keyword != null) "%${request.keyword}%" else "",
+            world = request.world ?: "",
+            job = request.job ?: "",
+            jobDetail = request.jobDetail ?: "",
+            limit = request.pageInfo.limit,
+            offset = request.pageInfo.offset
         )
 
     fun findById(id: String): TUser =

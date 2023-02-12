@@ -49,16 +49,23 @@ class SearchController(
         ]
     )
     @GetMapping("/user")
+    @Suppress("LongParameterList")
     fun findUser(
         principal: Principal,
-        @RequestParam("keyword") keyword: String,
-        @RequestParam("limit") limit: Int?,
-        @RequestParam("offset") offset: Int?
+        @RequestParam("keyword", required = false) keyword: String?,
+        @RequestParam("world", required = false) world: String?,
+        @RequestParam("job", required = false) job: String?,
+        @RequestParam("jobDetail", required = false) jobDetail: String?,
+        @RequestParam("limit", required = false) limit: Int?,
+        @RequestParam("offset", required = false) offset: Int?
     ): ResponseEntity<List<UserResponse>> {
         return ResponseEntity.ok(
             searchService.findUser(
                 principal.name, SearchUserRequest(
                     keyword,
+                    world,
+                    job,
+                    jobDetail,
                     PageInfo.convert(limit, offset)
                 )
             )

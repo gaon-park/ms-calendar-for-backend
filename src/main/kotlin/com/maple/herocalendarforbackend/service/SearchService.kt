@@ -13,7 +13,7 @@ class SearchService(
     private val scheduleService: ScheduleService,
 ) {
     fun findUser(loginUserId: String, request: SearchUserRequest): List<UserResponse> {
-        val results = userService.findByKeywordLike(request)
+        val results = userService.findByCondition(request)
         val friends = friendshipService.findByUserIdAndOppIn(loginUserId, results)
         val friendsId = friends.mapNotNull { it.id }
 
