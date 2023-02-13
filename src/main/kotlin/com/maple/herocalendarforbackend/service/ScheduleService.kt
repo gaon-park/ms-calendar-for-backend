@@ -1,6 +1,6 @@
 package com.maple.herocalendarforbackend.service
 
-import com.maple.herocalendarforbackend.code.ScheduleAcceptedStatus
+import com.maple.herocalendarforbackend.code.AcceptedStatus
 import com.maple.herocalendarforbackend.code.BaseResponseCode
 import com.maple.herocalendarforbackend.code.RepeatCode
 import com.maple.herocalendarforbackend.code.ScheduleUpdateCode
@@ -71,12 +71,12 @@ class ScheduleService(
             tUserRepository.findPublicOrFollowing(memberIds.filter { it != owner.id }.toSet().toList(), owner.id!!)
         val memberData = mutableListOf(
             TScheduleMember.initConvert(
-                owner, group, ScheduleAcceptedStatus.ACCEPTED
+                owner, group, AcceptedStatus.ACCEPTED
             )
         )
         memberData.addAll(members.map {
             TScheduleMember.initConvert(
-                it, group, ScheduleAcceptedStatus.WAITING
+                it, group, AcceptedStatus.WAITING
             )
         })
 
@@ -145,7 +145,7 @@ class ScheduleService(
                 tScheduleMemberRepository.saveAll(
                     tUserRepository.findPublicOrFollowing(invite, requesterId)
                         .map {
-                            TScheduleMember.initConvert(it, group, ScheduleAcceptedStatus.WAITING)
+                            TScheduleMember.initConvert(it, group, AcceptedStatus.WAITING)
                         }
                 )
                 group
@@ -225,10 +225,10 @@ class ScheduleService(
         tScheduleMemberRepository.findByScheduleIdAndUserIdAndAcceptedStatus(
             scheduleId,
             requesterId,
-            ScheduleAcceptedStatus.ACCEPTED.toString()
+            AcceptedStatus.ACCEPTED.toString()
         )
             ?.let {
-                tScheduleMemberRepository.save(it.copy(acceptedStatus = ScheduleAcceptedStatus.ACCEPTED))
+                tScheduleMemberRepository.save(it.copy(acceptedStatus = AcceptedStatus.ACCEPTED))
             } ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
     }
 
@@ -240,9 +240,9 @@ class ScheduleService(
         tScheduleMemberRepository.findByScheduleIdAndUserIdAndAcceptedStatus(
             scheduleId,
             requesterId,
-            ScheduleAcceptedStatus.REFUSED.toString()
+            AcceptedStatus.REFUSED.toString()
         )?.let {
-            tScheduleMemberRepository.save(it.copy(acceptedStatus = ScheduleAcceptedStatus.REFUSED))
+            tScheduleMemberRepository.save(it.copy(acceptedStatus = AcceptedStatus.REFUSED))
         } ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
     }
 
@@ -338,7 +338,7 @@ class ScheduleService(
                     TScheduleMember.initConvert(
                         user = m.groupKey.user,
                         group = it,
-                        acceptedStatus = ScheduleAcceptedStatus.REFUSED
+                        acceptedStatus = AcceptedStatus.REFUSED
                     )
                 } else {
                     TScheduleMember.initConvert(

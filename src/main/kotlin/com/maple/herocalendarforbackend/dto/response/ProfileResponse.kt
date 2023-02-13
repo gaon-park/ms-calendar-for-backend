@@ -1,7 +1,7 @@
 package com.maple.herocalendarforbackend.dto.response
 
 import com.fasterxml.jackson.annotation.JsonFormat
-import com.maple.herocalendarforbackend.code.FriendshipStatusCode
+import com.maple.herocalendarforbackend.entity.ProfileInterface
 import com.maple.herocalendarforbackend.entity.TUser
 import lombok.Builder
 import java.time.LocalDateTime
@@ -20,11 +20,12 @@ data class ProfileResponse(
     val job: String,
     val jobDetail: String,
     val avatarImg: String?,
-    val holderFlg: Boolean,
-    val status: FriendshipStatusCode?,
+    val heFollowMe: Boolean,
+    val iFollowHim: Boolean,
 ) {
     companion object {
-        fun convert(data: TUser, holderFlg: Boolean, status: FriendshipStatusCode?) = ProfileResponse(
+        // todo remove
+        fun convert(data: TUser) = ProfileResponse(
             id = data.id,
             accountId = data.accountId,
             nickName = data.nickName,
@@ -35,8 +36,8 @@ data class ProfileResponse(
             job = data.job,
             jobDetail = data.jobDetail,
             avatarImg = data.avatarImg,
-            holderFlg = holderFlg,
-            status = status
+            heFollowMe = false,
+            iFollowHim = false,
         )
     }
 }

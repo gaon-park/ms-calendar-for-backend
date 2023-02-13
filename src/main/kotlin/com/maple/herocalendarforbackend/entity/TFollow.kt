@@ -1,6 +1,6 @@
 package com.maple.herocalendarforbackend.entity
 
-import com.maple.herocalendarforbackend.code.FriendshipAcceptStatusCode
+import com.maple.herocalendarforbackend.code.FollowAcceptedStatus
 import jakarta.persistence.Embeddable
 import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity
@@ -12,20 +12,19 @@ import jakarta.persistence.Table
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "t_friendship")
-data class TFriendship(
+@Table(name = "t_follow")
+data class TFollow(
     @EmbeddedId
-    val key: Key,
+    val id: Key,
     @Enumerated(value = EnumType.STRING)
-    val status: FriendshipAcceptStatusCode,
+    val status: FollowAcceptedStatus,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
 ) {
     companion object {
-        fun generateSaveModel(requester: TUser, respondent: TUser) = TFriendship(
-            key = Key(requester, respondent),
-            status = if (respondent.isPublic) FriendshipAcceptStatusCode.ACCEPTED
-            else FriendshipAcceptStatusCode.WAITING,
+        fun generateSaveModel(requester: TUser, respondent: TUser) = TFollow(
+            id = Key(requester, respondent),
+            status = if (respondent.isPublic) FollowAcceptedStatus.ACCEPTED else FollowAcceptedStatus.WAITING,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now()
         )

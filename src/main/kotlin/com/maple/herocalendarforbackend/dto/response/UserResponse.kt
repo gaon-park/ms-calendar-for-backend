@@ -1,6 +1,5 @@
 package com.maple.herocalendarforbackend.dto.response
 
-import com.maple.herocalendarforbackend.code.FriendshipStatusCode
 import com.maple.herocalendarforbackend.entity.TUser
 import lombok.Builder
 
@@ -15,10 +14,9 @@ data class UserResponse(
     val job: String,
     val jobDetail: String,
     val holderFlg: Boolean,
-    val status: FriendshipStatusCode?,
 ) {
     companion object {
-        fun convert(user: TUser, status: FriendshipStatusCode?, holderFlg: Boolean) = UserResponse(
+        fun convert(user: TUser, holderFlg: Boolean) = UserResponse(
             id = user.id,
             nickName = user.nickName,
             accountId = user.accountId,
@@ -28,7 +26,6 @@ data class UserResponse(
             job = user.job,
             jobDetail = user.jobDetail,
             holderFlg = holderFlg,
-            status = status
         )
     }
 }

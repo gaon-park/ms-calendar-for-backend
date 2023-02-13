@@ -1,14 +1,12 @@
 package com.maple.herocalendarforbackend.service
 
 import com.maple.herocalendarforbackend.code.BaseResponseCode
-import com.maple.herocalendarforbackend.code.MagicVariables.MAX_SEARCH_LIMIT
-import com.maple.herocalendarforbackend.dto.request.PageInfo
 import com.maple.herocalendarforbackend.dto.request.ProfileRequest
 import com.maple.herocalendarforbackend.dto.request.search.SearchUserRequest
 import com.maple.herocalendarforbackend.entity.TSchedule
 import com.maple.herocalendarforbackend.entity.TUser
 import com.maple.herocalendarforbackend.exception.BaseException
-import com.maple.herocalendarforbackend.repository.TFriendshipRepository
+import com.maple.herocalendarforbackend.repository.TFollowRepository
 import com.maple.herocalendarforbackend.repository.TJwtAuthRepository
 import com.maple.herocalendarforbackend.repository.TScheduleMemberRepository
 import com.maple.herocalendarforbackend.repository.TScheduleRepository
@@ -24,30 +22,23 @@ import java.time.LocalDateTime
 @Service
 class UserService(
     private val tUserRepository: TUserRepository,
+    private val tFollowRepository: TFollowRepository,
     private val tJwtAuthRepository: TJwtAuthRepository,
     private val tScheduleRepository: TScheduleRepository,
     private val tScheduleMemberRepository: TScheduleMemberRepository,
-    private val tFriendshipRepository: TFriendshipRepository,
 ) : UserDetailsService {
     override fun loadUserByUsername(username: String?): UserDetails? = username?.let {
         tUserRepository.findByEmail(it)
     }
 
-    fun findByCondition(request: SearchUserRequest) =
-        tUserRepository.findByCondition(
+    fun findByConditionAndUserId(request: SearchUserRequest, loginUserId: String?) =
+        tUserRepository.findByConditionAndUserId(
             keyword = if (request.keyword != null) "%${request.keyword}%" else "",
             world = request.world ?: "",
             job = request.job ?: "",
             jobDetail = request.jobDetail ?: "",
+            loginUserId = loginUserId ?: ""
         )
-
-    fun findByUpdatedAt() = tUserRepository.findByUpdatedAt()
-
-    fun findByUpdatedAtCount(): Long {
-        val count = tUserRepository.count()
-        return if (count > MAX_SEARCH_LIMIT) MAX_SEARCH_LIMIT
-        else count
-    }
 
     fun findByConditionCount(request: SearchUserRequest) = tUserRepository.findByConditionCount(
         keyword = if (request.keyword != null) "%${request.keyword}%" else "",
@@ -103,7 +94,7 @@ class UserService(
     @Transactional
     fun deleteUser(id: String) {
         tJwtAuthRepository.deleteByDeletedAccount(id)
-        tFriendshipRepository.deleteByDeletedAccount(id)
+        tFollowRepository.deleteByAccountRemove(id)
         tScheduleMemberRepository.deleteByGroupKeyUserId(id)
 
         val schedules = tScheduleRepository.findByOwnerId(id)

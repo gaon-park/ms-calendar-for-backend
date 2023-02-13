@@ -27,6 +27,7 @@ import java.time.LocalDate
 @Tag(name = "Search", description = "検索関連(ログアウト状態でもアクセス) API")
 @RestController
 @RequestMapping("/api/search", produces = [MediaType.APPLICATION_JSON_VALUE])
+@SecurityRequirements(value = [])
 class SearchController(
     private val searchService: SearchService
 ) {
@@ -35,8 +36,7 @@ class SearchController(
      * accountId 로 user 검색
      */
     @Operation(
-        summary = "ユーザ検索", description = "accountIdでユーザを検索(部分一致)する API <br/>" +
-                "最大検索結果制限: 「100件」"
+        summary = "ユーザ検索", description = "accountIdでユーザを検索(部分一致)する API"
     )
     @ApiResponses(
         value = [
@@ -51,7 +51,7 @@ class SearchController(
     )
     @GetMapping("/user")
     fun findUser(
-        principal: Principal,
+        principal: Principal?,
         @RequestParam("keyword", required = false) keyword: String?,
         @RequestParam("world", required = false) world: String?,
         @RequestParam("job", required = false) job: String?,
@@ -59,7 +59,7 @@ class SearchController(
     ): ResponseEntity<SearchUserResponse> {
         return ResponseEntity.ok(
             searchService.findUser(
-                principal.name, SearchUserRequest(
+                SearchUserRequest(
                     if (keyword != null && keyword.length > MAX_LENGTH_OF_USER_COLUMN) keyword.substring(
                         MAX_LENGTH_OF_USER_COLUMN
                     )
@@ -67,7 +67,8 @@ class SearchController(
                     world,
                     job,
                     jobDetail,
-                )
+                ),
+                principal?.name,
             )
         )
     }

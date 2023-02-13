@@ -1,6 +1,6 @@
 package com.maple.herocalendarforbackend.code
 
-enum class ScheduleAcceptedStatus(
+enum class AcceptedStatus(
     val status: Int,
     val info: String,
 ) {

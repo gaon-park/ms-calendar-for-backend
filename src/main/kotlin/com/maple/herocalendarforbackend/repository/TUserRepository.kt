@@ -1,6 +1,7 @@
 package com.maple.herocalendarforbackend.repository
 
-import com.maple.herocalendarforbackend.code.MagicVariables.MAX_SEARCH_LIMIT
+import com.maple.herocalendarforbackend.dto.response.ProfileResponse
+import com.maple.herocalendarforbackend.entity.ProfileInterface
 import com.maple.herocalendarforbackend.entity.TUser
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
@@ -14,23 +15,45 @@ interface TUserRepository : JpaRepository<TUser, String> {
     fun findByEmail(email: String): TUser?
 
     @Query(
-        "select *\n" +
+        "select \n" +
+                "    u.id as id,\n" +
+                "    u.account_id as accountId,\n" +
+                "    u.nick_name as nickName,\n" +
+                "    u.avatar_img as avatarImg,\n" +
+                "    u.world as world,\n" +
+                "    u.job as job,\n" +
+                "    u.job_detail as jobDetail,\n" +
+                "    u.is_public as isPublic,\n" +
+                "    u.created_at as createdAt,\n" +
+                "    u.updated_at as updatedAt,\n" +
+                "    (\n" +
+                "        select if(count(*) > 0, true, false)\n" +
+                "        from t_follow f1\n" +
+                "        where f1.requester_id = :userId\n" +
+                "        and f1.respondent_id = u.id\n" +
+                "    ) as iFollowHim,\n" +
+                "    (\n" +
+                "        select if(count(*) > 0, true, false)\n" +
+                "        from t_follow f2\n" +
+                "        where f2.requester_id = u.id\n" +
+                "        and f2.respondent_id = :userId\n" +
+                "    ) as heFollowMe\n" +
                 "from t_user u\n" +
                 "where if(:keyword != ''," +
                 "   u.account_id like :keyword or u.nick_name like :keyword," +
                 "   u.account_id is not null)\n" +
                 "and if(:world != '', u.world = :world, u.world is not null)\n" +
                 "and if(:job != '', u.job = :job, u.job is not null)\n" +
-                "and if(:jobDetail != '', u.job_detail = :jobDetail, u.job_detail is not null)\n" +
-                "limit $MAX_SEARCH_LIMIT",
+                "and if(:jobDetail != '', u.job_detail = :jobDetail, u.job_detail is not null)\n",
         nativeQuery = true
     )
-    fun findByCondition(
+    fun findByConditionAndUserId(
         @Param("keyword") keyword: String,
         @Param("world") world: String,
         @Param("job") job: String,
         @Param("jobDetail") jobDetail: String,
-    ): List<TUser>
+        @Param("userId") loginUserId: String,
+    ): List<ProfileInterface>
 
     @Query(
         "select count(*)\n" +
@@ -49,15 +72,6 @@ interface TUserRepository : JpaRepository<TUser, String> {
         @Param("job") job: String,
         @Param("jobDetail") jobDetail: String,
     ): Long
-
-    @Query(
-        "select *\n" +
-                "from t_user u\n" +
-                "order by updated_at desc\n" +
-                "limit $MAX_SEARCH_LIMIT",
-        nativeQuery = true
-    )
-    fun findByUpdatedAt(): List<TUser>
 
     @Query(
         "select *\n" +

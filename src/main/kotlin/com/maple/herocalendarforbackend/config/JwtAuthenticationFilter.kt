@@ -30,14 +30,27 @@ class JwtAuthenticationFilter(
             "/api/oauth2/",
             "/api/reissue/token"
         )
+        val GET_BOTH_URL = listOf(
+            "/api/search/user",
+            "/api/search/schedule",
+            "/api/schedule"
+        )
     }
 
     override fun doFilterInternal(
         request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain
     ) {
         try {
-            val token = jwtAuthService.getValidatedAuthData(request)
-            SecurityContextHolder.getContext().authentication = jwtAuthService.getAuthentication(token)
+            if (needOptionalPrincipal(request)) {
+                try {
+                    val token = jwtAuthService.getValidatedAuthData(request)
+                    SecurityContextHolder.getContext().authentication = jwtAuthService.getAuthentication(token)
+                } catch (_: Exception) {
+                }
+            } else {
+                val token = jwtAuthService.getValidatedAuthData(request)
+                SecurityContextHolder.getContext().authentication = jwtAuthService.getAuthentication(token)
+            }
             filterChain.doFilter(request, response)
         } catch (exception: Exception) {
             when (exception) {
@@ -50,6 +63,12 @@ class JwtAuthenticationFilter(
                 is java.lang.NullPointerException -> setErrorResponse(response, BaseResponseCode.UNAUTHORIZED)
             }
         }
+    }
+
+    fun needOptionalPrincipal(request: HttpServletRequest): Boolean {
+        val resURL = GET_BOTH_URL.any { url -> (request.servletPath.equals(url)) }
+        val resMethod = (request.method.equals("GET", true))
+        return resURL && resMethod
     }
 
     // filtering 제외 URL 설정

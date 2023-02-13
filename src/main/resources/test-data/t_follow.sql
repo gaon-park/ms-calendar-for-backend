@@ -1,5 +1,5 @@
 -- requester_id を本人のIDで交換すること！！
-INSERT INTO `t_friendship` (`requester_id`, `respondent_id`, `status`, `created_at`, `updated_at`) values
+INSERT INTO `t_follow` (`requester_id`, `respondent_id`, `status`, `created_at`, `updated_at`) values
 ('b02bda33-4e8a-48d3-a7c7-08ce3c728cf0', '1', 'WAITING', '2023-02-13 12:10:11', '2023-02-13 12:10:11'),
 ('b02bda33-4e8a-48d3-a7c7-08ce3c728cf0', '2', 'ACCEPTED', '2023-02-13 12:10:11', '2023-02-13 12:10:11'),
 ('b02bda33-4e8a-48d3-a7c7-08ce3c728cf0', '3', 'WAITING', '2023-02-13 12:10:11', '2023-02-13 12:10:11'),

@@ -1,13 +1,11 @@
 package com.maple.herocalendarforbackend.api
 
-import com.maple.herocalendarforbackend.dto.request.AvatarImgRequest
 import com.maple.herocalendarforbackend.dto.request.ProfileRequest
 import com.maple.herocalendarforbackend.dto.response.AlertsResponse
 import com.maple.herocalendarforbackend.dto.response.ErrorResponse
 import com.maple.herocalendarforbackend.dto.response.ProfileResponse
 import com.maple.herocalendarforbackend.service.AlertService
 import com.maple.herocalendarforbackend.service.UserService
-import com.maple.herocalendarforbackend.util.ImageUtil
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -19,16 +17,10 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.multipart.MultipartFile
 import java.security.Principal
 
 @Tag(name = "User tools", description = "Login User関連 API")
@@ -91,8 +83,6 @@ class UserController(
         ResponseEntity.ok(
             ProfileResponse.convert(
                 userService.findById(principal.name),
-                true,
-                null
             )
         )
 
@@ -131,8 +121,6 @@ class UserController(
         ResponseEntity.ok(
             ProfileResponse.convert(
                 userService.updateProfile(principal.name, requestBody),
-                true,
-                null
             )
         )
 
