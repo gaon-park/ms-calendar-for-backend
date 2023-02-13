@@ -27,8 +27,9 @@ class SearchService(
             users = friends.plus(
                 results.filter { !friendsId.contains(it.id) }
                     .map {
+                        val holderFlg = it.id == loginUserId
                         UserResponse.convert(
-                            it, null
+                            it, null, holderFlg
                         )
                     }
             ),

@@ -120,7 +120,7 @@ class FriendshipService(
                 }
             }
 
-            UserResponse.convert(user, status)
+            UserResponse.convert(user, status, false)
         }
     }
 }

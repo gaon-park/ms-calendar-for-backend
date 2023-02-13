@@ -14,7 +14,7 @@ data class WaitingFollower(
 ) {
     companion object {
         fun convert(data: TFriendship) = WaitingFollower(
-            requester = UserResponse.convert(data.key.requester, FriendshipStatusCode.WAITING_MY_RESPONSE),
+            requester = UserResponse.convert(data.key.requester, FriendshipStatusCode.WAITING_MY_RESPONSE, false),
             createdAt = data.createdAt
         )
     }

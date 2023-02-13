@@ -14,10 +14,11 @@ data class UserResponse(
     val world: String,
     val job: String,
     val jobDetail: String,
+    val holderFlg: Boolean,
     val status: FriendshipStatusCode?,
 ) {
     companion object {
-        fun convert(user: TUser, status: FriendshipStatusCode?) = UserResponse(
+        fun convert(user: TUser, status: FriendshipStatusCode?, holderFlg: Boolean) = UserResponse(
             id = user.id,
             nickName = user.nickName,
             accountId = user.accountId,
@@ -26,6 +27,7 @@ data class UserResponse(
             world = user.world,
             job = user.job,
             jobDetail = user.jobDetail,
+            holderFlg = holderFlg,
             status = status
         )
     }
