@@ -14,7 +14,7 @@ data class PageInfo(
                 (limit == null) -> SEARCH_DEFAULT_LIMIT
                 (limit > MAX_SEARCH_LIMIT) -> MAX_SEARCH_LIMIT
                 else -> limit
-            },
+            } as Int,
             offset = offset ?: SEARCH_DEFAULT_OFFSET
         )
     }

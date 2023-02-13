@@ -1,6 +1,6 @@
 package com.maple.herocalendarforbackend.repository
 
-import com.maple.herocalendarforbackend.code.MagicVariables.MAX_VALUE_OF_MEMBERS
+import com.maple.herocalendarforbackend.code.MagicVariables.MAX_SEARCH_LIMIT
 import com.maple.herocalendarforbackend.entity.TUser
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
@@ -22,7 +22,7 @@ interface TUserRepository : JpaRepository<TUser, String> {
                 "and if(:world != '', u.world = :world, u.world is not null)\n" +
                 "and if(:job != '', u.job = :job, u.job is not null)\n" +
                 "and if(:jobDetail != '', u.job_detail = :jobDetail, u.job_detail is not null)\n" +
-                "limit :offset, :limit",
+                "limit $MAX_SEARCH_LIMIT",
         nativeQuery = true
     )
     fun findByCondition(
@@ -30,21 +30,34 @@ interface TUserRepository : JpaRepository<TUser, String> {
         @Param("world") world: String,
         @Param("job") job: String,
         @Param("jobDetail") jobDetail: String,
-        @Param("limit") limit: Int,
-        @Param("offset") offset: Int,
     ): List<TUser>
+
+    @Query(
+        "select count(*)\n" +
+                "from t_user u\n" +
+                "where if(:keyword != ''," +
+                "   u.account_id like :keyword or u.nick_name like :keyword," +
+                "   u.account_id is not null)\n" +
+                "and if(:world != '', u.world = :world, u.world is not null)\n" +
+                "and if(:job != '', u.job = :job, u.job is not null)\n" +
+                "and if(:jobDetail != '', u.job_detail = :jobDetail, u.job_detail is not null)",
+        nativeQuery = true
+    )
+    fun findByConditionCount(
+        @Param("keyword") keyword: String,
+        @Param("world") world: String,
+        @Param("job") job: String,
+        @Param("jobDetail") jobDetail: String,
+    ): Long
 
     @Query(
         "select *\n" +
                 "from t_user u\n" +
                 "order by updated_at desc\n" +
-                "limit :offset, :limit",
+                "limit $MAX_SEARCH_LIMIT",
         nativeQuery = true
     )
-    fun findByUpdatedAt(
-        @Param("limit") limit: Int,
-        @Param("offset") offset: Int,
-    ): List<TUser>
+    fun findByUpdatedAt(): List<TUser>
 
     @Query(
         "select *\n" +

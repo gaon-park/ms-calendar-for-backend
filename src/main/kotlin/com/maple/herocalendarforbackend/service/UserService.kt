@@ -1,6 +1,7 @@
 package com.maple.herocalendarforbackend.service
 
 import com.maple.herocalendarforbackend.code.BaseResponseCode
+import com.maple.herocalendarforbackend.code.MagicVariables.MAX_SEARCH_LIMIT
 import com.maple.herocalendarforbackend.dto.request.PageInfo
 import com.maple.herocalendarforbackend.dto.request.ProfileRequest
 import com.maple.herocalendarforbackend.dto.request.search.SearchUserRequest
@@ -38,16 +39,22 @@ class UserService(
             world = request.world ?: "",
             job = request.job ?: "",
             jobDetail = request.jobDetail ?: "",
-            limit = request.pageInfo.limit,
-            offset = request.pageInfo.offset
         )
 
-    fun findByUpdatedAt(pageInfo: PageInfo) =
-        tUserRepository.findByUpdatedAt(
-            limit = pageInfo.limit,
-            offset = pageInfo.offset
-        )
+    fun findByUpdatedAt() = tUserRepository.findByUpdatedAt()
 
+    fun findByUpdatedAtCount(): Long {
+        val count = tUserRepository.count()
+        return if (count > MAX_SEARCH_LIMIT) MAX_SEARCH_LIMIT
+        else count
+    }
+
+    fun findByConditionCount(request: SearchUserRequest) = tUserRepository.findByConditionCount(
+        keyword = if (request.keyword != null) "%${request.keyword}%" else "",
+        world = request.world ?: "",
+        job = request.job ?: "",
+        jobDetail = request.jobDetail ?: "",
+    )
 
     fun findById(id: String): TUser =
         tUserRepository.findById(id).let {

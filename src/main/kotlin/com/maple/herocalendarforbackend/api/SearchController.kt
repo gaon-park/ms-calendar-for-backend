@@ -1,9 +1,9 @@
 package com.maple.herocalendarforbackend.api
 
 import com.maple.herocalendarforbackend.code.MagicVariables.MAX_LENGTH_OF_USER_COLUMN
-import com.maple.herocalendarforbackend.dto.request.PageInfo
 import com.maple.herocalendarforbackend.dto.request.search.SearchUserRequest
 import com.maple.herocalendarforbackend.dto.response.ScheduleResponse
+import com.maple.herocalendarforbackend.dto.response.SearchUserResponse
 import com.maple.herocalendarforbackend.dto.response.UserResponse
 import com.maple.herocalendarforbackend.service.SearchService
 import io.swagger.v3.oas.annotations.Operation
@@ -14,11 +14,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirements
 import io.swagger.v3.oas.annotations.tags.Tag
-import jakarta.validation.Valid
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -37,7 +35,8 @@ class SearchController(
      * accountId 로 user 검색
      */
     @Operation(
-        summary = "ユーザ検索", description = "accountIdでユーザを検索(部分一致)する API"
+        summary = "ユーザ検索", description = "accountIdでユーザを検索(部分一致)する API <br/>" +
+                "最大検索結果制限: 「100件」"
     )
     @ApiResponses(
         value = [
@@ -57,9 +56,7 @@ class SearchController(
         @RequestParam("world", required = false) world: String?,
         @RequestParam("job", required = false) job: String?,
         @RequestParam("jobDetail", required = false) jobDetail: String?,
-        @RequestParam("limit", required = false) limit: Int?,
-        @RequestParam("offset", required = false) offset: Int?
-    ): ResponseEntity<List<UserResponse>> {
+    ): ResponseEntity<SearchUserResponse> {
         return ResponseEntity.ok(
             searchService.findUser(
                 principal.name, SearchUserRequest(
@@ -70,7 +67,6 @@ class SearchController(
                     world,
                     job,
                     jobDetail,
-                    PageInfo.convert(limit, offset)
                 )
             )
         )

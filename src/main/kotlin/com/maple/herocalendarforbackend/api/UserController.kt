@@ -89,7 +89,11 @@ class UserController(
         principal: Principal,
     ): ResponseEntity<ProfileResponse> =
         ResponseEntity.ok(
-            ProfileResponse.convert(userService.findById(principal.name))
+            ProfileResponse.convert(
+                userService.findById(principal.name),
+                true,
+                null
+            )
         )
 
     /**
@@ -125,7 +129,11 @@ class UserController(
         @Valid @RequestBody requestBody: ProfileRequest,
     ): ResponseEntity<ProfileResponse> =
         ResponseEntity.ok(
-            ProfileResponse.convert(userService.updateProfile(principal.name, requestBody))
+            ProfileResponse.convert(
+                userService.updateProfile(principal.name, requestBody),
+                true,
+                null
+            )
         )
 
     @Operation(

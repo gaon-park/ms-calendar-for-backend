@@ -7,7 +7,6 @@ import lombok.Builder
 @Builder
 data class UserResponse(
     val id: String?,
-    val email: String,
     val nickName: String,
     val accountId: String,
     val avatarImg: String?,
@@ -20,7 +19,6 @@ data class UserResponse(
     companion object {
         fun convert(user: TUser, status: FriendshipStatusCode?) = UserResponse(
             id = user.id,
-            email = user.email,
             nickName = user.nickName,
             accountId = user.accountId,
             avatarImg = user.avatarImg,
