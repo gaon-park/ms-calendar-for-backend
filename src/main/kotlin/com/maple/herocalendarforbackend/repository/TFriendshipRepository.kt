@@ -62,10 +62,10 @@ interface TFriendshipRepository : JpaRepository<TFriendship, TFriendship.Key> {
 
     @Query(
         "update t_friendship f\n" +
-                "set f.accepted_status = :statusValue\n" +
+                "set f.status = :statusValue\n" +
                 "where f.requester_id = :requester\n" +
                 "and f.respondent_id = :respondent\n" +
-                "and f.accepted_status != :statusValue",
+                "and f.status != :statusValue",
         nativeQuery = true
     )
     @Modifying
@@ -79,7 +79,7 @@ interface TFriendshipRepository : JpaRepository<TFriendship, TFriendship.Key> {
         "select *\n" +
                 "from t_friendship f\n" +
                 "where f.respondent_id = :userId\n" +
-                "and f.accepted_status = \"WAITING\"",
+                "and f.status = \"WAITING\"",
         nativeQuery = true
     )
     fun findWaitingRequest(@Param("userId") userId: String): List<TFriendship>
