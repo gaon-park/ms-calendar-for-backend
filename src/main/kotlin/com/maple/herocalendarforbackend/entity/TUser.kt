@@ -35,10 +35,10 @@ data class TUser(
     val userRole: String?,
 ) : UserDetails {
     companion object {
-        fun generateOAuthSaveModel(email: String) = TUser(
+        fun generateGoogleOAuthSaveModel(email: String) = TUser(
             email = email,
-            accountId = email,
-            nickName = email,
+            accountId = "G_" + email.split("@")[0],
+            nickName = "G_" + email.split("@")[0],
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
             isPublic = false,

@@ -82,7 +82,7 @@ class GoogleOAuthService(
     private fun dataProcess(email: String) {
         val user = tUserRepository.findByEmail(email)
         if (user == null) {
-            tUserRepository.save(TUser.generateOAuthSaveModel(email))
+            tUserRepository.save(TUser.generateGoogleOAuthSaveModel(email))
         }
     }
 }
