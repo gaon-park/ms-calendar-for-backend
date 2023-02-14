@@ -1,7 +1,6 @@
 package com.maple.herocalendarforbackend.dto.response
 
 import com.fasterxml.jackson.annotation.JsonFormat
-import com.maple.herocalendarforbackend.entity.ProfileInterface
 import com.maple.herocalendarforbackend.entity.TUser
 import lombok.Builder
 import java.time.LocalDateTime

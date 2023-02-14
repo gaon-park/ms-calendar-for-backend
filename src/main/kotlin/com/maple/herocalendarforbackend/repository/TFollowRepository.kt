@@ -1,7 +1,7 @@
 package com.maple.herocalendarforbackend.repository
 
 import com.maple.herocalendarforbackend.entity.TFollow
-import com.maple.herocalendarforbackend.entity.ProfileInterface
+import com.maple.herocalendarforbackend.entity.IProfile
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
@@ -38,7 +38,7 @@ interface TFollowRepository : JpaRepository<TFollow, TFollow.Key> {
     )
     fun findFollowByUserId(
         @Param("userId") userId: String
-    ): List<ProfileInterface>
+    ): List<IProfile>
 
     @Query(
         "select \n" +
@@ -67,7 +67,7 @@ interface TFollowRepository : JpaRepository<TFollow, TFollow.Key> {
     )
     fun findFollowerByUserId(
         @Param("userId") userId: String
-    ): List<ProfileInterface>
+    ): List<IProfile>
 
     @Query(
         "select *\n" +

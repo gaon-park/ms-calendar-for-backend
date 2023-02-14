@@ -1,13 +1,13 @@
 package com.maple.herocalendarforbackend.dto.response
 
-import com.maple.herocalendarforbackend.entity.ProfileInterface
+import com.maple.herocalendarforbackend.entity.IProfile
 
 data class SearchUserResponse(
-    val users: List<ProfileInterface>,
+    val users: List<IProfile>,
     val fullHit: Long,
 ) {
     companion object {
-        fun convert(users: List<ProfileInterface>, fullHit: Long) = SearchUserResponse(
+        fun convert(users: List<IProfile>, fullHit: Long) = SearchUserResponse(
             users = users,
             fullHit = fullHit
         )

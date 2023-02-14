@@ -1,7 +1,6 @@
 package com.maple.herocalendarforbackend.repository
 
-import com.maple.herocalendarforbackend.dto.response.ProfileResponse
-import com.maple.herocalendarforbackend.entity.ProfileInterface
+import com.maple.herocalendarforbackend.entity.IProfile
 import com.maple.herocalendarforbackend.entity.TUser
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
@@ -53,7 +52,7 @@ interface TUserRepository : JpaRepository<TUser, String> {
         @Param("job") job: String,
         @Param("jobDetail") jobDetail: String,
         @Param("userId") loginUserId: String,
-    ): List<ProfileInterface>
+    ): List<IProfile>
 
     @Query(
         "select count(*)\n" +

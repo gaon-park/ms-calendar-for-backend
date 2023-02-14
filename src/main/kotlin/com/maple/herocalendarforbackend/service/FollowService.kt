@@ -2,8 +2,7 @@ package com.maple.herocalendarforbackend.service
 
 import com.maple.herocalendarforbackend.code.BaseResponseCode
 import com.maple.herocalendarforbackend.code.FollowAcceptedStatus
-import com.maple.herocalendarforbackend.dto.response.ProfileResponse
-import com.maple.herocalendarforbackend.entity.ProfileInterface
+import com.maple.herocalendarforbackend.entity.IProfile
 import com.maple.herocalendarforbackend.entity.TFollow
 import com.maple.herocalendarforbackend.entity.TUser
 import com.maple.herocalendarforbackend.exception.BaseException
@@ -56,11 +55,11 @@ class FollowService(
         }
     }
 
-    fun findFollows(userId: String): List<ProfileInterface> {
+    fun findFollows(userId: String): List<IProfile> {
         return tFollowRepository.findFollowByUserId(userId)
     }
 
-    fun findFollowers(userId: String): List<ProfileInterface> {
+    fun findFollowers(userId: String): List<IProfile> {
         return tFollowRepository.findFollowerByUserId(userId)
     }
 }

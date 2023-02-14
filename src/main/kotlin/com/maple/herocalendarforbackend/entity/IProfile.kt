@@ -3,7 +3,7 @@ package com.maple.herocalendarforbackend.entity
 import java.time.LocalDateTime
 
 @Suppress("TooManyFunctions")
-interface ProfileInterface {
+interface IProfile {
     fun getId(): String
     fun getNickName(): String
     fun getAccountId(): String
