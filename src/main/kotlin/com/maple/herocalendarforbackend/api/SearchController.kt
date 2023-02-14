@@ -5,7 +5,6 @@ import com.maple.herocalendarforbackend.dto.request.search.SearchUserRequest
 import com.maple.herocalendarforbackend.dto.response.IProfileResponse
 import com.maple.herocalendarforbackend.dto.response.ScheduleResponse
 import com.maple.herocalendarforbackend.dto.response.SearchUserResponse
-import com.maple.herocalendarforbackend.dto.response.UserResponse
 import com.maple.herocalendarforbackend.service.SearchService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.ArraySchema
@@ -42,7 +41,7 @@ class SearchController(
                 responseCode = "200",
                 description = "OK",
                 content = arrayOf(
-                    Content(array = ArraySchema(schema = Schema(implementation = UserResponse::class)))
+                    Content(schema = Schema(implementation = SearchUserResponse::class))
                 )
             )
         ]
@@ -80,7 +79,7 @@ class SearchController(
                 responseCode = "200",
                 description = "OK",
                 content = arrayOf(
-                    Content(array = ArraySchema(schema = Schema(implementation = UserResponse::class)))
+                    Content(schema = Schema(implementation = SearchUserResponse::class))
                 )
             )
         ]

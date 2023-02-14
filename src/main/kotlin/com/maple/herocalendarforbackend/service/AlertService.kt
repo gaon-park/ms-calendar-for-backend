@@ -1,14 +1,16 @@
 package com.maple.herocalendarforbackend.service
 
 import com.maple.herocalendarforbackend.dto.response.AlertsResponse
+import com.maple.herocalendarforbackend.repository.TFollowRepository
 import org.springframework.stereotype.Service
 
 @Service
-class AlertService {
-    @Suppress("UnusedPrivateMember")
-    fun findWaitingRequests(userId: String): AlertsResponse {
+class AlertService(
+    private val tFollowRepository: TFollowRepository
+) {
+    fun findWaitingRequests(loginUserId: String): AlertsResponse {
         return AlertsResponse(
-            waitingFollowerRequests = emptyList()
+            waitingFollowerRequests = tFollowRepository.findUnRespondentRequest(loginUserId)
         )
     }
 }
