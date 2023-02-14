@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -72,6 +73,7 @@ class FollowController(
             )
         ]
     )
+    @PutMapping("/follower/delete")
     fun deleteFromByFollower(
         principal: Principal,
         @Valid @RequestBody requestBody: FollowRequest
@@ -90,6 +92,7 @@ class FollowController(
             )
         ]
     )
+    @PutMapping("/follow/accept")
     fun requestAccept(
         principal: Principal,
         @Valid @RequestBody requestBody: FollowRequest
@@ -109,6 +112,7 @@ class FollowController(
             )
         ]
     )
+    @GetMapping("/follow")
     fun findFollows(
         principal: Principal
     ): ResponseEntity<SearchUserResponse> {
@@ -130,6 +134,7 @@ class FollowController(
             )
         ]
     )
+    @GetMapping("/follower")
     fun findFollowers(
         principal: Principal
     ): ResponseEntity<SearchUserResponse> {
