@@ -6,6 +6,6 @@ data class IProfileResponse(
     val profile: IProfile,
     val follow: List<IProfile>,
     val follower: List<IProfile>,
-    val acceptFollowCount: Long,
-    val acceptFollowerCount: Long,
+    val acceptedFollowCount: Long,
+    val acceptedFollowerCount: Long,
 )

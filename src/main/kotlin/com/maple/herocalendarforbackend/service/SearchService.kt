@@ -21,8 +21,8 @@ class SearchService(
                     profile = it,
                     follow = followService.findFollows(it.getId()),
                     follower = followService.findFollowers(it.getId()),
-                    acceptFollowCount = followService.findCountJustAcceptedFollowByUserId(it.getId()),
-                    acceptFollowerCount = followService.findCountJustAcceptedFollowerByUserId(it.getId())
+                    acceptedFollowCount = followService.findCountJustAcceptedFollowByUserId(it.getId()),
+                    acceptedFollowerCount = followService.findCountJustAcceptedFollowerByUserId(it.getId())
                 )
             } else null
         }

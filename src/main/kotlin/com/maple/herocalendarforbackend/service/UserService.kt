@@ -64,8 +64,8 @@ class UserService(
                 profile = it,
                 follow = tFollowRepository.findAllStatusFollowByUserId(loginUserId),
                 follower = tFollowRepository.findAllStatusFollowerByUserId(loginUserId),
-                acceptFollowCount = tFollowRepository.findCountJustAcceptedFollowByUserId(loginUserId),
-                acceptFollowerCount = tFollowRepository.findCountJustAcceptedFollowerByUserId(loginUserId)
+                acceptedFollowCount = tFollowRepository.findCountJustAcceptedFollowByUserId(loginUserId),
+                acceptedFollowerCount = tFollowRepository.findCountJustAcceptedFollowerByUserId(loginUserId)
             )
         } ?: throw BaseException(BaseResponseCode.USER_NOT_FOUND)
     }
@@ -101,8 +101,8 @@ class UserService(
                 profile = tUserRepository.findByIdToIProfile(id) ?: throw BaseException(BaseResponseCode.DATA_ERROR),
                 follow = user.follow,
                 follower = user.follower,
-                acceptFollowCount = user.acceptFollowCount,
-                acceptFollowerCount = user.acceptFollowerCount
+                acceptedFollowCount = user.acceptedFollowCount,
+                acceptedFollowerCount = user.acceptedFollowerCount
             )
         } else user
     }
