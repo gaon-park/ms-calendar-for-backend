@@ -1,8 +1,8 @@
 package com.maple.herocalendarforbackend.code
 
 object MagicVariables {
-    // JWT 액세스 토큰 유효 시간: 1시간
-    const val JWT_ACCESS_TOKEN_EXPIRATION_TIME_VALUE = 60 * 60 * 1000L
+    // JWT 액세스 토큰 유효 시간: 2시간
+    const val JWT_ACCESS_TOKEN_EXPIRATION_TIME_VALUE = 60 * 60 * 2 * 1000L
 
     // JWT 리프레시 토큰 유효 시간: 2주
     const val JWT_REFRESH_TOKEN_EXPIRATION_WEEK_VALUE = 2L
