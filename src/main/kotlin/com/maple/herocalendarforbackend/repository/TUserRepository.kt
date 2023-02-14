@@ -97,4 +97,51 @@ interface TUserRepository : JpaRepository<TUser, String> {
     ): List<TUser>
 
     fun findByAccountId(accountId: String): TUser?
+
+    @Query(
+        "select \n" +
+                "    u.id as id,\n" +
+                "    u.account_id as accountId,\n" +
+                "    u.nick_name as nickName,\n" +
+                "    u.avatar_img as avatarImg,\n" +
+                "    u.world as world,\n" +
+                "    u.job as job,\n" +
+                "    u.job_detail as jobDetail,\n" +
+                "    u.is_public as isPublic,\n" +
+                "    u.created_at as createdAt,\n" +
+                "    u.updated_at as updatedAt,\n" +
+                "    (\n" +
+                "        select if(count(*) > 0, \n" +
+                "           if(f1.status = 'ACCEPTED', 'FOLLOW', 'WAITING')\n" +
+                "           , null)\n" +
+                "        from t_follow f1\n" +
+                "        where f1.requester_id = :loginUserId\n" +
+                "        and f1.respondent_id = u.id\n" +
+                "    ) as iFollowHim,\n" +
+                "    (\n" +
+                "        select if(count(*) > 0, \n" +
+                "           if(f2.status = 'ACCEPTED', 'FOLLOW', 'WAITING')\n" +
+                "           , null)\n" +
+                "        from t_follow f2\n" +
+                "        where f2.requester_id = u.id\n" +
+                "        and f2.respondent_id = :loginUserId\n" +
+                "    ) as heFollowMe\n" +
+                "from t_user u\n" +
+                "where u.account_id = :accountId\n" +
+                "and (\n" +
+                "   u.is_public = true \n" +
+                "   or (\n" +
+                "       select if(count(*) > 0, true, false)\n" +
+                "       from t_follow f\n" +
+                "       where f.requester_id = :loginUserId\n" +
+                "       and f.respondent_id = u.id\n" +
+                "       and f.status = 'ACCEPTED'\n" +
+                "   )\n" +
+                ")",
+        nativeQuery = true
+    )
+    fun findByAccountIdToIProfile(
+        @Param("accountId") accountId: String,
+        @Param("loginUserId") loginUserId: String
+    ): IProfile?
 }

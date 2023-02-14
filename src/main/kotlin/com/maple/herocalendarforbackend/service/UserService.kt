@@ -3,6 +3,7 @@ package com.maple.herocalendarforbackend.service
 import com.maple.herocalendarforbackend.code.BaseResponseCode
 import com.maple.herocalendarforbackend.dto.request.ProfileRequest
 import com.maple.herocalendarforbackend.dto.request.search.SearchUserRequest
+import com.maple.herocalendarforbackend.entity.IProfile
 import com.maple.herocalendarforbackend.entity.TSchedule
 import com.maple.herocalendarforbackend.entity.TUser
 import com.maple.herocalendarforbackend.exception.BaseException
@@ -30,6 +31,9 @@ class UserService(
     override fun loadUserByUsername(username: String?): UserDetails? = username?.let {
         tUserRepository.findByEmail(it)
     }
+
+    fun findByAccountIdToIProfile(accountId: String, loginUserId: String?): IProfile? =
+        tUserRepository.findByAccountIdToIProfile(accountId, loginUserId ?: "")
 
     fun findByConditionAndUserId(request: SearchUserRequest, loginUserId: String?) =
         tUserRepository.findByConditionAndUserId(

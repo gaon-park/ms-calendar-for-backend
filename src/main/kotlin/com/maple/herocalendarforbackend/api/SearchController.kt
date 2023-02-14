@@ -5,6 +5,7 @@ import com.maple.herocalendarforbackend.dto.request.search.SearchUserRequest
 import com.maple.herocalendarforbackend.dto.response.ScheduleResponse
 import com.maple.herocalendarforbackend.dto.response.SearchUserResponse
 import com.maple.herocalendarforbackend.dto.response.UserResponse
+import com.maple.herocalendarforbackend.entity.IProfile
 import com.maple.herocalendarforbackend.service.SearchService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.ArraySchema
@@ -32,9 +33,6 @@ class SearchController(
     private val searchService: SearchService
 ) {
 
-    /**
-     * accountId 로 user 검색
-     */
     @Operation(
         summary = "ユーザ検索", description = "accountIdでユーザを検索(部分一致)する API"
     )
@@ -70,6 +68,30 @@ class SearchController(
                 ),
                 principal?.name,
             )
+        )
+    }
+
+    @Operation(
+        summary = "ユーザ検索", description = "accountIdでユーザを検索(部分一致)する API"
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "OK",
+                content = arrayOf(
+                    Content(array = ArraySchema(schema = Schema(implementation = UserResponse::class)))
+                )
+            )
+        ]
+    )
+    @GetMapping("/user/profile")
+    fun getUserProfile(
+        principal: Principal?,
+        @RequestParam("accountId") accountId: String
+    ): ResponseEntity<IProfile> {
+        return ResponseEntity.ok(
+            searchService.findUser(accountId, principal?.name)
         )
     }
 

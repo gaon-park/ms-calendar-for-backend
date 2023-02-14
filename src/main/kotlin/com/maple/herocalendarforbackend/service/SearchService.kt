@@ -3,6 +3,7 @@ package com.maple.herocalendarforbackend.service
 import com.maple.herocalendarforbackend.dto.request.search.SearchUserRequest
 import com.maple.herocalendarforbackend.dto.response.ScheduleResponse
 import com.maple.herocalendarforbackend.dto.response.SearchUserResponse
+import com.maple.herocalendarforbackend.entity.IProfile
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
@@ -11,6 +12,10 @@ class SearchService(
     private val userService: UserService,
     private val scheduleService: ScheduleService,
 ) {
+    fun findUser(accountId: String, loginUserId: String?): IProfile? {
+        return userService.findByAccountIdToIProfile(accountId, loginUserId)
+    }
+
     fun findUser(request: SearchUserRequest, loginUserId: String?): SearchUserResponse {
         return SearchUserResponse.convert(
             users = userService.findByConditionAndUserId(request, loginUserId),
