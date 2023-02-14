@@ -3,7 +3,7 @@ package com.maple.herocalendarforbackend.api
 import com.maple.herocalendarforbackend.dto.request.ProfileRequest
 import com.maple.herocalendarforbackend.dto.response.AlertsResponse
 import com.maple.herocalendarforbackend.dto.response.ErrorResponse
-import com.maple.herocalendarforbackend.dto.response.ProfileResponse
+import com.maple.herocalendarforbackend.dto.response.IProfileResponse
 import com.maple.herocalendarforbackend.service.AlertService
 import com.maple.herocalendarforbackend.service.UserService
 import io.swagger.v3.oas.annotations.Operation
@@ -64,26 +64,20 @@ class UserController(
         value = [
             ApiResponse(
                 responseCode = "200",
-                content = arrayOf(Content(schema = Schema(implementation = ProfileResponse::class)))
+                content = arrayOf(Content(schema = Schema(implementation = IProfileResponse::class)))
             ),
             ApiResponse(
                 responseCode = "401",
                 content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
-            ),
-            ApiResponse(
-                responseCode = "404",
-                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
-            ),
+            )
         ]
     )
     @GetMapping("/profile")
     fun getProfile(
         principal: Principal,
-    ): ResponseEntity<ProfileResponse> =
+    ): ResponseEntity<IProfileResponse> =
         ResponseEntity.ok(
-            ProfileResponse.convert(
-                userService.findById(principal.name),
-            )
+            userService.findByIdToIProfileResponse(principal.name)
         )
 
     /**
@@ -97,7 +91,7 @@ class UserController(
         value = [
             ApiResponse(
                 responseCode = "200",
-                content = arrayOf(Content(schema = Schema(implementation = ProfileResponse::class)))
+                content = arrayOf(Content(schema = Schema(implementation = IProfileResponse::class)))
             ),
             ApiResponse(
                 responseCode = "400",
@@ -107,21 +101,15 @@ class UserController(
                 responseCode = "401",
                 content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
             ),
-            ApiResponse(
-                responseCode = "404",
-                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
-            ),
         ]
     )
     @PutMapping("/profile")
     fun putProfile(
         principal: Principal,
         @Valid @RequestBody requestBody: ProfileRequest,
-    ): ResponseEntity<ProfileResponse> =
+    ): ResponseEntity<IProfileResponse> =
         ResponseEntity.ok(
-            ProfileResponse.convert(
-                userService.updateProfile(principal.name, requestBody),
-            )
+            userService.updateProfile(principal.name, requestBody),
         )
 
     @Operation(

@@ -1,5 +1,6 @@
 package com.maple.herocalendarforbackend.entity
 
+import com.maple.herocalendarforbackend.dto.request.ProfileRequest
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -47,6 +48,21 @@ data class TUser(
             job = "",
             jobDetail = "",
             userRole = null
+        )
+
+        fun updateModel(profile: IProfile, request: ProfileRequest, avatarImg: String?) = TUser(
+            id = profile.getId(),
+            email = profile.getEmail(),
+            accountId = request.accountId,
+            nickName = request.nickName,
+            createdAt = profile.getCreatedAt(),
+            updatedAt = LocalDateTime.now(),
+            isPublic = request.isPublic,
+            avatarImg = avatarImg ?: profile.getAvatarImg(),
+            world = request.world,
+            job = request.job,
+            jobDetail = request.jobDetail,
+            userRole = null,
         )
     }
 

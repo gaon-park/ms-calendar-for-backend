@@ -5,6 +5,7 @@ import java.time.LocalDateTime
 @Suppress("TooManyFunctions")
 interface IProfile {
     fun getId(): String
+    fun getEmail(): String
     fun getNickName(): String
     fun getAccountId(): String
     fun getCreatedAt(): LocalDateTime
@@ -13,7 +14,7 @@ interface IProfile {
     fun getWorld(): String
     fun getJob(): String
     fun getJobDetail(): String
-    fun avatarImg(): String?
+    fun getAvatarImg(): String?
     fun getHeFollowMe(): String?
     fun getIFollowHim(): String?
 }

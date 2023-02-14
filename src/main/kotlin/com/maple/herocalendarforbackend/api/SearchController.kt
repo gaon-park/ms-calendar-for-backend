@@ -2,10 +2,10 @@ package com.maple.herocalendarforbackend.api
 
 import com.maple.herocalendarforbackend.code.MagicVariables.MAX_LENGTH_OF_USER_COLUMN
 import com.maple.herocalendarforbackend.dto.request.search.SearchUserRequest
+import com.maple.herocalendarforbackend.dto.response.IProfileResponse
 import com.maple.herocalendarforbackend.dto.response.ScheduleResponse
 import com.maple.herocalendarforbackend.dto.response.SearchUserResponse
 import com.maple.herocalendarforbackend.dto.response.UserResponse
-import com.maple.herocalendarforbackend.entity.IProfile
 import com.maple.herocalendarforbackend.service.SearchService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.ArraySchema
@@ -89,9 +89,9 @@ class SearchController(
     fun getUserProfile(
         principal: Principal?,
         @RequestParam("accountId") accountId: String
-    ): ResponseEntity<IProfile> {
+    ): ResponseEntity<IProfileResponse> {
         return ResponseEntity.ok(
-            searchService.findUser(accountId, principal?.name)
+            searchService.findUserProfileByAccountId(accountId, principal?.name)
         )
     }
 

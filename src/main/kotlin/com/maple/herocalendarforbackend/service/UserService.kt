@@ -3,6 +3,7 @@ package com.maple.herocalendarforbackend.service
 import com.maple.herocalendarforbackend.code.BaseResponseCode
 import com.maple.herocalendarforbackend.dto.request.ProfileRequest
 import com.maple.herocalendarforbackend.dto.request.search.SearchUserRequest
+import com.maple.herocalendarforbackend.dto.response.IProfileResponse
 import com.maple.herocalendarforbackend.entity.IProfile
 import com.maple.herocalendarforbackend.entity.TSchedule
 import com.maple.herocalendarforbackend.entity.TUser
@@ -57,11 +58,23 @@ class UserService(
             it.get()
         }
 
+    fun findByIdToIProfileResponse(loginUserId: String): IProfileResponse {
+        tUserRepository.findByIdToIProfile(loginUserId)?.let {
+            return IProfileResponse(
+                profile = it,
+                follow = tFollowRepository.findAllStatusFollowByUserId(loginUserId),
+                follower = tFollowRepository.findAllStatusFollowerByUserId(loginUserId),
+                acceptFollowCount = tFollowRepository.findCountJustAcceptedFollowByUserId(loginUserId),
+                acceptFollowerCount = tFollowRepository.findCountJustAcceptedFollowerByUserId(loginUserId)
+            )
+        } ?: throw BaseException(BaseResponseCode.USER_NOT_FOUND)
+    }
+
     @Transactional
-    fun updateProfile(id: String, request: ProfileRequest): TUser {
-        val user = findById(id)
+    fun updateProfile(id: String, request: ProfileRequest): IProfileResponse {
+        val user = findByIdToIProfileResponse(id)
         val avatarImg = request.avatarImg?.let {
-            if (it.isNotEmpty() && it != user.avatarImg) {
+            if (it.isNotEmpty() && it != user.profile.getAvatarImg()) {
                 val gcsUtil = GCSUtil()
                 val newImg = gcsUtil.upload(
                     id,
@@ -69,28 +82,27 @@ class UserService(
                 )
 
                 // 이미지 저장 후, 사용하지 않는 이미지 삭제
-                user.avatarImg?.let { exist ->
+                user.profile.getAvatarImg()?.let { exist ->
                     gcsUtil.removeUnusedImg(exist)
                 }
 
                 newImg
             } else null
         }
-        if (user.accountId != request.accountId && !accountIdDuplicateCheck(request.accountId)) {
+        if (user.profile.getAccountId() != request.accountId && !accountIdDuplicateCheck(request.accountId)) {
             throw BaseException(BaseResponseCode.DUPLICATED_ACCOUNT_ID)
         }
-        return if (diffCheck(user, request) || avatarImg != null) {
+
+        return if (diffCheck(user.profile, request) || avatarImg != null) {
             tUserRepository.save(
-                user.copy(
-                    nickName = request.nickName.replace(" ", ""),
-                    accountId = request.accountId.replace(" ", ""),
-                    isPublic = request.isPublic,
-                    avatarImg = avatarImg ?: user.avatarImg,
-                    world = request.world,
-                    job = request.job,
-                    jobDetail = request.jobDetail,
-                    updatedAt = LocalDateTime.now()
-                )
+                TUser.updateModel(user.profile, request, avatarImg)
+            )
+            IProfileResponse(
+                profile = tUserRepository.findByIdToIProfile(id) ?: throw BaseException(BaseResponseCode.DATA_ERROR),
+                follow = user.follow,
+                follower = user.follower,
+                acceptFollowCount = user.acceptFollowCount,
+                acceptFollowerCount = user.acceptFollowerCount
             )
         } else user
     }
@@ -120,14 +132,14 @@ class UserService(
         tUserRepository.deleteById(id)
     }
 
-    private fun diffCheck(user: TUser, request: ProfileRequest): Boolean {
+    private fun diffCheck(profile: IProfile, request: ProfileRequest): Boolean {
         return when {
-            request.nickName.isNotEmpty() && user.nickName != request.nickName -> true
-            request.accountId.isNotEmpty() && user.accountId != request.accountId -> true
-            request.world != user.world -> true
-            request.job != user.job -> true
-            request.jobDetail != user.jobDetail -> true
-            user.isPublic != request.isPublic -> true
+            request.nickName.isNotEmpty() && profile.getNickName() != request.nickName -> true
+            request.accountId.isNotEmpty() && profile.getAccountId() != request.accountId -> true
+            request.world != profile.getWorld() -> true
+            request.job != profile.getJob() -> true
+            request.jobDetail != profile.getJobDetail() -> true
+            profile.getIsPublic() != request.isPublic -> true
 
             else -> false
         }

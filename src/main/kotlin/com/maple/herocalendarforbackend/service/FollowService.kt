@@ -56,10 +56,18 @@ class FollowService(
     }
 
     fun findFollows(userId: String): List<IProfile> {
-        return tFollowRepository.findFollowByUserId(userId)
+        return tFollowRepository.findAllStatusFollowByUserId(userId)
     }
 
     fun findFollowers(userId: String): List<IProfile> {
-        return tFollowRepository.findFollowerByUserId(userId)
+        return tFollowRepository.findAllStatusFollowerByUserId(userId)
+    }
+
+    fun findCountJustAcceptedFollowByUserId(userId: String): Long {
+        return tFollowRepository.findCountJustAcceptedFollowByUserId(userId)
+    }
+
+    fun findCountJustAcceptedFollowerByUserId(userId: String): Long {
+        return tFollowRepository.findCountJustAcceptedFollowerByUserId(userId)
     }
 }
