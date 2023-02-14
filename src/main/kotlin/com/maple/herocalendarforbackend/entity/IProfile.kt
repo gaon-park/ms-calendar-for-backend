@@ -14,6 +14,6 @@ interface IProfile {
     fun getJob(): String
     fun getJobDetail(): String
     fun avatarImg(): String?
-    fun getHeFollowMe(): Long
-    fun getIFollowHim(): Long
+    fun getHeFollowMe(): String?
+    fun getIFollowHim(): String?
 }

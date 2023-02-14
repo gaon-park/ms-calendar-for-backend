@@ -24,12 +24,13 @@ interface TFollowRepository : JpaRepository<TFollow, TFollow.Key> {
                 "   u.created_at as createdAt," +
                 "   u.updated_at as updatedAt,\n" +
                 "   (\n" +
-                "       select if(count(*) > 0, true, false)\n" +
+                "       select if(count(*) > 0, \n" +
+                "           if(f2.status = 'ACCEPTED', 'FOLLOW', 'WAITING')\n" +
+                "           , null)\n" +
                 "       from t_follow f2\n" +
-                "       where f2.requester_id = u.id " +
-                "       and f2.status != 'ACCEPTED'\n" +
+                "       where f2.requester_id = u.id\n" +
                 "   ) as heFollowMe,\n" +
-                "   true as iFollowHim\n" +
+                "   if(f.status = 'ACCEPTED', 'FOLLOW', 'WAITING') as iFollowHim\n" +
                 "from t_follow f\n" +
                 "inner join t_user u\n" +
                 "on f.respondent_id = u.id\n" +
@@ -53,12 +54,14 @@ interface TFollowRepository : JpaRepository<TFollow, TFollow.Key> {
                 "   u.created_at as createdAt,\n" +
                 "   u.updated_at as updatedAt,\n" +
                 "   (\n" +
-                "       select if(count(*) > 0, true, false)\n" +
+                "       select if(count(*) > 0, \n" +
+                "           if(f2.status = 'ACCEPTED', 'FOLLOW', 'WAITING')\n" +
+                "           , null)\n" +
                 "       from t_follow f2\n" +
                 "       where f2.respondent_id = u.id \n" +
                 "       and f2.status != 'ACCEPTED'\n" +
                 "   ) as iFollowHim,\n" +
-                "   true as heFollowMe\n" +
+                "   if(f.status = 'ACCEPTED', 'FOLLOWER', 'WAITING') as heFollowMe\n" +
                 "from t_follow f\n" +
                 "inner join t_user u\n" +
                 "on f.requester_id = u.id\n" +

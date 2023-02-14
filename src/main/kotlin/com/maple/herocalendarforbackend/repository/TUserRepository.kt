@@ -26,13 +26,17 @@ interface TUserRepository : JpaRepository<TUser, String> {
                 "    u.created_at as createdAt,\n" +
                 "    u.updated_at as updatedAt,\n" +
                 "    (\n" +
-                "        select if(count(*) > 0, true, false)\n" +
+                "        select if(count(*) > 0, \n" +
+                "           if(f1.status = 'ACCEPTED', 'FOLLOW', 'WAITING')\n" +
+                "           , null)\n" +
                 "        from t_follow f1\n" +
                 "        where f1.requester_id = :userId\n" +
                 "        and f1.respondent_id = u.id\n" +
                 "    ) as iFollowHim,\n" +
                 "    (\n" +
-                "        select if(count(*) > 0, true, false)\n" +
+                "        select if(count(*) > 0, \n" +
+                "           if(f2.status = 'ACCEPTED', 'FOLLOW', 'WAITING')\n" +
+                "           , null)\n" +
                 "        from t_follow f2\n" +
                 "        where f2.requester_id = u.id\n" +
                 "        and f2.respondent_id = :userId\n" +
