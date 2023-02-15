@@ -17,13 +17,18 @@ data class TScheduleMember(
     val groupKey: GroupKey,
     @Enumerated(value = EnumType.STRING)
     val acceptedStatus: AcceptedStatus,
+    val inviteUserId: String?
 ) {
     companion object {
         fun initConvert(
-            user: TUser, group: TScheduleMemberGroup, acceptedStatus: AcceptedStatus
+            user: TUser,
+            group: TScheduleMemberGroup,
+            acceptedStatus: AcceptedStatus,
+            inviteUserId: String?,
         ) = TScheduleMember(
             groupKey = GroupKey(group, user),
             acceptedStatus = acceptedStatus,
+            inviteUserId = inviteUserId
         )
     }
 

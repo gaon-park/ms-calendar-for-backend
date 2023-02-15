@@ -1,10 +1,10 @@
 package com.maple.herocalendarforbackend.api
 
 import com.maple.herocalendarforbackend.dto.request.ProfileRequest
-import com.maple.herocalendarforbackend.dto.response.AlertsResponse
 import com.maple.herocalendarforbackend.dto.response.ErrorResponse
 import com.maple.herocalendarforbackend.dto.response.IProfileResponse
-import com.maple.herocalendarforbackend.service.AlertService
+import com.maple.herocalendarforbackend.dto.response.NotificationResponse
+import com.maple.herocalendarforbackend.service.NotificationService
 import com.maple.herocalendarforbackend.service.UserService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
@@ -27,21 +27,18 @@ import java.security.Principal
 @RestController
 @RequestMapping("/api/user", produces = [MediaType.APPLICATION_JSON_VALUE])
 class UserController(
-    private val alertService: AlertService,
     private val userService: UserService,
+    private val notificationService: NotificationService,
 ) {
 
-    /**
-     * 유저의 미응답 요청 리스트 검색
-     */
     @Operation(
-        summary = "get unconfirmed request list", description = "まだ承認・拒否してないRequest一覧を取得する API"
+        summary = "get unconfirmed notification list"
     )
     @ApiResponses(
         value = [
             ApiResponse(
                 responseCode = "200",
-                content = arrayOf(Content(schema = Schema(implementation = AlertsResponse::class)))
+                content = arrayOf(Content(schema = Schema(implementation = NotificationResponse::class)))
             ),
             ApiResponse(
                 responseCode = "401",
@@ -49,12 +46,35 @@ class UserController(
             ),
         ]
     )
-    @GetMapping("/alerts")
-    fun getAlerts(
+    @GetMapping("/notifications")
+    fun getNotifications(
         principal: Principal,
-    ): ResponseEntity<AlertsResponse> = ResponseEntity.ok(
-        alertService.findWaitingRequests(principal.name)
+    ): ResponseEntity<List<NotificationResponse>> = ResponseEntity.ok(
+        notificationService.findAll(principal.name)
     )
+
+    @Operation(
+        summary = "get unconfirmed notification list"
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                content = arrayOf(Content(schema = Schema(implementation = String::class)))
+            ),
+            ApiResponse(
+                responseCode = "401",
+                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
+            ),
+        ]
+    )
+    @PutMapping("/notifications/read-all")
+    fun readAllNotifications(
+        principal: Principal,
+    ): ResponseEntity<String> {
+        notificationService.deleteByReadAllEvent(principal.name)
+        return ResponseEntity.ok("ok")
+    }
 
     /**
      * 로그인 유저 프로필 정보

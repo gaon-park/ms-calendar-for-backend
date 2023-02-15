@@ -9,12 +9,14 @@ import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleDeleteReque
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleUpdateRequest
 import com.maple.herocalendarforbackend.dto.response.ScheduleMemberResponse
 import com.maple.herocalendarforbackend.dto.response.ScheduleResponse
+import com.maple.herocalendarforbackend.entity.TNotification
 import com.maple.herocalendarforbackend.entity.TSchedule
 import com.maple.herocalendarforbackend.entity.TScheduleMember
 import com.maple.herocalendarforbackend.entity.TScheduleMemberGroup
 import com.maple.herocalendarforbackend.entity.TScheduleNote
 import com.maple.herocalendarforbackend.entity.TUser
 import com.maple.herocalendarforbackend.exception.BaseException
+import com.maple.herocalendarforbackend.repository.TNotificationRepository
 import com.maple.herocalendarforbackend.repository.TScheduleMemberGroupRepository
 import com.maple.herocalendarforbackend.repository.TScheduleMemberRepository
 import com.maple.herocalendarforbackend.repository.TScheduleNoteRepository
@@ -35,6 +37,7 @@ class ScheduleService(
     private val tUserRepository: TUserRepository,
     private val tScheduleMemberGroupRepository: TScheduleMemberGroupRepository,
     private val tScheduleNoteRepository: TScheduleNoteRepository,
+    private val tNotificationRepository: TNotificationRepository,
 ) {
 
     fun findById(scheduleId: Long): TSchedule {
@@ -61,26 +64,40 @@ class ScheduleService(
             else null
 
             saveSchedule(request, requesterId, it, tNote)
-            saveScheduleMember(owner, request.memberIds, it)
+            saveScheduleMember(owner, request.memberIds, it, request.title)
         }
     }
 
     @Transactional
-    fun saveScheduleMember(owner: TUser, memberIds: List<String>, group: TScheduleMemberGroup) {
+    fun saveScheduleMember(owner: TUser, memberIds: List<String>, group: TScheduleMemberGroup, scheduleTitle: String) {
         val members =
             tUserRepository.findPublicOrFollowing(memberIds.filter { it != owner.id }.toSet().toList(), owner.id!!)
         val memberData = mutableListOf(
             TScheduleMember.initConvert(
-                owner, group, AcceptedStatus.ACCEPTED
+                owner, group, AcceptedStatus.ACCEPTED, null
             )
         )
         memberData.addAll(members.map {
             TScheduleMember.initConvert(
-                it, group, AcceptedStatus.WAITING
+                it, group, AcceptedStatus.WAITING, owner.id
             )
         })
 
         tScheduleMemberRepository.saveAll(memberData)
+        tNotificationRepository.saveAll(
+            members.filter { m -> m.notificationFlg }
+                .map { m ->
+                    TNotification.generate(
+                        title = owner.accountId,
+                        subTitle = "$scheduleTitle 에 초대해요",
+                        user = m,
+                        newFollowId = null,
+                        newFollowerId = null,
+                        newScheduleRequesterId = owner.id,
+                        scheduleRespondentId = null,
+                    )
+                }
+        )
     }
 
     @Transactional
@@ -134,7 +151,11 @@ class ScheduleService(
     }
 
     @Transactional
-    fun updateMember(requesterId: String, schedule: TSchedule, requestMemberIds: List<String>): TScheduleMemberGroup? {
+    fun updateMember(
+        requesterId: String,
+        schedule: TSchedule,
+        requestMemberIds: List<String>
+    ): TScheduleMemberGroup? {
         val exist = tScheduleMemberRepository.findByGroupKeyGroupId(schedule.memberGroup.id!!)
             .mapNotNull { it.groupKey.user.id }
         val invite = requestMemberIds.filter {
@@ -142,12 +163,26 @@ class ScheduleService(
         }
         return if (invite.isNotEmpty()) {
             tScheduleMemberGroupRepository.save(TScheduleMemberGroup()).let { group ->
+                val newMembers = tUserRepository.findPublicOrFollowing(invite, requesterId)
                 tScheduleMemberRepository.saveAll(
-                    tUserRepository.findPublicOrFollowing(invite, requesterId)
-                        .map {
-                            TScheduleMember.initConvert(it, group, AcceptedStatus.WAITING)
-                        }
+                    newMembers.map {
+                        TScheduleMember.initConvert(it, group, AcceptedStatus.WAITING, requesterId)
+                    })
+                val requester = findUserById(requesterId)
+                tNotificationRepository.saveAll(
+                    newMembers.map {
+                        TNotification.generate(
+                            title = requester.accountId,
+                            subTitle = "${schedule.title} 에 초대해요",
+                            user = it,
+                            newFollowId = null,
+                            newFollowerId = null,
+                            newScheduleRequesterId = requester.id,
+                            scheduleRespondentId = null
+                        )
+                    }
                 )
+
                 group
             }
         } else null
@@ -229,6 +264,20 @@ class ScheduleService(
         )
             ?.let {
                 tScheduleMemberRepository.save(it.copy(acceptedStatus = AcceptedStatus.ACCEPTED))
+                it.inviteUserId?.let { id ->
+                    val user = findUserById(id)
+                    tNotificationRepository.save(
+                        TNotification.generate(
+                            title = it.groupKey.user.accountId,
+                            subTitle = "스케줄 초대를 수락했어요!",
+                            user = user,
+                            newFollowId = null,
+                            newFollowerId = null,
+                            newScheduleRequesterId = null,
+                            scheduleRespondentId = it.groupKey.user.id
+                        )
+                    )
+                }
             } ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
     }
 
@@ -286,7 +335,8 @@ class ScheduleService(
     fun delete(requesterId: String, request: ScheduleDeleteRequest) {
         val schedule = findById(request.scheduleId)
         val members = tScheduleMemberRepository.findByGroupKeyGroupId(schedule.memberGroup.id!!)
-        members.firstOrNull { it.groupKey.user.id == requesterId } ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
+        members.firstOrNull { it.groupKey.user.id == requesterId }
+            ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
         if (schedule.ownerId == requesterId) {
             deleteScheduleByOwner(schedule, request.scheduleUpdateCode)
         } else {
@@ -338,13 +388,15 @@ class ScheduleService(
                     TScheduleMember.initConvert(
                         user = m.groupKey.user,
                         group = it,
-                        acceptedStatus = AcceptedStatus.REFUSED
+                        acceptedStatus = AcceptedStatus.REFUSED,
+                        inviteUserId = m.inviteUserId
                     )
                 } else {
                     TScheduleMember.initConvert(
                         user = m.groupKey.user,
                         group = it,
-                        acceptedStatus = m.acceptedStatus
+                        acceptedStatus = m.acceptedStatus,
+                        inviteUserId = m.inviteUserId
                     )
                 }
             }

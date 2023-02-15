@@ -14,5 +14,6 @@ data class ProfileRequest(
     val avatarImg: String?,
     val world: String,
     val job: String,
-    val jobDetail: String
+    val jobDetail: String,
+    val notificationFlg: Boolean,
 )

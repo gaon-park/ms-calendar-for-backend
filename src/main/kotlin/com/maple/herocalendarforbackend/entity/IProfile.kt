@@ -17,4 +17,5 @@ interface IProfile {
     fun getAvatarImg(): String?
     fun getHeFollowMe(): String?
     fun getIFollowHim(): String?
+    fun getNotificationFlg(): Boolean
 }

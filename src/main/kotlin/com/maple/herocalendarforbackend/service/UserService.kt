@@ -140,6 +140,7 @@ class UserService(
             request.job != profile.getJob() -> true
             request.jobDetail != profile.getJobDetail() -> true
             profile.getIsPublic() != request.isPublic -> true
+            profile.getNotificationFlg() != request.notificationFlg -> true
 
             else -> false
         }

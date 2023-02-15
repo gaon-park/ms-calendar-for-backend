@@ -12,6 +12,7 @@ import java.util.*
 @Repository
 interface TUserRepository : JpaRepository<TUser, String> {
     fun findByEmail(email: String): TUser?
+    fun findByIdIn(ids: List<String>): List<TUser>
 
     @Query(
         "select \n" +
@@ -26,6 +27,7 @@ interface TUserRepository : JpaRepository<TUser, String> {
                 "    u.is_public as isPublic,\n" +
                 "    u.created_at as createdAt,\n" +
                 "    u.updated_at as updatedAt,\n" +
+                "    u.notification_flg as notificationFlg,\n" +
                 "    (\n" +
                 "        select if(count(*) > 0, \n" +
                 "           if(f1.status = 'ACCEPTED', 'FOLLOW', 'WAITING')\n" +
@@ -63,6 +65,7 @@ interface TUserRepository : JpaRepository<TUser, String> {
                 "    u.is_public as isPublic,\n" +
                 "    u.created_at as createdAt,\n" +
                 "    u.updated_at as updatedAt,\n" +
+                "    u.notification_flg as notificationFlg,\n" +
                 "    (\n" +
                 "        select if(count(*) > 0, \n" +
                 "           if(f1.status = 'ACCEPTED', 'FOLLOW', 'WAITING')\n" +
@@ -149,6 +152,7 @@ interface TUserRepository : JpaRepository<TUser, String> {
                 "    u.is_public as isPublic,\n" +
                 "    u.created_at as createdAt,\n" +
                 "    u.updated_at as updatedAt,\n" +
+                "    u.notification_flg as notificationFlg,\n" +
                 "    (\n" +
                 "        select if(count(*) > 0, \n" +
                 "           if(f1.status = 'ACCEPTED', 'FOLLOW', 'WAITING')\n" +

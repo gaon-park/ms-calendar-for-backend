@@ -2,7 +2,6 @@ package com.maple.herocalendarforbackend.repository
 
 import com.maple.herocalendarforbackend.entity.TFollow
 import com.maple.herocalendarforbackend.entity.IProfile
-import com.maple.herocalendarforbackend.entity.IWaitingFollower
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
@@ -24,7 +23,8 @@ interface TFollowRepository : JpaRepository<TFollow, TFollow.Key> {
                 "    u.job_detail as jobDetail,\n" +
                 "    u.is_public as isPublic,\n" +
                 "    u.created_at as createdAt,\n" +
-                "    u.updated_at as updatedAt,\n" +
+                "    u.updated_at as updatedAt," +
+                "    u.notification_flg as notificationFlg,\n" +
                 "\t(\n" +
                 "\t\tselect if(count(*) > 0, \n" +
                 "\t\t\tif(f1.status = 'ACCEPTED', 'FOLLOW', 'WAITING')\n" +
@@ -64,6 +64,7 @@ interface TFollowRepository : JpaRepository<TFollow, TFollow.Key> {
                 "    u.is_public as isPublic,\n" +
                 "    u.created_at as createdAt,\n" +
                 "    u.updated_at as updatedAt,\n" +
+                "    u.notification_flg as notificationFlg,\n" +
                 "\t(\n" +
                 "\t\tselect if(count(*) > 0, \n" +
                 "\t\t\tif(f1.status = 'ACCEPTED', 'FOLLOW', 'WAITING')\n" +
@@ -144,23 +145,4 @@ interface TFollowRepository : JpaRepository<TFollow, TFollow.Key> {
     fun deleteByAccountRemove(
         @Param("userId") userId: String
     )
-
-    @Query(
-        "select \n" +
-                "\tu.id as id,\n" +
-                "\tu.email as email,\n" +
-                "\tu.nick_name as nickName,\n" +
-                "\tu.account_id as accountId,\n" +
-                "\tu.avatar_img as avatarImg,\n" +
-                "\tf.created_at as createdAt\n" +
-                "from t_follow f\n" +
-                "inner join t_user u\n" +
-                "on u.id = f.requester_id\n" +
-                "where f.respondent_id = :userId\n" +
-                "and f.status != 'ACCEPTED'",
-        nativeQuery = true
-    )
-    fun findUnRespondentRequest(
-        @Param("userId") loginUserId: String
-    ): List<IWaitingFollower>
 }
