@@ -39,7 +39,6 @@ class JwtAuthService(
     /**
      * 최초 로그인 토큰 생성
      */
-    @Transactional
     fun firstTokenForLogin(email: String, roles: List<String>, response: HttpServletResponse): LoginResponse {
         val tUser = tUserRepository.findByEmail(email) ?: throw BaseException(
             BaseResponseCode.USER_NOT_FOUND
