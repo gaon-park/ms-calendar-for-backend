@@ -170,17 +170,7 @@ interface TUserRepository : JpaRepository<TUser, String> {
                 "        and f2.respondent_id = :loginUserId\n" +
                 "    ) as heFollowMe\n" +
                 "from t_user u\n" +
-                "where u.account_id = :accountId\n" +
-                "and (\n" +
-                "   u.is_public = true \n" +
-                "   or (\n" +
-                "       select if(count(*) > 0, true, false)\n" +
-                "       from t_follow f\n" +
-                "       where f.requester_id = :loginUserId\n" +
-                "       and f.respondent_id = u.id\n" +
-                "       and f.status = 'ACCEPTED'\n" +
-                "   )\n" +
-                ")",
+                "where u.account_id = :accountId\n",
         nativeQuery = true
     )
     fun findByAccountIdToIProfile(
