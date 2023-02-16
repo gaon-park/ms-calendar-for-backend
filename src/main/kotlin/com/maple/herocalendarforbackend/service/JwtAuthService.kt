@@ -44,15 +44,7 @@ class JwtAuthService(
         val tUser = tUserRepository.findByEmail(email) ?: throw BaseException(
             BaseResponseCode.USER_NOT_FOUND
         )
-        // 같은 기기(클라이언트)로 로그인 기록이 있다면 삭제 후 재발급
-        // 없다면 신규 발급
         tUser.id?.let {
-            val tokens = tJwtAuthRepository.findByUserPk(it)
-            if (tokens.isEmpty()) {
-                return createToken(tUser, roles, response)
-            } else {
-                tJwtAuthRepository.deleteAll(tokens)
-            }
             return createToken(tUser, roles, response)
         } ?: throw BaseException(BaseResponseCode.DATA_ERROR)
     }
@@ -63,6 +55,11 @@ class JwtAuthService(
      */
     @Transactional
     fun createToken(userPk: TUser, roles: List<String>, response: HttpServletResponse): LoginResponse {
+        // delete exist tokens
+        userPk.id?.let {
+            tJwtAuthRepository.deleteByUserPk(it)
+        }
+
         // create access token
         val claims = Jwts.claims().setSubject(userPk.id)
         claims["roles"] = roles

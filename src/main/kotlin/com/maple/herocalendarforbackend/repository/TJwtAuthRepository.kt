@@ -17,6 +17,12 @@ interface TJwtAuthRepository : JpaRepository<TJwtAuth, String> {
     fun findByUserPk(@Param("user_id") userPk: String): List<TJwtAuth>
 
     @Query(
+        "delete from t_jwt_auth t where t.user_id = :user_id"
+    )
+    @Modifying
+    fun deleteByUserPk(@Param("user_id") userPk: String)
+
+    @Query(
         "delete \n" +
                 "from t_jwt_auth t\n" +
                 "where t.expired=true\n" +
