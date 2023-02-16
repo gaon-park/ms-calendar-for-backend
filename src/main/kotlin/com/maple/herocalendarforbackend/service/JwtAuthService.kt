@@ -47,11 +47,11 @@ class JwtAuthService(
         // 같은 기기(클라이언트)로 로그인 기록이 있다면 삭제 후 재발급
         // 없다면 신규 발급
         tUser.id?.let {
-            tJwtAuthRepository.findByUserPk(it)?.let { jwt ->
-                return reIssue(jwt, response)
-            } ?: kotlin.run {
+            val tokens = tJwtAuthRepository.findByUserPk(it)
+            if (tokens.isEmpty()) {
                 return createToken(tUser, roles, response)
             }
+            return reIssue(tokens, response)
         } ?: throw BaseException(BaseResponseCode.DATA_ERROR)
     }
 
@@ -87,12 +87,12 @@ class JwtAuthService(
      * 토큰 재발급
      */
     @Transactional
-    fun reIssue(tJwtAuth: TJwtAuth, response: HttpServletResponse): LoginResponse {
-        val userPk = tJwtAuth.userPk
+    fun reIssue(auths: List<TJwtAuth>, response: HttpServletResponse): LoginResponse {
+        val userPk = auths.first().userPk
         var newAuth: LoginResponse
         userPk.let {
             newAuth = createToken(it, listOf("ROLE_USER"), response)
-            tJwtAuthRepository.delete(tJwtAuth)
+            tJwtAuthRepository.deleteAll(auths)
         }
         return newAuth
     }
@@ -148,7 +148,7 @@ class JwtAuthService(
                 if (!tJwtAuth.expired && tJwtAuth.expirationDate.isAfter(LocalDateTime.now())
                 ) {
                     // reIssue
-                    return reIssue(tJwtAuth, response)
+                    return reIssue(listOf(tJwtAuth), response)
                 }
             }
         }
