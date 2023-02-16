@@ -50,8 +50,10 @@ class JwtAuthService(
             val tokens = tJwtAuthRepository.findByUserPk(it)
             if (tokens.isEmpty()) {
                 return createToken(tUser, roles, response)
+            } else {
+                tJwtAuthRepository.deleteAll(tokens)
             }
-            return reIssue(tokens, response)
+            return createToken(tUser, roles, response)
         } ?: throw BaseException(BaseResponseCode.DATA_ERROR)
     }
 
@@ -81,20 +83,6 @@ class JwtAuthService(
         tJwtAuthRepository.save(tJwtAuth)
         setCookie(tJwtAuth, response)
         return LoginResponse(accessToken)
-    }
-
-    /**
-     * 토큰 재발급
-     */
-    @Transactional
-    fun reIssue(auths: List<TJwtAuth>, response: HttpServletResponse): LoginResponse {
-        val userPk = auths.first().userPk
-        var newAuth: LoginResponse
-        userPk.let {
-            newAuth = createToken(it, listOf("ROLE_USER"), response)
-            tJwtAuthRepository.deleteAll(auths)
-        }
-        return newAuth
     }
 
     /**
@@ -148,26 +136,11 @@ class JwtAuthService(
                 if (!tJwtAuth.expired && tJwtAuth.expirationDate.isAfter(LocalDateTime.now())
                 ) {
                     // reIssue
-                    return reIssue(listOf(tJwtAuth), response)
+                    return createToken(tJwtAuth.userPk, listOf("ROLE_USER"), response)
                 }
             }
         }
         throw BaseException(BaseResponseCode.INVALID_TOKEN)
-    }
-
-    fun logout(response: HttpServletResponse) {
-        val accessCookie = ResponseCookie.from(AUTHORIZATION_ACCESS_JWT)
-            .maxAge(0)
-            .domain("ms-hero.kr")
-            .value(null)
-            .build()
-        val refreshCookie = ResponseCookie.from(AUTHORIZATION_REFRESH_JWT)
-            .maxAge(0)
-            .domain("ms-hero.kr")
-            .value(null)
-            .build()
-        response.setHeader("Set-Cookie", accessCookie.toString())
-        response.addHeader("Set-Cookie", refreshCookie.toString())
     }
 
     fun setCookie(tJwtAuth: TJwtAuth, response: HttpServletResponse) {
