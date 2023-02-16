@@ -1,7 +1,6 @@
 package com.maple.herocalendarforbackend.service
 
 import com.maple.herocalendarforbackend.code.BaseResponseCode
-import com.maple.herocalendarforbackend.code.MagicVariables.AUTHORIZATION_ACCESS_JWT
 import com.maple.herocalendarforbackend.code.MagicVariables.AUTHORIZATION_REFRESH_JWT
 import com.maple.herocalendarforbackend.code.MagicVariables.JWT_ACCESS_TOKEN_EXPIRATION_TIME_VALUE
 import com.maple.herocalendarforbackend.dto.response.LoginResponse
@@ -15,6 +14,7 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import jakarta.transaction.Transactional
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.ResponseCookie
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -22,7 +22,6 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.userdetails.User
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
@@ -48,7 +47,6 @@ class JwtAuthService(
         } ?: throw BaseException(BaseResponseCode.DATA_ERROR)
     }
 
-
     /**
      * JWT 토큰 생성
      */
@@ -57,6 +55,7 @@ class JwtAuthService(
         // delete exist tokens
         userPk.id?.let {
             tJwtAuthRepository.deleteByUserPk(it)
+            tJwtAuthRepository.flush()
         }
 
         // create access token

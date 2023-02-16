@@ -1,6 +1,7 @@
 package com.maple.herocalendarforbackend.repository
 
 import com.maple.herocalendarforbackend.entity.TJwtAuth
+import jakarta.transaction.Transactional
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
@@ -21,6 +22,7 @@ interface TJwtAuthRepository : JpaRepository<TJwtAuth, String> {
         nativeQuery = true
     )
     @Modifying
+    @Transactional
     fun deleteByUserPk(@Param("user_id") userPk: String)
 
     @Query(
