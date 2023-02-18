@@ -20,7 +20,7 @@ data class ScheduleUpdateRequest(
     @field:DateTimeFormat(pattern = "yyyy-MM-ddTHH:mm")
     val end: LocalDateTime?,
     val allDay: Boolean,
-    val memberIds: List<String> = listOf(),
+    val memberIds: List<String>?,
     val note: String?,
     val isPublic: Boolean,
     val scheduleUpdateCode: ScheduleUpdateCode,

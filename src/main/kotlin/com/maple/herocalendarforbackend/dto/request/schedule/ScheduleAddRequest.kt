@@ -23,7 +23,7 @@ data class ScheduleAddRequest(
     val allDay: Boolean?,
     val note: String?,
     @field:Size(max = MAX_VALUE_OF_MEMBERS)
-    val memberIds: List<String> = listOf(),
+    val memberIds: List<String>?,
     val isPublic: Boolean,
     val forOfficial: Boolean?,
 ) {

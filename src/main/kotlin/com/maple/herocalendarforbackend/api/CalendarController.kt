@@ -5,12 +5,10 @@ import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleDeleteReque
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleRequest
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleUpdateRequest
 import com.maple.herocalendarforbackend.dto.response.ErrorResponse
-import com.maple.herocalendarforbackend.dto.response.OfficialScheduleResponse
 import com.maple.herocalendarforbackend.dto.response.ScheduleResponse
 import com.maple.herocalendarforbackend.service.OfficialScheduleService
 import com.maple.herocalendarforbackend.service.ScheduleService
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -225,7 +223,7 @@ class CalendarController(
     @SecurityRequirements(value = [])
     fun getSchedules(
         principal: Principal?,
-        @RequestParam userIds: List<String>,
+        @RequestParam userIds: List<String>?,
         @RequestParam from: LocalDate,
         @RequestParam to: LocalDate
     ): ResponseEntity<ScheduleResponse> {

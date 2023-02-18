@@ -9,7 +9,6 @@ import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleDeleteReque
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleUpdateRequest
 import com.maple.herocalendarforbackend.dto.response.PersonalScheduleResponse
 import com.maple.herocalendarforbackend.dto.response.ScheduleMemberResponse
-import com.maple.herocalendarforbackend.dto.response.ScheduleResponse
 import com.maple.herocalendarforbackend.entity.TNotification
 import com.maple.herocalendarforbackend.entity.TSchedule
 import com.maple.herocalendarforbackend.entity.TScheduleMember
@@ -65,7 +64,7 @@ class ScheduleService(
             else null
 
             saveSchedule(request, requesterId, it, tNote)
-            saveScheduleMember(owner, request.memberIds, it, request.title)
+            saveScheduleMember(owner, request.memberIds ?: emptyList(), it, request.title)
         }
     }
 
@@ -203,7 +202,7 @@ class ScheduleService(
             tScheduleNoteRepository.save(TScheduleNote.convert(request.note))
         } else null
 
-        val memberUpdate = updateMember(requesterId, schedule, request.memberIds)
+        val memberUpdate = updateMember(requesterId, schedule, request.memberIds ?: emptyList())
 
         // 업데이트 사항이 있을 때만
         if (updateDataCompare(schedule, request) || updateNote != null) {
@@ -298,11 +297,12 @@ class ScheduleService(
 
     fun findSchedules(
         loginUserId: String?,
-        searchUserIds: List<String>,
+        searchUserIds: List<String>?,
         from: LocalDate,
         to: LocalDate
     ): Map<String, List<PersonalScheduleResponse>> {
-        val searchTargets = tUserRepository.findTargetUserForScheduleSearch(searchUserIds, loginUserId ?: "")
+        val searchTargets =
+            tUserRepository.findTargetUserForScheduleSearch(searchUserIds ?: emptyList(), loginUserId ?: "")
         val others = searchTargets.associateWith {
             findForOther(
                 loginUserId, it, from, to
