@@ -3,6 +3,7 @@ package com.maple.herocalendarforbackend.api
 import com.maple.herocalendarforbackend.code.MagicVariables.MAX_LENGTH_OF_USER_COLUMN
 import com.maple.herocalendarforbackend.dto.request.search.SearchUserRequest
 import com.maple.herocalendarforbackend.dto.response.IProfileResponse
+import com.maple.herocalendarforbackend.dto.response.PersonalScheduleResponse
 import com.maple.herocalendarforbackend.dto.response.ScheduleResponse
 import com.maple.herocalendarforbackend.dto.response.SearchUserResponse
 import com.maple.herocalendarforbackend.service.SearchService
@@ -33,7 +34,7 @@ class SearchController(
 ) {
 
     @Operation(
-        summary = "ユーザ検索", description = "accountIdでユーザを検索(部分一致)する API"
+        summary = "ユーザ検索（検索画面用）", description = "accountIdでユーザを検索(部分一致)する API"
     )
     @ApiResponses(
         value = [
@@ -71,7 +72,7 @@ class SearchController(
     }
 
     @Operation(
-        summary = "ユーザ検索", description = "accountIdでユーザを検索(部分一致)する API"
+        summary = "ユーザ検索（プロフィール画面用）", description = "accountIdでユーザを検索(完全一致)する API"
     )
     @ApiResponses(
         value = [
@@ -113,14 +114,14 @@ class SearchController(
     )
     @GetMapping("/schedule")
     fun findSchedules(
-        principal: Principal,
+        principal: Principal?,
         @RequestParam(name = "userId") userId: String,
         @RequestParam from: LocalDate,
         @RequestParam to: LocalDate
-    ): ResponseEntity<List<ScheduleResponse>> {
+    ): ResponseEntity<List<PersonalScheduleResponse>> {
         return ResponseEntity.ok(
             searchService.findUserSchedules(
-                loginUserId = principal.name,
+                loginUserId = principal?.name,
                 targetUserId = userId,
                 from = from,
                 to = to

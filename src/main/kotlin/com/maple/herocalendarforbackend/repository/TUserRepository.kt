@@ -15,6 +15,17 @@ interface TUserRepository : JpaRepository<TUser, String> {
     fun findByIdIn(ids: List<String>): List<TUser>
 
     @Query(
+        "select *\n" +
+                "from t_user u\n" +
+                "where u.id = :userId\n" +
+                "and u.role = 'ADMIN'",
+        nativeQuery = true
+    )
+    fun findAdminByUserId(
+        @Param("userId") userId: String
+    ): TUser?
+
+    @Query(
         "select \n" +
                 "    u.id as id,\n" +
                 "    u.email as email,\n" +
@@ -28,6 +39,7 @@ interface TUserRepository : JpaRepository<TUser, String> {
                 "    u.created_at as createdAt,\n" +
                 "    u.updated_at as updatedAt,\n" +
                 "    u.notification_flg as notificationFlg,\n" +
+                "    u.role as role,\n" +
                 "    (\n" +
                 "        select if(count(*) > 0, \n" +
                 "           if(f1.status = 'ACCEPTED', 'FOLLOW', 'WAITING')\n" +
@@ -66,6 +78,7 @@ interface TUserRepository : JpaRepository<TUser, String> {
                 "    u.created_at as createdAt,\n" +
                 "    u.updated_at as updatedAt,\n" +
                 "    u.notification_flg as notificationFlg,\n" +
+                "    u.role as role,\n" +
                 "    (\n" +
                 "        select if(count(*) > 0, \n" +
                 "           if(f1.status = 'ACCEPTED', 'FOLLOW', 'WAITING')\n" +
@@ -153,6 +166,7 @@ interface TUserRepository : JpaRepository<TUser, String> {
                 "    u.created_at as createdAt,\n" +
                 "    u.updated_at as updatedAt,\n" +
                 "    u.notification_flg as notificationFlg,\n" +
+                "    u.role as role\n," +
                 "    (\n" +
                 "        select if(count(*) > 0, \n" +
                 "           if(f1.status = 'ACCEPTED', 'FOLLOW', 'WAITING')\n" +

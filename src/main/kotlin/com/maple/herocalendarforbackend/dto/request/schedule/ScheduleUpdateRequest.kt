@@ -24,6 +24,7 @@ data class ScheduleUpdateRequest(
     val note: String?,
     val isPublic: Boolean,
     val scheduleUpdateCode: ScheduleUpdateCode,
+    val forOfficial: Boolean,
 ) {
     @AssertTrue
     fun isStart(): Boolean {

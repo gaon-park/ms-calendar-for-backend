@@ -25,6 +25,7 @@ data class ScheduleAddRequest(
     @field:Size(max = MAX_VALUE_OF_MEMBERS)
     val memberIds: List<String> = listOf(),
     val isPublic: Boolean,
+    val forOfficial: Boolean?,
 ) {
     @AssertTrue
     fun isStart(): Boolean {

@@ -18,4 +18,5 @@ interface IProfile {
     fun getHeFollowMe(): String?
     fun getIFollowHim(): String?
     fun getNotificationFlg(): Boolean
+    fun getRole(): String?
 }

@@ -24,7 +24,8 @@ interface TFollowRepository : JpaRepository<TFollow, TFollow.Key> {
                 "    u.is_public as isPublic,\n" +
                 "    u.created_at as createdAt,\n" +
                 "    u.updated_at as updatedAt," +
-                "    u.notification_flg as notificationFlg,\n" +
+                "    u.notification_flg as notificationFlg," +
+                "    u.role as role,\n" +
                 "\t(\n" +
                 "\t\tselect if(count(*) > 0, \n" +
                 "\t\t\tif(f1.status = 'ACCEPTED', 'FOLLOW', 'WAITING')\n" +
@@ -65,6 +66,7 @@ interface TFollowRepository : JpaRepository<TFollow, TFollow.Key> {
                 "    u.created_at as createdAt,\n" +
                 "    u.updated_at as updatedAt,\n" +
                 "    u.notification_flg as notificationFlg,\n" +
+                "    u.role as role,\n" +
                 "\t(\n" +
                 "\t\tselect if(count(*) > 0, \n" +
                 "\t\t\tif(f1.status = 'ACCEPTED', 'FOLLOW', 'WAITING')\n" +

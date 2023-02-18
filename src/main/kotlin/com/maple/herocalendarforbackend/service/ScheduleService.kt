@@ -7,6 +7,7 @@ import com.maple.herocalendarforbackend.code.ScheduleUpdateCode
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleAddRequest
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleDeleteRequest
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleUpdateRequest
+import com.maple.herocalendarforbackend.dto.response.PersonalScheduleResponse
 import com.maple.herocalendarforbackend.dto.response.ScheduleMemberResponse
 import com.maple.herocalendarforbackend.dto.response.ScheduleResponse
 import com.maple.herocalendarforbackend.entity.TNotification
@@ -298,7 +299,7 @@ class ScheduleService(
     /**
      * 로그인 유저의 스케줄 검색
      */
-    fun findForPersonal(loginUserId: String, from: LocalDate, to: LocalDate): List<ScheduleResponse> {
+    fun findForPersonal(loginUserId: String, from: LocalDate, to: LocalDate): List<PersonalScheduleResponse> {
         return convertToResponse(tScheduleRepository.findByFromToAndUserId(loginUserId, from, to))
     }
 
@@ -307,7 +308,7 @@ class ScheduleService(
         searchUserId: String,
         from: LocalDate,
         to: LocalDate
-    ): List<ScheduleResponse> {
+    ): List<PersonalScheduleResponse> {
         return findForPersonal(searchUserId, from, to).mapNotNull {
             val memberIds = it.members.map { m -> m.id }
             if (!it.isPublic && !memberIds.contains(loginUserId)) {
@@ -318,10 +319,10 @@ class ScheduleService(
         }
     }
 
-    fun convertToResponse(schedules: List<TSchedule>): List<ScheduleResponse> {
+    fun convertToResponse(schedules: List<TSchedule>): List<PersonalScheduleResponse> {
         return if (schedules.isNotEmpty()) {
             schedules.map {
-                ScheduleResponse.convert(
+                PersonalScheduleResponse.convert(
                     data = it,
                     members = tScheduleMemberRepository.findByGroupKeyGroupId(it.memberGroup.id!!)
                         .map { m -> ScheduleMemberResponse.convert(m) },

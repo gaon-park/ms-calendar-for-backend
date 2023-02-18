@@ -9,4 +9,5 @@ data class ScheduleDeleteRequest(
     @field:NotNull
     val scheduleId: Long,
     val scheduleUpdateCode: ScheduleUpdateCode,
+    val forOfficial: Boolean?
 )

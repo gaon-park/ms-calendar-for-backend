@@ -5,7 +5,9 @@ import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleDeleteReque
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleRequest
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleUpdateRequest
 import com.maple.herocalendarforbackend.dto.response.ErrorResponse
+import com.maple.herocalendarforbackend.dto.response.OfficialScheduleResponse
 import com.maple.herocalendarforbackend.dto.response.ScheduleResponse
+import com.maple.herocalendarforbackend.service.OfficialScheduleService
 import com.maple.herocalendarforbackend.service.ScheduleService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.ArraySchema
@@ -32,6 +34,7 @@ import java.time.LocalDate
 @RequestMapping("/api/schedule", produces = [MediaType.APPLICATION_JSON_VALUE])
 class CalendarController(
     private val scheduleService: ScheduleService,
+    private val officialScheduleService: OfficialScheduleService,
 ) {
 
     /**
@@ -58,7 +61,11 @@ class CalendarController(
         principal: Principal,
         @Valid @RequestBody requestBody: ScheduleAddRequest
     ): ResponseEntity<String> {
-        scheduleService.save(principal.name, requestBody)
+        if (requestBody.forOfficial == true) {
+            officialScheduleService.save(principal.name, requestBody)
+        } else {
+            scheduleService.save(principal.name, requestBody)
+        }
         return ResponseEntity.ok("ok")
     }
 
@@ -92,7 +99,11 @@ class CalendarController(
         principal: Principal,
         @Valid @RequestBody requestBody: ScheduleDeleteRequest
     ): ResponseEntity<String> {
-        scheduleService.delete(principal.name, requestBody)
+        if (requestBody.forOfficial == true) {
+            officialScheduleService.delete(principal.name, requestBody)
+        } else {
+            scheduleService.delete(principal.name, requestBody)
+        }
         return ResponseEntity.ok("ok")
     }
 
@@ -124,7 +135,11 @@ class CalendarController(
         principal: Principal,
         @Valid @RequestBody requestBody: ScheduleUpdateRequest,
     ): ResponseEntity<String> {
-        scheduleService.update(principal.name, requestBody)
+        if (requestBody.forOfficial) {
+            officialScheduleService.update(principal.name, requestBody)
+        } else {
+            scheduleService.update(principal.name, requestBody)
+        }
         return ResponseEntity.ok("ok")
     }
 
@@ -211,10 +226,14 @@ class CalendarController(
     )
     @GetMapping
     fun getSchedules(
-        principal: Principal,
+        principal: Principal?,
         @RequestParam from: LocalDate,
         @RequestParam to: LocalDate
-    ): ResponseEntity<List<ScheduleResponse>> {
-        return ResponseEntity.ok(scheduleService.findForPersonal(principal.name, from, to))
+    ): ResponseEntity<ScheduleResponse> {
+        val officials = officialScheduleService.find(from, to)
+        val personals =
+            if (principal?.name !== null) scheduleService.findForPersonal(principal.name, from, to)
+            else emptyList()
+        return ResponseEntity.ok(ScheduleResponse(officials, personals))
     }
 }

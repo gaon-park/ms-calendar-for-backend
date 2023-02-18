@@ -26,23 +26,6 @@ interface TScheduleRepository : JpaRepository<TSchedule, Long> {
         @Param("to") to: LocalDate,
     ): List<TSchedule>
 
-    @Query(
-        "select *\n" +
-                "from t_schedule s\n" +
-                "where :userId in (\n" +
-                "   select m.user_id\n" +
-                "   from t_schedule_member m\n" +
-                "   where m.group_id = s.member_group_id\n" +
-                ") and s.start <= :to and s.end >= :from\n" +
-                "and s.is_public = true",
-        nativeQuery = true
-    )
-    fun findByFromToAndUserIdOnlyPublic(
-        @Param("userId") userId: String,
-        @Param("from") from: LocalDate,
-        @Param("to") to: LocalDate,
-    ): List<TSchedule>
-
     fun findByParentId(parentId: Long?): List<TSchedule>
 
     @Query(

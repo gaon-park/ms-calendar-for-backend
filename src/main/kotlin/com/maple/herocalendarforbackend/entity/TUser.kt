@@ -34,6 +34,7 @@ data class TUser(
     val job: String,
     val jobDetail: String,
     val notificationFlg: Boolean,
+    val role: String?,
 ) : UserDetails {
     companion object {
         fun generateGoogleOAuthSaveModel(email: String) = TUser(
@@ -48,6 +49,7 @@ data class TUser(
             job = "",
             jobDetail = "",
             notificationFlg = true,
+            role = null,
         )
 
         fun updateModel(profile: IProfile, request: ProfileRequest, avatarImg: String?) = TUser(
@@ -62,7 +64,8 @@ data class TUser(
             world = request.world,
             job = request.job,
             jobDetail = request.jobDetail,
-            notificationFlg = request.notificationFlg
+            notificationFlg = request.notificationFlg,
+            role = profile.getRole()
         )
     }
 

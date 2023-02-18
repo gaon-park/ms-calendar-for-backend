@@ -7,15 +7,17 @@ import lombok.Builder
 @Builder
 data class ScheduleMemberResponse(
     val id: String?,
-    val email: String,
+    val accountId: String,
     val nickName: String,
+    val avatarImg: String?,
     val acceptedStatus: AcceptedStatus,
 ) {
     companion object {
         fun convert(data: TScheduleMember) = ScheduleMemberResponse(
             id = data.groupKey.user.id,
-            email = data.groupKey.user.email,
+            accountId = data.groupKey.user.accountId,
             nickName = data.groupKey.user.nickName,
+            avatarImg = data.groupKey.user.avatarImg,
             acceptedStatus = data.acceptedStatus
         )
     }
