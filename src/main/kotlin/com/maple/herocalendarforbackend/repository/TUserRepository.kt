@@ -139,14 +139,14 @@ interface TUserRepository : JpaRepository<TUser, String> {
                 "select *\n" +
                 "from t_user u2\n" +
                 "where u2.id in (\n" +
-                "   select f.respondent_id\n" +
+                "   select f.requester_id\n" +
                 "   from t_follow f\n" +
-                "   where f.requester_id = :userId\n" +
+                "   where f.respondent_id = :userId\n" +
                 "   and status = \"ACCEPTED\"\n" +
                 ")",
         nativeQuery = true
     )
-    fun findPublicOrFollowing(
+    fun findPublicOrFollower(
         @Param("ids") ids: List<String>, @Param("userId") userId: String
     ): List<TUser>
 

@@ -72,7 +72,7 @@ class ScheduleService(
     @Transactional
     fun saveScheduleMember(owner: TUser, memberIds: List<String>, group: TScheduleMemberGroup, scheduleTitle: String) {
         val members =
-            tUserRepository.findPublicOrFollowing(memberIds.filter { it != owner.id }.toSet().toList(), owner.id!!)
+            tUserRepository.findPublicOrFollower(memberIds.filter { it != owner.id }.toSet().toList(), owner.id!!)
         val memberData = mutableListOf(
             TScheduleMember.initConvert(
                 owner, group, AcceptedStatus.ACCEPTED, null
@@ -164,7 +164,7 @@ class ScheduleService(
         }
         return if (invite.isNotEmpty()) {
             tScheduleMemberGroupRepository.save(TScheduleMemberGroup()).let { group ->
-                val newMembers = tUserRepository.findPublicOrFollowing(invite, requesterId)
+                val newMembers = tUserRepository.findPublicOrFollower(invite, requesterId)
                 tScheduleMemberRepository.saveAll(
                     newMembers.map {
                         TScheduleMember.initConvert(it, group, AcceptedStatus.WAITING, requesterId)
