@@ -94,38 +94,4 @@ class SearchController(
             searchService.findUserProfileByAccountId(accountId, principal?.name)
         )
     }
-
-    /**
-     * 공개 유저이거나 친구인 유저의 공개 스케줄
-     */
-    @Operation(
-        summary = "本人じゃないユーザのスケジュール取得", description = "公開＋友達関係ユーザの公開スケジュールを検索する API"
-    )
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                description = "OK",
-                content = arrayOf(
-                    Content(array = ArraySchema(schema = Schema(implementation = ScheduleResponse::class)))
-                )
-            )
-        ]
-    )
-    @GetMapping("/schedule")
-    fun findSchedules(
-        principal: Principal?,
-        @RequestParam(name = "userId") userId: String,
-        @RequestParam from: LocalDate,
-        @RequestParam to: LocalDate
-    ): ResponseEntity<List<PersonalScheduleResponse>> {
-        return ResponseEntity.ok(
-            searchService.findUserSchedules(
-                loginUserId = principal?.name,
-                targetUserId = userId,
-                from = from,
-                to = to
-            )
-        )
-    }
 }

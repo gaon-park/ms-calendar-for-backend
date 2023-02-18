@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.security.SecurityRequirements
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.MediaType
@@ -211,29 +212,25 @@ class CalendarController(
             ApiResponse(
                 responseCode = "200",
                 content = arrayOf(
-                    Content(array = ArraySchema(schema = Schema(implementation = ScheduleResponse::class)))
+                    Content(schema = Schema(implementation = ScheduleResponse::class))
                 )
             ),
             ApiResponse(
                 responseCode = "400",
                 content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
-            ),
-            ApiResponse(
-                responseCode = "401",
-                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
             )
         ]
     )
     @GetMapping
+    @SecurityRequirements(value = [])
     fun getSchedules(
         principal: Principal?,
+        @RequestParam userIds: List<String>,
         @RequestParam from: LocalDate,
         @RequestParam to: LocalDate
     ): ResponseEntity<ScheduleResponse> {
         val officials = officialScheduleService.find(from, to)
-        val personals =
-            if (principal?.name !== null) scheduleService.findForPersonal(principal.name, from, to)
-            else emptyList()
+        val personals = scheduleService.findSchedules(principal?.name, userIds, from, to)
         return ResponseEntity.ok(ScheduleResponse(officials, personals))
     }
 }

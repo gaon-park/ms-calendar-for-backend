@@ -8,5 +8,5 @@ import java.time.LocalDateTime
 @Builder
 data class ScheduleResponse(
     val officials: List<OfficialScheduleResponse>,
-    val personals: List<PersonalScheduleResponse>
+    val personals: Map<String, List<PersonalScheduleResponse>>
 )

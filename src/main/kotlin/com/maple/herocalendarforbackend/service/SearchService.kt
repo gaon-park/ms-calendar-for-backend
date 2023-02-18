@@ -31,15 +31,4 @@ class SearchService(
             fullHit = userService.findByConditionCount(request)
         )
     }
-
-    fun findUserSchedules(
-        loginUserId: String?, targetUserId: String, from: LocalDate, to: LocalDate
-    ): List<PersonalScheduleResponse> {
-        return scheduleService.findForPublic(
-            loginUserId = loginUserId,
-            searchUserId = targetUserId,
-            from = from,
-            to = to
-        )
-    }
 }

@@ -296,6 +296,26 @@ class ScheduleService(
         } ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
     }
 
+    fun findSchedules(
+        loginUserId: String?,
+        searchUserIds: List<String>,
+        from: LocalDate,
+        to: LocalDate
+    ): Map<String, List<PersonalScheduleResponse>> {
+        val searchTargets = tUserRepository.findTargetUserForScheduleSearch(searchUserIds, loginUserId ?: "")
+        val others = searchTargets.associateWith {
+            findForOther(
+                loginUserId, it, from, to
+            )
+        }
+        val map: HashMap<String, List<PersonalScheduleResponse>> = hashMapOf()
+        if (loginUserId != null) {
+            map[loginUserId] = findForPersonal(loginUserId, from, to)
+        }
+        map.putAll(others)
+        return map
+    }
+
     /**
      * 로그인 유저의 스케줄 검색
      */
@@ -303,7 +323,7 @@ class ScheduleService(
         return convertToResponse(tScheduleRepository.findByFromToAndUserId(loginUserId, from, to))
     }
 
-    fun findForPublic(
+    fun findForOther(
         loginUserId: String?,
         searchUserId: String,
         from: LocalDate,

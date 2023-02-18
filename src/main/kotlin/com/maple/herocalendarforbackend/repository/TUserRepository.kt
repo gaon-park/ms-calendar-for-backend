@@ -191,4 +191,25 @@ interface TUserRepository : JpaRepository<TUser, String> {
         @Param("accountId") accountId: String,
         @Param("loginUserId") loginUserId: String
     ): IProfile?
+
+    @Query(
+        "select u.id\n" +
+                "from t_user u\n" +
+                "where u.id in :searchUserIds\n" +
+                "and (\n" +
+                "u.is_public = true\n" +
+                "or \n" +
+                "(\n" +
+                "\tselect count(*) > 0\n" +
+                "\tfrom t_follow f\n" +
+                "\twhere f.respondent_id = u.id\n" +
+                "\tand f.requester_id = :loginUserId\n" +
+                ")\n" +
+                ")",
+        nativeQuery = true
+    )
+    fun findTargetUserForScheduleSearch(
+        @Param("searchUserIds") searchUserIds: List<String>,
+        @Param("loginUserId") loginUserId: String
+    ): List<String>
 }
