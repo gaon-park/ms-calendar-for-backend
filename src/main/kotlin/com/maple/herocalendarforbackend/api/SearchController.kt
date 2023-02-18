@@ -3,12 +3,9 @@ package com.maple.herocalendarforbackend.api
 import com.maple.herocalendarforbackend.code.MagicVariables.MAX_LENGTH_OF_USER_COLUMN
 import com.maple.herocalendarforbackend.dto.request.search.SearchUserRequest
 import com.maple.herocalendarforbackend.dto.response.IProfileResponse
-import com.maple.herocalendarforbackend.dto.response.PersonalScheduleResponse
-import com.maple.herocalendarforbackend.dto.response.ScheduleResponse
-import com.maple.herocalendarforbackend.dto.response.SearchUserResponse
+import com.maple.herocalendarforbackend.entity.IProfile
 import com.maple.herocalendarforbackend.service.SearchService
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -22,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.security.Principal
-import java.time.LocalDate
 
 @Suppress("LongParameterList")
 @Tag(name = "Search", description = "検索関連(ログアウト状態でもアクセス) API")
@@ -42,7 +38,7 @@ class SearchController(
                 responseCode = "200",
                 description = "OK",
                 content = arrayOf(
-                    Content(schema = Schema(implementation = SearchUserResponse::class))
+                    Content(schema = Schema(implementation = IProfile::class))
                 )
             )
         ]
@@ -54,7 +50,7 @@ class SearchController(
         @RequestParam("world", required = false) world: String?,
         @RequestParam("job", required = false) job: String?,
         @RequestParam("jobDetail", required = false) jobDetail: String?,
-    ): ResponseEntity<SearchUserResponse> {
+    ): ResponseEntity<List<IProfile>> {
         return ResponseEntity.ok(
             searchService.findUser(
                 SearchUserRequest(
@@ -80,7 +76,7 @@ class SearchController(
                 responseCode = "200",
                 description = "OK",
                 content = arrayOf(
-                    Content(schema = Schema(implementation = SearchUserResponse::class))
+                    Content(schema = Schema(implementation = IProfileResponse::class))
                 )
             )
         ]

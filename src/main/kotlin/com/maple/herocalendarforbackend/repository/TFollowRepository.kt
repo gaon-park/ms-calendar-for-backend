@@ -45,7 +45,8 @@ interface TFollowRepository : JpaRepository<TFollow, TFollow.Key> {
                 "from t_follow f\n" +
                 "inner join t_user u\n" +
                 "on u.id = f.respondent_id\n" +
-                "where f.requester_id = :userId",
+                "where f.requester_id = :userId\n" +
+                "order by f.status = 'WAITING' desc",
         nativeQuery = true
     )
     fun findAllStatusFollowByUserId(
@@ -86,7 +87,8 @@ interface TFollowRepository : JpaRepository<TFollow, TFollow.Key> {
                 "from t_follow f\n" +
                 "inner join t_user u\n" +
                 "on u.id = f.requester_id\n" +
-                "where f.respondent_id = :userId",
+                "where f.respondent_id = :userId\n" +
+                "order by f.status = 'WAITING' desc",
         nativeQuery = true
     )
     fun findAllStatusFollowerByUserId(

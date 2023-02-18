@@ -1,8 +1,7 @@
 package com.maple.herocalendarforbackend.api
 
 import com.maple.herocalendarforbackend.dto.request.friend.FollowRequest
-import com.maple.herocalendarforbackend.dto.response.ErrorResponse
-import com.maple.herocalendarforbackend.dto.response.SearchUserResponse
+import com.maple.herocalendarforbackend.entity.IProfile
 import com.maple.herocalendarforbackend.service.FollowService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
@@ -108,20 +107,16 @@ class FollowController(
         value = [
             ApiResponse(
                 responseCode = "200",
-                content = arrayOf(Content(schema = Schema(implementation = SearchUserResponse::class)))
+                content = arrayOf(Content(schema = Schema(implementation = IProfile::class)))
             )
         ]
     )
     @GetMapping("/follow")
     fun findFollows(
         principal: Principal
-    ): ResponseEntity<SearchUserResponse> {
-        val follows = followService.findFollows(principal.name)
+    ): ResponseEntity<List<IProfile>> {
         return ResponseEntity.ok(
-            SearchUserResponse(
-                users = follows,
-                fullHit = follows.size.toLong()
-            )
+            followService.findFollows(principal.name)
         )
     }
 
@@ -130,20 +125,16 @@ class FollowController(
         value = [
             ApiResponse(
                 responseCode = "200",
-                content = arrayOf(Content(schema = Schema(implementation = SearchUserResponse::class)))
+                content = arrayOf(Content(schema = Schema(implementation = IProfile::class)))
             )
         ]
     )
     @GetMapping("/follower")
     fun findFollowers(
         principal: Principal
-    ): ResponseEntity<SearchUserResponse> {
-        val follower = followService.findFollowers(principal.name)
+    ): ResponseEntity<List<IProfile>> {
         return ResponseEntity.ok(
-            SearchUserResponse(
-                users = follower,
-                fullHit = follower.size.toLong()
-            )
+            followService.findFollowers(principal.name)
         )
     }
 }
