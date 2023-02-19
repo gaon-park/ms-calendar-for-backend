@@ -107,47 +107,47 @@ class ScheduleService(
         memberGroup: TScheduleMemberGroup,
         note: TScheduleNote?
     ) {
-        val requestStart = request.start
-        val requestEnd =
-            if (request.allDay == true) LocalDateTime.of(
-                requestStart.year,
-                requestStart.month,
-                requestStart.dayOfMonth,
-                23,
-                59
-            )
-            else request.end ?: requestStart
-
-        val diff = Duration.between(requestStart, requestEnd).toMinutes()
-        val start = requestStart.toLocalDate()
-        val end = when {
-            (request.repeatInfo == null) -> requestEnd.toLocalDate()
-            (request.repeatInfo.end == null) -> LocalDate.of(start.year + 1, start.month, start.dayOfMonth)
-            else -> request.repeatInfo.end
-        }
-        val period = when (request.repeatInfo?.repeatCode) {
-            RepeatCode.DAYS -> Period.ofDays(1)
-            RepeatCode.WEEKS -> Period.ofWeeks(1)
-            RepeatCode.MONTHS -> Period.ofMonths(1)
-            RepeatCode.YEARS -> Period.ofYears(1)
-            else -> Period.ofDays(1)
-        }
-
         val parentSchedule = tScheduleRepository.save(TSchedule.convert(request, ownerId, memberGroup, note))
-        val repeatSchedules = mutableListOf(parentSchedule.copy(parentId = parentSchedule.id))
-        repeatSchedules.addAll(start.datesUntil(end.plusDays(1), period).skip(1).map {
-            val tempStart = LocalDateTime.of(
-                it.year, it.month, it.dayOfMonth, requestStart.hour, requestStart.minute
-            )
-            TSchedule.convert(
-                request = request,
-                schedule = parentSchedule,
-                start = tempStart,
-                end = tempStart.plusMinutes(diff),
-            )
-        }.toList())
+        if (request.repeatInfo != null) {
+            val requestStart = request.start
+            val requestEnd =
+                if (request.allDay == true) LocalDateTime.of(
+                    requestStart.year,
+                    requestStart.month,
+                    requestStart.dayOfMonth,
+                    23,
+                    59
+                )
+                else request.end ?: requestStart
 
-        tScheduleRepository.saveAll(repeatSchedules)
+            val diff = Duration.between(requestStart, requestEnd).toMinutes()
+            val start = requestStart.toLocalDate()
+            val end = when {
+                (request.repeatInfo.end == null) -> LocalDate.of(start.year + 1, start.month, start.dayOfMonth)
+                else -> request.repeatInfo.end
+            }
+            val period = when (request.repeatInfo?.repeatCode) {
+                RepeatCode.DAYS -> Period.ofDays(1)
+                RepeatCode.WEEKS -> Period.ofWeeks(1)
+                RepeatCode.MONTHS -> Period.ofMonths(1)
+                RepeatCode.YEARS -> Period.ofYears(1)
+                else -> Period.ofDays(1)
+            }
+            val repeatSchedules = mutableListOf(parentSchedule.copy(parentId = parentSchedule.id))
+            repeatSchedules.addAll(start.datesUntil(end.plusDays(1), period).skip(1).map {
+                val tempStart = LocalDateTime.of(
+                    it.year, it.month, it.dayOfMonth, requestStart.hour, requestStart.minute
+                )
+                TSchedule.convert(
+                    request = request,
+                    schedule = parentSchedule,
+                    start = tempStart,
+                    end = tempStart.plusMinutes(diff),
+                )
+            }.toList())
+
+            tScheduleRepository.saveAll(repeatSchedules)
+        }
     }
 
     @Transactional
@@ -206,40 +206,50 @@ class ScheduleService(
 
         // 업데이트 사항이 있을 때만
         if (updateDataCompare(schedule, request) || updateNote != null) {
-            val entities = when (request.scheduleUpdateCode) {
-                ScheduleUpdateCode.ALL -> tScheduleRepository.findByParentId(schedule.parentId)
-                ScheduleUpdateCode.ONLY_THIS -> listOf(schedule)
-                ScheduleUpdateCode.THIS_AND_FUTURE -> tScheduleRepository.findByGroupAndAfterDay(
-                    schedule.memberGroup.id,
-                    schedule.start
-                )
-            }
+            updateSave(schedule, request, memberUpdate, updateNote)
+        }
+    }
 
-            val startDiff = Duration.between(schedule.start, request.start).toMinutes()
-            val requestEnd =
-                if (request.allDay) LocalDateTime.of(
-                    request.start.year,
-                    request.start.month,
-                    request.start.dayOfMonth,
-                    23,
-                    59
-                )
-                else request.end ?: request.start
-            val endDiff = Duration.between(schedule.end, requestEnd).toMinutes()
-            tScheduleRepository.saveAll(
-                entities.map {
-                    it.copy(
-                        title = request.title,
-                        start = it.start.plusMinutes(startDiff),
-                        end = it.end.plusMinutes(endDiff),
-                        allDay = request.allDay,
-                        isPublic = request.isPublic,
-                        note = updateNote ?: schedule.note,
-                        memberGroup = memberUpdate ?: schedule.memberGroup
-                    )
-                }
+    @Transactional
+    fun updateSave(
+        schedule: TSchedule,
+        request: ScheduleUpdateRequest,
+        memberUpdate: TScheduleMemberGroup?,
+        updateNote: TScheduleNote?
+    ) {
+        val entities = when (request.scheduleUpdateCode) {
+            ScheduleUpdateCode.ALL -> tScheduleRepository.findByParentId(schedule.parentId)
+            ScheduleUpdateCode.ONLY_THIS -> listOf(schedule)
+            ScheduleUpdateCode.THIS_AND_FUTURE -> tScheduleRepository.findByGroupAndAfterDay(
+                schedule.memberGroup.id,
+                schedule.start
             )
         }
+
+        val startDiff = Duration.between(schedule.start, request.start).toMinutes()
+        val requestEnd =
+            if (request.allDay) LocalDateTime.of(
+                request.start.year,
+                request.start.month,
+                request.start.dayOfMonth,
+                23,
+                59
+            )
+            else request.end ?: request.start
+        val endDiff = Duration.between(schedule.end, requestEnd).toMinutes()
+        tScheduleRepository.saveAll(
+            entities.map {
+                it.copy(
+                    title = request.title,
+                    start = it.start.plusMinutes(startDiff),
+                    end = it.end.plusMinutes(endDiff),
+                    allDay = request.allDay,
+                    isPublic = request.isPublic,
+                    note = updateNote ?: schedule.note,
+                    memberGroup = memberUpdate ?: schedule.memberGroup
+                )
+            }
+        )
     }
 
     fun updateDataCompare(schedule: TSchedule, request: ScheduleUpdateRequest): Boolean =
