@@ -158,19 +158,18 @@ class ScheduleService(
     ): TScheduleMemberGroup? {
         val exist = tScheduleMemberRepository.findByGroupKeyGroupId(schedule.memberGroup.id!!)
             .mapNotNull { it.groupKey.user.id }
-        val invite = requestMemberIds.filter {
-            !exist.contains(it)
+        val invite = tUserRepository.findPublicOrFollower(requestMemberIds, requesterId).filter {
+            !exist.contains(it.id)
         }
         return if (invite.isNotEmpty()) {
             tScheduleMemberGroupRepository.save(TScheduleMemberGroup()).let { group ->
-                val newMembers = tUserRepository.findPublicOrFollower(invite, requesterId)
                 tScheduleMemberRepository.saveAll(
-                    newMembers.map {
+                    invite.map {
                         TScheduleMember.initConvert(it, group, AcceptedStatus.WAITING, requesterId)
                     })
                 val requester = findUserById(requesterId)
                 tNotificationRepository.saveAll(
-                    newMembers.map {
+                    invite.map {
                         TNotification.generate(
                             title = requester.accountId,
                             subTitle = "${schedule.title} 에 초대해요",
@@ -205,7 +204,7 @@ class ScheduleService(
         val memberUpdate = updateMember(requesterId, schedule, request.memberIds ?: emptyList())
 
         // 업데이트 사항이 있을 때만
-        if (updateDataCompare(schedule, request) || updateNote != null) {
+        if (updateDataCompare(schedule, request) || updateNote != null || memberUpdate != null) {
             updateSave(schedule, request, memberUpdate, updateNote)
         }
     }
