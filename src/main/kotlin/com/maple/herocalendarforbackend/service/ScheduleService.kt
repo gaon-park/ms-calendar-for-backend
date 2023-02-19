@@ -187,6 +187,7 @@ class ScheduleService(
         } else null
     }
 
+    @Suppress("ComplexMethod")
     @Transactional
     fun update(requesterId: String, request: ScheduleUpdateRequest) {
         val schedule = findById(request.scheduleId)

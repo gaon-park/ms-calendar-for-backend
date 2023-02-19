@@ -8,18 +8,14 @@ import org.springframework.stereotype.Service
 @Service
 class SearchService(
     private val userService: UserService,
-    private val followService: FollowService,
 ) {
     fun findUserProfileByAccountId(accountId: String, loginUserId: String?): IProfileResponse? {
-        return userService.findByAccountIdToIProfile(accountId, loginUserId)?.let {
-            IProfileResponse(
-                profile = it,
-                follow = followService.findFollows(it.getId()),
-                follower = followService.findFollowers(it.getId()),
-                acceptedFollowCount = followService.findCountJustAcceptedFollowByUserId(it.getId()),
-                acceptedFollowerCount = followService.findCountJustAcceptedFollowerByUserId(it.getId())
-            )
+        userService.findByAccountIdToIProfile(accountId, loginUserId)?.let {
+            if (it.getIsPublic() || it.getIFollowHim() == "FOLLOW") {
+                return userService.findByIdToIProfileResponse(it.getId())
+            }
         }
+        return null
     }
 
     fun findUser(request: SearchUserRequest, loginUserId: String?): List<IProfile> {
