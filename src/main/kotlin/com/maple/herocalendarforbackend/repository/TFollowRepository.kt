@@ -98,7 +98,8 @@ interface TFollowRepository : JpaRepository<TFollow, TFollow.Key> {
     @Query(
         "select count(*)\n" +
                 "from t_follow f\n" +
-                "where f.requester_id = :userId",
+                "where f.requester_id = :userId\n" +
+                "and f.status = 'ACCEPTED'",
         nativeQuery = true
     )
     fun findCountJustAcceptedFollowByUserId(
@@ -108,7 +109,8 @@ interface TFollowRepository : JpaRepository<TFollow, TFollow.Key> {
     @Query(
         "select count(*)\n" +
                 "from t_follow f\n" +
-                "where f.respondent_id = :userId",
+                "where f.respondent_id = :userId\n" +
+                "and f.status = 'ACCEPTED'",
         nativeQuery = true
     )
     fun findCountJustAcceptedFollowerByUserId(
