@@ -220,7 +220,6 @@ class CalendarController(
         ]
     )
     @GetMapping
-    @SecurityRequirements(value = [])
     fun getSchedules(
         principal: Principal?,
         @RequestParam userIds: List<String>?,
