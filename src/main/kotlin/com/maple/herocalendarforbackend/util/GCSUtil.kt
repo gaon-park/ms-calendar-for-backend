@@ -13,10 +13,40 @@ import java.io.FileInputStream
 class GCSUtil {
 
     @Async
-    fun upload(userId: String, byteArray: ByteArray): String {
+    fun upload(userId: String, postId: Long, data: List<ByteArray>, bucketName: String): List<String> {
+        val storage = getStorage()
+        val acl = listOf(Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER))
+        return data.map {
+            val filePath = "$userId/$postId/${getRandomString()}.png"
+            val blobId = BlobId.of(bucketName, filePath)
+            val blobInfo = BlobInfo.newBuilder(blobId)
+                .setAcl(acl)
+                .setContentType("image/png")
+                .build()
+            storage.create(
+                blobInfo,
+                it
+            )
+
+            "$GCS_BASE_URL$filePath"
+        }
+    }
+
+    fun delete(path: String, bucketName: String) {
+        val storage = getStorage()
+        val blobPage = storage.list(bucketName, Storage.BlobListOption.prefix(path))
+        val blobIdList = mutableListOf<BlobId>()
+        for (blob in blobPage.iterateAll()) {
+            blobIdList.add(blob.blobId)
+        }
+        storage.delete(blobIdList)
+    }
+
+    @Async
+    fun upload(userId: String, byteArray: ByteArray, bucketName: String): String {
         val storage = getStorage()
         val filePath = "$userId/${getRandomString()}.png"
-        val blobId = BlobId.of("ms-hero-profile", filePath)
+        val blobId = BlobId.of(bucketName, filePath)
         val blobInfo = BlobInfo.newBuilder(blobId)
             .setAcl(listOf(Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER)))
             .setContentType("image/png")
@@ -29,9 +59,9 @@ class GCSUtil {
         return "$GCS_BASE_URL$filePath"
     }
 
-    fun removeUnusedImg(filePath: String) {
+    fun removeUnusedImg(filePath: String, bucketName: String) {
         val storage = getStorage()
-        val blobId = BlobId.of("ms-hero-profile", filePath.replace(GCS_BASE_URL, ""))
+        val blobId = BlobId.of(bucketName, filePath.replace(GCS_BASE_URL, ""))
         storage.delete(blobId)
     }
 
