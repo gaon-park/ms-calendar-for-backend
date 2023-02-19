@@ -14,7 +14,6 @@ interface TFollowRepository : JpaRepository<TFollow, TFollow.Key> {
     @Query(
         "select\n" +
                 "\tu.id as id,\n" +
-                "\tu.email as email,\n" +
                 "\tu.account_id as accountId,\n" +
                 "    u.nick_name as nickName,\n" +
                 "    u.avatar_img as avatarImg,\n" +
@@ -56,7 +55,6 @@ interface TFollowRepository : JpaRepository<TFollow, TFollow.Key> {
     @Query(
         "select\n" +
                 "\tu.id as id,\n" +
-                "\tu.email as email,\n" +
                 "\tu.account_id as accountId,\n" +
                 "    u.nick_name as nickName,\n" +
                 "    u.avatar_img as avatarImg,\n" +

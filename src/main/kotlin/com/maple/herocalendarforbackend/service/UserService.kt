@@ -19,7 +19,6 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDateTime
 
 @Service
 class UserService(
@@ -45,13 +44,6 @@ class UserService(
             loginUserId = loginUserId ?: ""
         )
 
-    fun findByConditionCount(request: SearchUserRequest) = tUserRepository.findByConditionCount(
-        keyword = if (request.keyword != null) "%${request.keyword}%" else "",
-        world = request.world ?: "",
-        job = request.job ?: "",
-        jobDetail = request.jobDetail ?: "",
-    )
-
     fun findById(id: String): TUser =
         tUserRepository.findById(id).let {
             if (it.isEmpty) throw BaseException(BaseResponseCode.USER_NOT_FOUND)
@@ -72,9 +64,9 @@ class UserService(
 
     @Transactional
     fun updateProfile(id: String, request: ProfileRequest): IProfileResponse {
-        val user = findByIdToIProfileResponse(id)
+        val user = findById(id)
         val avatarImg = request.avatarImg?.let {
-            if (it.isNotEmpty() && it != user.profile.getAvatarImg()) {
+            if (it.isNotEmpty() && it != user.avatarImg) {
                 val gcsUtil = GCSUtil()
                 val newImg = gcsUtil.upload(
                     id,
@@ -82,29 +74,23 @@ class UserService(
                 )
 
                 // 이미지 저장 후, 사용하지 않는 이미지 삭제
-                user.profile.getAvatarImg()?.let { exist ->
+                user.avatarImg?.let { exist ->
                     gcsUtil.removeUnusedImg(exist)
                 }
 
                 newImg
             } else null
         }
-        if (user.profile.getAccountId() != request.accountId && !accountIdDuplicateCheck(request.accountId)) {
+        if (user.accountId != request.accountId && !accountIdDuplicateCheck(request.accountId)) {
             throw BaseException(BaseResponseCode.DUPLICATED_ACCOUNT_ID)
         }
 
-        return if (diffCheck(user.profile, request) || avatarImg != null) {
+        if (diffCheck(user, request) || avatarImg != null) {
             tUserRepository.save(
-                TUser.updateModel(user.profile, request, avatarImg)
+                TUser.updateModel(user, request, avatarImg)
             )
-            IProfileResponse(
-                profile = tUserRepository.findByIdToIProfile(id) ?: throw BaseException(BaseResponseCode.DATA_ERROR),
-                follow = user.follow,
-                follower = user.follower,
-                acceptedFollowCount = user.acceptedFollowCount,
-                acceptedFollowerCount = user.acceptedFollowerCount
-            )
-        } else user
+        }
+        return findByIdToIProfileResponse(id)
     }
 
     @Transactional
@@ -132,15 +118,15 @@ class UserService(
         tUserRepository.deleteById(id)
     }
 
-    private fun diffCheck(profile: IProfile, request: ProfileRequest): Boolean {
+    private fun diffCheck(user: TUser, request: ProfileRequest): Boolean {
         return when {
-            request.nickName.isNotEmpty() && profile.getNickName() != request.nickName -> true
-            request.accountId.isNotEmpty() && profile.getAccountId() != request.accountId -> true
-            request.world != profile.getWorld() -> true
-            request.job != profile.getJob() -> true
-            request.jobDetail != profile.getJobDetail() -> true
-            profile.getIsPublic() != request.isPublic -> true
-            profile.getNotificationFlg() != request.notificationFlg -> true
+            request.nickName.isNotEmpty() && user.nickName != request.nickName -> true
+            request.accountId.isNotEmpty() && user.accountId != request.accountId -> true
+            request.world != user.world -> true
+            request.job != user.job -> true
+            request.jobDetail != user.jobDetail -> true
+            user.isPublic != request.isPublic -> true
+            user.notificationFlg != request.notificationFlg -> true
 
             else -> false
         }

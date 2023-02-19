@@ -28,7 +28,6 @@ interface TUserRepository : JpaRepository<TUser, String> {
     @Query(
         "select \n" +
                 "    u.id as id,\n" +
-                "    u.email as email,\n" +
                 "    u.account_id as accountId,\n" +
                 "    u.nick_name as nickName,\n" +
                 "    u.avatar_img as avatarImg,\n" +
@@ -67,7 +66,6 @@ interface TUserRepository : JpaRepository<TUser, String> {
     @Query(
         "select \n" +
                 "    u.id as id,\n" +
-                "    u.email as email,\n" +
                 "    u.account_id as accountId,\n" +
                 "    u.nick_name as nickName,\n" +
                 "    u.avatar_img as avatarImg,\n" +
@@ -155,7 +153,6 @@ interface TUserRepository : JpaRepository<TUser, String> {
     @Query(
         "select \n" +
                 "    u.id as id,\n" +
-                "    u.email as email,\n" +
                 "    u.account_id as accountId,\n" +
                 "    u.nick_name as nickName,\n" +
                 "    u.avatar_img as avatarImg,\n" +

@@ -5,7 +5,6 @@ import java.time.LocalDateTime
 @Suppress("TooManyFunctions")
 interface IProfile {
     fun getId(): String
-    fun getEmail(): String
     fun getNickName(): String
     fun getAccountId(): String
     fun getCreatedAt(): LocalDateTime

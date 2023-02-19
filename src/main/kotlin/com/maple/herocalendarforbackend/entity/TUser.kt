@@ -52,20 +52,20 @@ data class TUser(
             role = null,
         )
 
-        fun updateModel(profile: IProfile, request: ProfileRequest, avatarImg: String?) = TUser(
-            id = profile.getId(),
-            email = profile.getEmail(),
+        fun updateModel(user: TUser, request: ProfileRequest, avatarImg: String?) = TUser(
+            id = user.id,
+            email = user.email,
             accountId = request.accountId,
             nickName = request.nickName,
-            createdAt = profile.getCreatedAt(),
+            createdAt = user.createdAt,
             updatedAt = LocalDateTime.now(),
             isPublic = request.isPublic,
-            avatarImg = avatarImg ?: profile.getAvatarImg(),
+            avatarImg = avatarImg ?: user.avatarImg,
             world = request.world,
             job = request.job,
             jobDetail = request.jobDetail,
             notificationFlg = request.notificationFlg,
-            role = profile.getRole()
+            role = user.role
         )
     }
 
