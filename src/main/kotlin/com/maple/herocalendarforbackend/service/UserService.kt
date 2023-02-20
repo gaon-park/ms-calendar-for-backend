@@ -45,6 +45,12 @@ class UserService(
     fun findByAccountIdToIProfile(accountId: String, loginUserId: String?): IProfile? =
         tUserRepository.findByAccountIdToIProfile(accountId, loginUserId ?: "")
 
+    fun findUserListForScheduleSearch(keyword: String?, loginUserId: String?): List<TUser> =
+        tUserRepository.findUserListForScheduleSearch(
+            keyword = if (keyword != null) "%$keyword%" else "",
+            loginUserId = loginUserId ?: ""
+        )
+
     fun findByConditionAndUserId(request: SearchUserRequest, loginUserId: String?) =
         tUserRepository.findByConditionAndUserId(
             keyword = if (request.keyword != null) "%${request.keyword}%" else "",

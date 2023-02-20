@@ -5,6 +5,7 @@ import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleDeleteReque
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleRequest
 import com.maple.herocalendarforbackend.dto.request.schedule.ScheduleUpdateRequest
 import com.maple.herocalendarforbackend.dto.response.ErrorResponse
+import com.maple.herocalendarforbackend.dto.response.PersonalScheduleResponse
 import com.maple.herocalendarforbackend.dto.response.ScheduleResponse
 import com.maple.herocalendarforbackend.service.OfficialScheduleService
 import com.maple.herocalendarforbackend.service.ScheduleService
@@ -227,7 +228,17 @@ class CalendarController(
         @RequestParam to: LocalDate
     ): ResponseEntity<ScheduleResponse> {
         val officials = officialScheduleService.find(from, to)
-        val personals = scheduleService.findSchedules(principal?.name, userIds, from, to)
+        val personals = principal?.name?.let { scheduleService.findForPersonal(it, from, to) } ?: emptyList()
         return ResponseEntity.ok(ScheduleResponse(officials, personals))
+    }
+
+    @GetMapping("/other")
+    fun getSchedulesOthers(
+        principal: Principal,
+        @RequestParam userId: String,
+        @RequestParam from: LocalDate,
+        @RequestParam to: LocalDate
+    ): ResponseEntity<List<PersonalScheduleResponse>> {
+        return ResponseEntity.ok(scheduleService.findForOther(principal.name, userId, from, to))
     }
 }

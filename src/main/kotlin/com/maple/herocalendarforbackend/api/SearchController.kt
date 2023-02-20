@@ -3,6 +3,7 @@ package com.maple.herocalendarforbackend.api
 import com.maple.herocalendarforbackend.code.MagicVariables.MAX_LENGTH_OF_USER_COLUMN
 import com.maple.herocalendarforbackend.dto.request.search.SearchUserRequest
 import com.maple.herocalendarforbackend.dto.response.IProfileResponse
+import com.maple.herocalendarforbackend.dto.response.SimpleUserResponse
 import com.maple.herocalendarforbackend.entity.IProfile
 import com.maple.herocalendarforbackend.service.SearchService
 import io.swagger.v3.oas.annotations.Operation
@@ -30,7 +31,7 @@ class SearchController(
 ) {
 
     @Operation(
-        summary = "ユーザ検索（検索画面用）", description = "accountIdでユーザを検索(部分一致)する API"
+        summary = "ユーザ検索（検索画面用）", description = "ユーザを検索(部分一致)する API"
     )
     @ApiResponses(
         value = [
@@ -63,6 +64,19 @@ class SearchController(
                     jobDetail,
                 ),
                 principal?.name,
+            )
+        )
+    }
+
+    @GetMapping("/schedule-invite-target")
+    fun findUserListForScheduleSearch(
+        principal: Principal?,
+        @RequestParam("keyword", required = false) keyword: String?,
+    ): ResponseEntity<List<SimpleUserResponse>> {
+        return ResponseEntity.ok(
+            searchService.findUserListForScheduleSearch(
+                principal?.name,
+                keyword
             )
         )
     }

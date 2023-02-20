@@ -209,4 +209,26 @@ interface TUserRepository : JpaRepository<TUser, String> {
         @Param("searchUserIds") searchUserIds: List<String>,
         @Param("loginUserId") loginUserId: String
     ): List<String>
+
+    @Query(
+        "select *\n" +
+                "from t_user u\n" +
+                "where u.id != :loginUserId\n" +
+                "and (u.is_public = true\n" +
+                "or (" +
+                "   select count(*) > 0\n" +
+                "   from t_follow f\n" +
+                "   where f.requester_id = :loginUserId\n" +
+                "   and f.respondent_id = u.id\n" +
+                "   and f.status = 'ACCEPTED'\n" +
+                "))\n" +
+                "and if(:keyword != ''," +
+                "   u.account_id like :keyword or u.nick_name like :keyword," +
+                "   u.account_id is not null)",
+        nativeQuery = true
+    )
+    fun findUserListForScheduleSearch(
+        @Param("keyword") keyword: String,
+        @Param("loginUserId") loginUserId: String
+    ): List<TUser>
 }
