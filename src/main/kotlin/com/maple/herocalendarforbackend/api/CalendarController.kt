@@ -223,7 +223,6 @@ class CalendarController(
     @GetMapping
     fun getSchedules(
         principal: Principal?,
-        @RequestParam userIds: List<String>?,
         @RequestParam from: LocalDate,
         @RequestParam to: LocalDate
     ): ResponseEntity<ScheduleResponse> {

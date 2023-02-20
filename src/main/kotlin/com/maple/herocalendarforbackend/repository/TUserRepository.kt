@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 import java.util.*
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 @Repository
 interface TUserRepository : JpaRepository<TUser, String> {
     fun findByEmail(email: String): TUser?
