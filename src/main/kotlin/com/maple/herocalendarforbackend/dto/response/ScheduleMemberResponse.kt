@@ -2,6 +2,7 @@ package com.maple.herocalendarforbackend.dto.response
 
 import com.maple.herocalendarforbackend.code.AcceptedStatus
 import com.maple.herocalendarforbackend.entity.TScheduleMember
+import com.maple.herocalendarforbackend.entity.TUser
 import lombok.Builder
 
 @Builder

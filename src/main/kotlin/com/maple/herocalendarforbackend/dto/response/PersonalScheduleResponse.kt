@@ -15,7 +15,7 @@ data class PersonalScheduleResponse(
     val end: LocalDateTime?,
     val allDay: Boolean,
     val note: String?,
-    val ownerId: String,
+    val owner: SimpleUserResponse,
     val isPublic: Boolean,
     val members: List<ScheduleMemberResponse>,
 ) {
@@ -28,7 +28,7 @@ data class PersonalScheduleResponse(
             allDay = data.allDay,
             isPublic = data.isPublic,
             note = note,
-            ownerId = data.ownerId!!,
+            owner = SimpleUserResponse.convert(data.owner),
             members = members
         )
     }

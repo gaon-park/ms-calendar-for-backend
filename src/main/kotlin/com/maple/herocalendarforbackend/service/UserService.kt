@@ -138,7 +138,7 @@ class UserService(
                 deleteSchedules.add(it)
             } else {
                 updatedSchedules.add(
-                    it.copy(ownerId = members[0].groupKey.user.id)
+                    it.copy(owner = members[0].groupKey.user)
                 )
             }
         }

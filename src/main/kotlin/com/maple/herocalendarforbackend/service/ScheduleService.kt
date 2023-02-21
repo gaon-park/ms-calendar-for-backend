@@ -63,7 +63,7 @@ class ScheduleService(
                 tScheduleNoteRepository.save(TScheduleNote.convert(request.note))
             else null
 
-            saveSchedule(request, requesterId, it, tNote)
+            saveSchedule(request, owner, it, tNote)
             saveScheduleMember(owner, request.memberIds ?: emptyList(), it, request.title)
         }
     }
@@ -103,11 +103,11 @@ class ScheduleService(
     @Transactional
     fun saveSchedule(
         request: ScheduleAddRequest,
-        ownerId: String,
+        owner: TUser,
         memberGroup: TScheduleMemberGroup,
         note: TScheduleNote?
     ) {
-        val parentSchedule = tScheduleRepository.save(TSchedule.convert(request, ownerId, memberGroup, note))
+        val parentSchedule = tScheduleRepository.save(TSchedule.convert(request, owner, memberGroup, note))
         if (request.repeatInfo != null) {
             val requestStart = request.start
             val requestEnd =
@@ -158,18 +158,25 @@ class ScheduleService(
     ): TScheduleMemberGroup? {
         val exist = tScheduleMemberRepository.findByGroupKeyGroupId(schedule.memberGroup.id!!)
             .mapNotNull { it.groupKey.user.id }
-        val invite = tUserRepository.findPublicOrFollower(requestMemberIds, requesterId).filter {
-            !exist.contains(it.id)
-        }
-        return if (invite.isNotEmpty()) {
+        val inviteUsers =
+            tUserRepository.findPublicOrFollower(requestMemberIds, requesterId).plus(findUserById(requesterId)).toSet()
+                .toList()
+
+        return if (inviteUsers.isNotEmpty()) {
             tScheduleMemberGroupRepository.save(TScheduleMemberGroup()).let { group ->
                 tScheduleMemberRepository.saveAll(
-                    invite.map {
-                        TScheduleMember.initConvert(it, group, AcceptedStatus.WAITING, requesterId)
+                    inviteUsers.map {
+                        if (it.id == requesterId) TScheduleMember.initConvert(
+                            it,
+                            group,
+                            AcceptedStatus.ACCEPTED,
+                            requesterId
+                        )
+                        else TScheduleMember.initConvert(it, group, AcceptedStatus.WAITING, requesterId)
                     })
                 val requester = findUserById(requesterId)
                 tNotificationRepository.saveAll(
-                    invite.map {
+                    inviteUsers.filter { u -> !exist.contains(u.id) }.map {
                         TNotification.generate(
                             title = requester.accountId,
                             subTitle = "${schedule.title} 에 초대해요",
@@ -304,27 +311,6 @@ class ScheduleService(
         } ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
     }
 
-    fun findSchedules(
-        loginUserId: String?,
-        searchUserIds: List<String>?,
-        from: LocalDate,
-        to: LocalDate
-    ): Map<String, List<PersonalScheduleResponse>> {
-        val searchTargets =
-            tUserRepository.findTargetUserForScheduleSearch(searchUserIds ?: emptyList(), loginUserId ?: "")
-        val others = searchTargets.associateWith {
-            findForOther(
-                loginUserId, it, from, to
-            )
-        }
-        val map: HashMap<String, List<PersonalScheduleResponse>> = hashMapOf()
-        if (loginUserId != null) {
-            map[loginUserId] = findForPersonal(loginUserId, from, to)
-        }
-        map.putAll(others)
-        return map
-    }
-
     /**
      * 로그인 유저의 스케줄 검색
      */
@@ -367,7 +353,7 @@ class ScheduleService(
         val members = tScheduleMemberRepository.findByGroupKeyGroupId(schedule.memberGroup.id!!)
         members.firstOrNull { it.groupKey.user.id == requesterId }
             ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
-        if (schedule.ownerId == requesterId) {
+        if (schedule.owner.id == requesterId) {
             deleteScheduleByOwner(schedule, request.scheduleUpdateCode)
         } else {
             deleteScheduleByMember(requesterId, schedule, members, request.scheduleUpdateCode)
