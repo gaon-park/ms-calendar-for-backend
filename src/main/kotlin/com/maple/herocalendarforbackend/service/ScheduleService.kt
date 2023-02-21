@@ -157,13 +157,15 @@ class ScheduleService(
         requestMemberIds: List<String>
     ): TScheduleMemberGroup? {
         val exist = tScheduleMemberRepository.findByGroupKeyGroupId(schedule.memberGroup.id!!)
-            .mapNotNull { it.groupKey.user.id }
+            .associateBy { it.groupKey.user.id }
         val inviteUsers =
             tUserRepository.findPublicOrFollower(requestMemberIds, requesterId).plus(findUserById(requesterId))
                 .plus(schedule.owner).toSet()
                 .toList()
+        val inviteUserIds = inviteUsers.map { it.id }
+        val same = exist.keys.containsAll(inviteUserIds) && inviteUserIds.containsAll(exist.keys)
 
-        return if (inviteUsers.isNotEmpty()) {
+        return if (!same) {
             tScheduleMemberGroupRepository.save(TScheduleMemberGroup()).let { group ->
                 tScheduleMemberRepository.saveAll(
                     inviteUsers.map {
@@ -173,20 +175,37 @@ class ScheduleService(
                             AcceptedStatus.ACCEPTED,
                             requesterId
                         )
-                        else TScheduleMember.initConvert(it, group, AcceptedStatus.WAITING, requesterId)
+                        else if (exist.containsKey(it.id)) {
+                            TScheduleMember.initConvert(
+                                it, group, exist[it.id]!!.acceptedStatus, requesterId
+                            )
+                        } else TScheduleMember.initConvert(it, group, AcceptedStatus.WAITING, requesterId)
                     })
                 val requester = findUserById(requesterId)
                 tNotificationRepository.saveAll(
-                    inviteUsers.filter { u -> !exist.contains(u.id) }.map {
-                        TNotification.generate(
-                            title = requester.accountId,
-                            subTitle = "${schedule.title} 에 초대해요",
-                            user = it,
-                            newFollowId = null,
-                            newFollowerId = null,
-                            newScheduleRequesterId = requester.id,
-                            scheduleRespondentId = null
-                        )
+                    inviteUsers.map { u ->
+                        if (exist.containsKey(u.id)) {
+                            TNotification.generate(
+                                title = requester.accountId,
+                                subTitle = "${schedule.title} 이 변경되었어요",
+                                user = u,
+                                newFollowId = null,
+                                newFollowerId = null,
+                                newScheduleRequesterId = requester.id,
+                                scheduleRespondentId = null
+                            )
+                        } else {
+                            TNotification.generate(
+                                title = requester.accountId,
+                                subTitle = "${schedule.title} 에 초대해요",
+                                user = u,
+                                newFollowId = null,
+                                newFollowerId = null,
+                                newScheduleRequesterId = requester.id,
+                                scheduleRespondentId = null
+                            )
+                        }
+
                     }
                 )
 
