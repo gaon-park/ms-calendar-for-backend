@@ -159,7 +159,8 @@ class ScheduleService(
         val exist = tScheduleMemberRepository.findByGroupKeyGroupId(schedule.memberGroup.id!!)
             .mapNotNull { it.groupKey.user.id }
         val inviteUsers =
-            tUserRepository.findPublicOrFollower(requestMemberIds, requesterId).plus(findUserById(requesterId)).toSet()
+            tUserRepository.findPublicOrFollower(requestMemberIds, requesterId).plus(findUserById(requesterId))
+                .plus(schedule.owner).toSet()
                 .toList()
 
         return if (inviteUsers.isNotEmpty()) {
@@ -198,9 +199,12 @@ class ScheduleService(
     fun update(requesterId: String, request: ScheduleUpdateRequest) {
         val schedule = findById(request.scheduleId)
         schedule.memberGroup.id?.let {
-            tScheduleMemberRepository.findByGroupKeyGroupId(it).firstOrNull { m ->
+            val isMember = tScheduleMemberRepository.findByGroupKeyGroupId(it).firstOrNull { m ->
                 m.groupKey.user.id == requesterId
-            } ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
+            }
+            if (isMember == null && schedule.owner.id != requesterId) {
+                throw BaseException(BaseResponseCode.BAD_REQUEST)
+            }
         }
 
         // note update

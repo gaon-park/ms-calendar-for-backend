@@ -13,11 +13,12 @@ interface TScheduleRepository : JpaRepository<TSchedule, Long> {
     @Query(
         "select *\n" +
                 "from t_schedule s\n" +
-                "where :userId in (\n" +
+                "where (:userId in (\n" +
                 "   select m.user_id\n" +
                 "   from t_schedule_member m\n" +
                 "   where m.group_id = s.member_group_id\n" +
-                ") and s.start <= :to and s.end >= :from",
+                ") or s.owner_id = :userId)\n" +
+                "and s.start <= :to and s.end >= :from",
         nativeQuery = true
     )
     fun findByFromToAndUserId(
