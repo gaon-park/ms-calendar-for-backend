@@ -124,9 +124,10 @@ class ScheduleService(
             val start = requestStart.toLocalDate()
             val end = when {
                 (request.repeatInfo.end == null) -> LocalDate.of(start.year + 1, start.month, start.dayOfMonth)
+                (request.repeatInfo.end.isAfter(start.plusYears(1))) -> LocalDate.of(start.year + 1, start.month, start.dayOfMonth)
                 else -> request.repeatInfo.end
             }
-            val period = when (request.repeatInfo?.repeatCode) {
+            val period = when (request.repeatInfo.repeatCode) {
                 RepeatCode.DAYS -> Period.ofDays(1)
                 RepeatCode.WEEKS -> Period.ofWeeks(1)
                 RepeatCode.MONTHS -> Period.ofMonths(1)
