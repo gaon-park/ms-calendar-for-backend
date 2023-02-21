@@ -331,6 +331,20 @@ class ScheduleService(
             AcceptedStatus.REFUSED.toString()
         )?.let {
             tScheduleMemberRepository.save(it.copy(acceptedStatus = AcceptedStatus.REFUSED))
+            it.inviteUserId?.let { id ->
+                val user = findUserById(id)
+                tNotificationRepository.save(
+                    TNotification.generate(
+                        title = it.groupKey.user.accountId,
+                        subTitle = "스케줄 초대를 거절했어요..",
+                        user = user,
+                        newFollowId = null,
+                        newFollowerId = null,
+                        newScheduleRequesterId = null,
+                        scheduleRespondentId = it.groupKey.user.id
+                    )
+                )
+            }
         } ?: throw BaseException(BaseResponseCode.BAD_REQUEST)
     }
 
