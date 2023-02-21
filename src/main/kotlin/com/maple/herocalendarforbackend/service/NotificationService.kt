@@ -35,11 +35,17 @@ class NotificationService(
         val n = notifications.mapNotNull {
             userMap[notificationOppUsers[it.id]]?.let { user ->
                 NotificationResponse(
+                    notificationId = it.id,
                     meta = getMeta(it.createdAt, now),
                     title = it.title,
                     subTitle = it.subTitle,
                     avatarImg = user.avatarImg,
                     avatarText = user.nickName,
+                    linkPath = when {
+                        it.newFollowId !== null -> "/user-profile/follow"
+                        it.newFollowerId !== null -> "/user-profile/follower"
+                        else -> "/apps/calendar"
+                    }
                 )
             }
         }
@@ -50,6 +56,11 @@ class NotificationService(
     @Transactional
     fun deleteByReadAllEvent(loginUserId: String) {
         tNotificationRepository.deleteByReadAllEvent(loginUserId)
+    }
+
+    @Transactional
+    fun deleteByRead(loginUserId: String, notificationId: Long) {
+        tNotificationRepository.deleteByRead(loginUserId, notificationId)
     }
 
     private fun getMeta(createdAt: LocalDateTime, now: LocalDateTime): String {

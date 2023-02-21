@@ -32,6 +32,16 @@ interface TNotificationRepository : JpaRepository<TNotification, Long> {
     )
 
     @Query(
+        "delete from t_notification n where n.user_id=:userId and n.id=:notificationId",
+        nativeQuery = true
+    )
+    @Modifying
+    fun deleteByRead(
+        @Param("userId") userId: String,
+        @Param("notificationId") notificationId: Long,
+    )
+
+    @Query(
         "delete from t_notification n\n" +
                 "where n.user_id = :userId\n" +
                 "and n.new_follower_id = :followerId",

@@ -66,8 +66,15 @@ class UserService(
         return tUserRepository.findByAccountIdToIProfile(accountId, loginUserId ?: "")?.let {
             IProfileResponse(
                 profile = it,
-                follow = tFollowRepository.findAllStatusFollowByUserId(it.getId()),
-                follower = tFollowRepository.findAllStatusFollowerByUserId(it.getId()),
+                follow = if (it.getId() == loginUserId || it.getIsPublic() || it.getIamFollowHim() == "FOLLOW")
+                    tFollowRepository.findAllStatusFollowByUserId(
+                        it.getId()
+                    ) else emptyList(),
+                follower = if (it.getId() == loginUserId || it.getIsPublic() || it.getIamFollowHim() == "FOLLOW")
+                    tFollowRepository.findAllStatusFollowerByUserId(
+                        it.getId()
+                    )
+                else emptyList(),
                 post = emptyList(),
                 acceptedFollowCount = tFollowRepository.findCountJustAcceptedFollowByUserId(it.getId()),
                 acceptedFollowerCount = tFollowRepository.findCountJustAcceptedFollowerByUserId(it.getId())

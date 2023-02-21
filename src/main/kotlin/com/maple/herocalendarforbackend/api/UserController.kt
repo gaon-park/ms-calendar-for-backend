@@ -1,5 +1,6 @@
 package com.maple.herocalendarforbackend.api
 
+import com.maple.herocalendarforbackend.dto.request.NotificationRequest
 import com.maple.herocalendarforbackend.dto.request.ProfileRequest
 import com.maple.herocalendarforbackend.dto.response.ErrorResponse
 import com.maple.herocalendarforbackend.dto.response.IProfileResponse
@@ -54,7 +55,31 @@ class UserController(
     )
 
     @Operation(
-        summary = "get unconfirmed notification list"
+        summary = "read one notification"
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                content = arrayOf(Content(schema = Schema(implementation = String::class)))
+            ),
+            ApiResponse(
+                responseCode = "401",
+                content = arrayOf(Content(schema = Schema(implementation = ErrorResponse::class)))
+            ),
+        ]
+    )
+    @PutMapping("/notification/read")
+    fun readNotification(
+        principal: Principal,
+        @Valid @RequestBody requestBody: NotificationRequest
+    ): ResponseEntity<String> {
+        notificationService.deleteByRead(principal.name, requestBody.id)
+        return ResponseEntity.ok("ok")
+    }
+
+    @Operation(
+        summary = "read all notification"
     )
     @ApiResponses(
         value = [
