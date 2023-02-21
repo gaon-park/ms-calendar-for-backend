@@ -13,7 +13,7 @@ interface TScheduleMemberRepository : JpaRepository<TScheduleMember, TScheduleMe
     @Query(
         "select *\n" +
                 "from t_schedule_member m\n" +
-                "where (\n" +
+                "where m.group_id = (\n" +
                 "   select s.member_group_id\n" +
                 "   from t_schedule s\n" +
                 "   where s.id = :scheduleId\n" +
