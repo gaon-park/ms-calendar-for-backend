@@ -402,7 +402,7 @@ class ScheduleService(
     }
 
     /**
-     * 요청자가 참석자인 경우, 스케줄 참석자 명단에서 거절로 변경
+     * 요청자가 참석자인 경우, 스케줄 참석자 명단에서 삭제
      */
     @Transactional
     fun deleteScheduleByMember(
@@ -422,14 +422,9 @@ class ScheduleService(
 
         tScheduleMemberGroupRepository.save(TScheduleMemberGroup()).let {
             tScheduleRepository.saveAll(entities.map { entity -> entity.copy(memberGroup = it) })
-            val newMemberData = members.map { m ->
+            val newMemberData = members.mapNotNull { m ->
                 if (m.groupKey.user.id == requesterId) {
-                    TScheduleMember.initConvert(
-                        user = m.groupKey.user,
-                        group = it,
-                        acceptedStatus = AcceptedStatus.REFUSED,
-                        inviteUserId = m.inviteUserId
-                    )
+                    null
                 } else {
                     TScheduleMember.initConvert(
                         user = m.groupKey.user,
