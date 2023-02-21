@@ -32,7 +32,7 @@ interface TFollowRepository : JpaRepository<TFollow, TFollow.Key> {
                 "\t\tfrom t_follow f1\n" +
                 "\t\twhere f1.requester_id = :userId\n" +
                 "\t\tand f1.respondent_id = u.id\n" +
-                "\t) as iFollowHim,\n" +
+                "\t) as iamFollowHim,\n" +
                 "\t(\n" +
                 "\t\tselect if(count(*) > 0,\n" +
                 "\t\t\tif(f2.status = 'ACCEPTED', 'FOLLOW', 'WAITING')\n" +
@@ -73,7 +73,7 @@ interface TFollowRepository : JpaRepository<TFollow, TFollow.Key> {
                 "\t\tfrom t_follow f1\n" +
                 "\t\twhere f1.requester_id = :userId\n" +
                 "\t\tand f1.respondent_id = u.id\n" +
-                "\t) as iFollowHim,\n" +
+                "\t) as iamFollowHim,\n" +
                 "\t(\n" +
                 "\t\tselect if(count(*) > 0,\n" +
                 "\t\t\tif(f2.status = 'ACCEPTED', 'FOLLOW', 'WAITING')\n" +

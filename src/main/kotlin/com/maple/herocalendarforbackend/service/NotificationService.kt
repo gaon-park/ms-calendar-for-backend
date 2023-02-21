@@ -20,21 +20,20 @@ class NotificationService(
         val notifications = tNotificationRepository.findByUserId(loginUserId)
         if (notifications.isEmpty()) return emptyList()
 
-        val oppIds = notifications.associate {
-            when {
+        val notificationOppUsers = notifications.associate {
+            it.id to when {
                 it.newFollowId !== null -> it.newFollowId
                 it.newFollowerId !== null -> it.newFollowerId
                 it.newScheduleRequesterId !== null -> it.newScheduleRequesterId
                 it.scheduleRespondentId !== null -> it.scheduleRespondentId
                 else -> null
-            } to it.id
+            }
         }
-        val userMap = tUserRepository.findByIdIn(oppIds.keys.mapNotNull { it }.toList()).associate { user ->
-            oppIds[user.id] to user
-        }
+        val userMap = tUserRepository.findByIdIn(notificationOppUsers.values.mapNotNull { it }.toList())
+            .associateBy { it.id }
 
-        return notifications.mapNotNull {
-            userMap[it.id]?.let { user ->
+        val n = notifications.mapNotNull {
+            userMap[notificationOppUsers[it.id]]?.let { user ->
                 NotificationResponse(
                     meta = getMeta(it.createdAt, now),
                     title = it.title,
@@ -44,6 +43,8 @@ class NotificationService(
                 )
             }
         }
+
+        return n
     }
 
     @Transactional

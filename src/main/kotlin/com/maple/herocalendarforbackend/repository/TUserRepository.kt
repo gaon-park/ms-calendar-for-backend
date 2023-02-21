@@ -46,7 +46,7 @@ interface TUserRepository : JpaRepository<TUser, String> {
                 "        from t_follow f1\n" +
                 "        where f1.requester_id = :id\n" +
                 "        and f1.respondent_id = u.id\n" +
-                "    ) as iFollowHim,\n" +
+                "    ) as iamFollowHim,\n" +
                 "    (\n" +
                 "        select if(count(*) > 0, \n" +
                 "           if(f2.status = 'ACCEPTED', 'FOLLOW', 'WAITING')\n" +
@@ -84,7 +84,7 @@ interface TUserRepository : JpaRepository<TUser, String> {
                 "        from t_follow f1\n" +
                 "        where f1.requester_id = :userId\n" +
                 "        and f1.respondent_id = u.id\n" +
-                "    ) as iFollowHim,\n" +
+                "    ) as iamFollowHim,\n" +
                 "    (\n" +
                 "        select if(count(*) > 0, \n" +
                 "           if(f2.status = 'ACCEPTED', 'FOLLOW', 'WAITING')\n" +
@@ -130,18 +130,15 @@ interface TUserRepository : JpaRepository<TUser, String> {
 
     @Query(
         "select *\n" +
-                "from t_user u1\n" +
-                "where u1.id in :ids\n" +
-                "and u1.is_public = true\n" +
-                "union\n" +
-                "select *\n" +
-                "from t_user u2\n" +
-                "where u2.id in (\n" +
-                "   select f.requester_id\n" +
-                "   from t_follow f\n" +
-                "   where f.respondent_id = :userId\n" +
-                "   and status = \"ACCEPTED\"\n" +
-                ")",
+                "from t_user u\n" +
+                "where u.is_public = true\n" +
+                "or u.id in (\n" +
+                "\tselect f.respondent_id\n" +
+                "\tfrom t_follow f\n" +
+                "\twhere f.requester_id = :userId\n" +
+                "\tand f.respondent_id in :ids\n" +
+                "\tand f.status = 'ACCEPTED'\n" +
+                ") or u.id = :userId",
         nativeQuery = true
     )
     fun findPublicOrFollower(
@@ -171,7 +168,7 @@ interface TUserRepository : JpaRepository<TUser, String> {
                 "        from t_follow f1\n" +
                 "        where f1.requester_id = :loginUserId\n" +
                 "        and f1.respondent_id = u.id\n" +
-                "    ) as iFollowHim,\n" +
+                "    ) as iamFollowHim,\n" +
                 "    (\n" +
                 "        select if(count(*) > 0, \n" +
                 "           if(f2.status = 'ACCEPTED', 'FOLLOW', 'WAITING')\n" +
@@ -188,27 +185,6 @@ interface TUserRepository : JpaRepository<TUser, String> {
         @Param("accountId") accountId: String,
         @Param("loginUserId") loginUserId: String
     ): IProfile?
-
-    @Query(
-        "select u.id\n" +
-                "from t_user u\n" +
-                "where u.id in :searchUserIds\n" +
-                "and (\n" +
-                "u.is_public = true\n" +
-                "or \n" +
-                "(\n" +
-                "\tselect count(*) > 0\n" +
-                "\tfrom t_follow f\n" +
-                "\twhere f.respondent_id = u.id\n" +
-                "\tand f.requester_id = :loginUserId\n" +
-                ")\n" +
-                ")",
-        nativeQuery = true
-    )
-    fun findTargetUserForScheduleSearch(
-        @Param("searchUserIds") searchUserIds: List<String>,
-        @Param("loginUserId") loginUserId: String
-    ): List<String>
 
     @Query(
         "select *\n" +

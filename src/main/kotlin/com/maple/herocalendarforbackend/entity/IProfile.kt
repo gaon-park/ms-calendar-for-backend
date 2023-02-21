@@ -15,7 +15,7 @@ interface IProfile {
     fun getJobDetail(): String
     fun getAvatarImg(): String?
     fun getHeFollowMe(): String?
-    fun getIFollowHim(): String?
+    fun getIamFollowHim(): String?
     fun getNotificationFlg(): Boolean
     fun getRole(): String?
 }

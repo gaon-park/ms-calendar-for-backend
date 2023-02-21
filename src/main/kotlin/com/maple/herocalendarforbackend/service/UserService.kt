@@ -5,7 +5,6 @@ import com.maple.herocalendarforbackend.dto.request.ProfileRequest
 import com.maple.herocalendarforbackend.dto.request.search.SearchUserRequest
 import com.maple.herocalendarforbackend.dto.response.IProfileResponse
 import com.maple.herocalendarforbackend.dto.response.PostResponse
-import com.maple.herocalendarforbackend.entity.IProfile
 import com.maple.herocalendarforbackend.entity.TSchedule
 import com.maple.herocalendarforbackend.entity.TUser
 import com.maple.herocalendarforbackend.exception.BaseException
@@ -42,9 +41,6 @@ class UserService(
         tUserRepository.findByEmail(it)
     }
 
-    fun findByAccountIdToIProfile(accountId: String, loginUserId: String?): IProfile? =
-        tUserRepository.findByAccountIdToIProfile(accountId, loginUserId ?: "")
-
     fun findUserListForScheduleSearch(keyword: String?, loginUserId: String?): List<TUser> =
         tUserRepository.findUserListForScheduleSearch(
             keyword = if (keyword != null) "%$keyword%" else "",
@@ -66,13 +62,26 @@ class UserService(
             it.get()
         }
 
+    fun findByAccountIdToIProfileResponse(accountId: String, loginUserId: String?): IProfileResponse? {
+        return tUserRepository.findByAccountIdToIProfile(accountId, loginUserId ?: "")?.let {
+            IProfileResponse(
+                profile = it,
+                follow = tFollowRepository.findAllStatusFollowByUserId(it.getId()),
+                follower = tFollowRepository.findAllStatusFollowerByUserId(it.getId()),
+                post = emptyList(),
+                acceptedFollowCount = tFollowRepository.findCountJustAcceptedFollowByUserId(it.getId()),
+                acceptedFollowerCount = tFollowRepository.findCountJustAcceptedFollowerByUserId(it.getId())
+            )
+        }
+    }
+
     fun findByIdToIProfileResponse(loginUserId: String): IProfileResponse {
         tUserRepository.findByIdToIProfile(loginUserId)?.let {
             return IProfileResponse(
                 profile = it,
                 follow = tFollowRepository.findAllStatusFollowByUserId(loginUserId),
                 follower = tFollowRepository.findAllStatusFollowerByUserId(loginUserId),
-                post = findPostToPostResponse(loginUserId),
+                post = emptyList(),
                 acceptedFollowCount = tFollowRepository.findCountJustAcceptedFollowByUserId(loginUserId),
                 acceptedFollowerCount = tFollowRepository.findCountJustAcceptedFollowerByUserId(loginUserId)
             )
