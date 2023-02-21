@@ -130,15 +130,18 @@ interface TUserRepository : JpaRepository<TUser, String> {
 
     @Query(
         "select *\n" +
-                "from t_user u\n" +
-                "where u.is_public = true\n" +
-                "or u.id in (\n" +
-                "\tselect f.respondent_id\n" +
+                "from t_user u \n" +
+                "where u.id in :ids\n" +
+                "and (\n" +
+                "\tu.is_public = true\n" +
+                "\tor\n" +
+                "\t(select count(*) > 0\n" +
                 "\tfrom t_follow f\n" +
                 "\twhere f.requester_id = :userId\n" +
-                "\tand f.respondent_id in :ids\n" +
-                "\tand f.status = 'ACCEPTED'\n" +
-                ") or u.id = :userId",
+                "\tand f.respondent_id = u.id\n" +
+                "\tand f.status = 'ACCEPTED')\n" +
+                "\tor u.id = :userId\n" +
+                ")",
         nativeQuery = true
     )
     fun findPublicOrFollower(
