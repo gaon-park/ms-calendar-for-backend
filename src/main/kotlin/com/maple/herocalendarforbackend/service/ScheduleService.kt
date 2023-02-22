@@ -136,7 +136,6 @@ class ScheduleService(
                 RepeatCode.WEEKS -> Period.ofWeeks(1)
                 RepeatCode.MONTHS -> Period.ofMonths(1)
                 RepeatCode.YEARS -> Period.ofYears(1)
-                else -> Period.ofDays(1)
             }
             val repeatSchedules = mutableListOf(parentSchedule.copy(parentId = parentSchedule.id))
             repeatSchedules.addAll(start.datesUntil(end.plusDays(1), period).skip(1).map {

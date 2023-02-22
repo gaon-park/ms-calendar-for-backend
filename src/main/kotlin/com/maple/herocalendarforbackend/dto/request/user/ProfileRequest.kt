@@ -1,4 +1,4 @@
-package com.maple.herocalendarforbackend.dto.request
+package com.maple.herocalendarforbackend.dto.request.user
 
 import com.maple.herocalendarforbackend.code.MagicVariables
 import lombok.Builder

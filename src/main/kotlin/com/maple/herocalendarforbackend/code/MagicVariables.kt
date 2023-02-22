@@ -20,7 +20,4 @@ object MagicVariables {
     const val AUTHORIZATION_REFRESH_JWT = "X-AUTH-REFRESH-TOKEN"
 
     const val GCS_BASE_URL = "https://storage.googleapis.com/ms-hero-profile/"
-
-    const val MAX_IMAGE_UPLOAD = 10
-    const val MAX_NOTE_LENGTH = 1000
 }

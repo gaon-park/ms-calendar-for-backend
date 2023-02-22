@@ -1,6 +1,6 @@
 package com.maple.herocalendarforbackend.entity
 
-import com.maple.herocalendarforbackend.dto.request.ProfileRequest
+import com.maple.herocalendarforbackend.dto.request.user.ProfileRequest
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -65,7 +65,7 @@ data class TUser(
             job = request.job,
             jobDetail = request.jobDetail,
             notificationFlg = request.notificationFlg,
-            role = user.role
+            role = user.role,
         )
     }
 

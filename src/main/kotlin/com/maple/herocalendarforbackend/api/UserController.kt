@@ -1,10 +1,12 @@
 package com.maple.herocalendarforbackend.api
 
 import com.maple.herocalendarforbackend.dto.request.NotificationRequest
-import com.maple.herocalendarforbackend.dto.request.ProfileRequest
+import com.maple.herocalendarforbackend.dto.request.user.APIKeyRequest
+import com.maple.herocalendarforbackend.dto.request.user.ProfileRequest
 import com.maple.herocalendarforbackend.dto.response.ErrorResponse
 import com.maple.herocalendarforbackend.dto.response.IProfileResponse
 import com.maple.herocalendarforbackend.dto.response.NotificationResponse
+import com.maple.herocalendarforbackend.service.CubeService
 import com.maple.herocalendarforbackend.service.NotificationService
 import com.maple.herocalendarforbackend.service.UserService
 import io.swagger.v3.oas.annotations.Operation
@@ -18,6 +20,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -30,7 +33,17 @@ import java.security.Principal
 class UserController(
     private val userService: UserService,
     private val notificationService: NotificationService,
+    private val cubeService: CubeService
 ) {
+
+    @PostMapping("/api-key")
+    fun setApiKey(
+        principal: Principal,
+        @Valid @RequestBody requestBody: APIKeyRequest
+    ): ResponseEntity<String> {
+        cubeService.registProcess(requestBody.apiKey, principal.name)
+        return ResponseEntity.ok("ok")
+    }
 
     @Operation(
         summary = "get unconfirmed notification list"
