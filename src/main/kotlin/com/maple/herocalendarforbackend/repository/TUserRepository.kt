@@ -1,5 +1,6 @@
 package com.maple.herocalendarforbackend.repository
 
+import com.maple.herocalendarforbackend.code.MagicVariables.MAX_SEARCH_LIMIT
 import com.maple.herocalendarforbackend.entity.IProfile
 import com.maple.herocalendarforbackend.entity.TUser
 import org.springframework.data.jpa.repository.JpaRepository
@@ -99,7 +100,8 @@ interface TUserRepository : JpaRepository<TUser, String> {
                 "   u.account_id is not null)\n" +
                 "and if(:world != '', u.world = :world, u.world is not null)\n" +
                 "and if(:job != '', u.job = :job, u.job is not null)\n" +
-                "and if(:jobDetail != '', u.job_detail = :jobDetail, u.job_detail is not null)\n",
+                "and if(:jobDetail != '', u.job_detail = :jobDetail, u.job_detail is not null)\n" +
+                "limit $MAX_SEARCH_LIMIT",
         nativeQuery = true
     )
     fun findByConditionAndUserId(
@@ -109,24 +111,6 @@ interface TUserRepository : JpaRepository<TUser, String> {
         @Param("jobDetail") jobDetail: String,
         @Param("userId") loginUserId: String,
     ): List<IProfile>
-
-    @Query(
-        "select count(*)\n" +
-                "from t_user u\n" +
-                "where if(:keyword != ''," +
-                "   u.account_id like :keyword or u.nick_name like :keyword," +
-                "   u.account_id is not null)\n" +
-                "and if(:world != '', u.world = :world, u.world is not null)\n" +
-                "and if(:job != '', u.job = :job, u.job is not null)\n" +
-                "and if(:jobDetail != '', u.job_detail = :jobDetail, u.job_detail is not null)",
-        nativeQuery = true
-    )
-    fun findByConditionCount(
-        @Param("keyword") keyword: String,
-        @Param("world") world: String,
-        @Param("job") job: String,
-        @Param("jobDetail") jobDetail: String,
-    ): Long
 
     @Query(
         "select *\n" +
@@ -203,7 +187,8 @@ interface TUserRepository : JpaRepository<TUser, String> {
                 ")\n" +
                 "and if(:keyword != ''," +
                 "   u.account_id like :keyword or u.nick_name like :keyword," +
-                "   u.account_id is not null)",
+                "   u.account_id is not null)\n" +
+                "limit $MAX_SEARCH_LIMIT",
         nativeQuery = true
     )
     fun findUserListForScheduleSearch(
