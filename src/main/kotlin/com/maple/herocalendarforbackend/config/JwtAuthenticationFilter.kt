@@ -33,7 +33,8 @@ class JwtAuthenticationFilter(
         val GET_BOTH_URL = listOf(
             "/api/search/user",
             "/api/search/user/profile",
-            "/api/schedule"
+            "/api/search/schedule-invite-target",
+            "/api/schedule",
         )
     }
 
