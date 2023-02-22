@@ -3,6 +3,7 @@ package com.maple.herocalendarforbackend.api
 import com.maple.herocalendarforbackend.dto.request.NotificationRequest
 import com.maple.herocalendarforbackend.dto.request.user.APIKeyRequest
 import com.maple.herocalendarforbackend.dto.request.user.ProfileRequest
+import com.maple.herocalendarforbackend.dto.response.APIKeyResponse
 import com.maple.herocalendarforbackend.dto.response.ErrorResponse
 import com.maple.herocalendarforbackend.dto.response.IProfileResponse
 import com.maple.herocalendarforbackend.dto.response.NotificationResponse
@@ -36,13 +37,19 @@ class UserController(
     private val cubeService: CubeService
 ) {
 
+    @GetMapping("/api-key")
+    fun getApiKey(
+        principal: Principal,
+    ): ResponseEntity<APIKeyResponse?> {
+        return ResponseEntity.ok(cubeService.getApiKey(principal.name))
+    }
+
     @PostMapping("/api-key")
     fun setApiKey(
         principal: Principal,
         @Valid @RequestBody requestBody: APIKeyRequest
-    ): ResponseEntity<String> {
+    ) {
         cubeService.registProcess(requestBody.apiKey, principal.name)
-        return ResponseEntity.ok("ok")
     }
 
     @Operation(

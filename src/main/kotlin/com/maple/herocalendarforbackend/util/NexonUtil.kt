@@ -12,6 +12,16 @@ import java.net.URL
 class NexonUtil {
     private val url = "https://public.api.nexon.com/openapi/maplestory/v1/cube-use-results?"
     private val mapper = jsonMapper().findAndRegisterModules()
+    fun isValidToken(apiKey: String): Boolean {
+        val req = "${url}count=10&date=2022-11-25"
+        return try {
+            urlReq(req, apiKey)
+            true
+        } catch (_: java.lang.Exception) {
+            false
+        }
+    }
+
     fun firstProcess(apiKey: String, date: String): CubeHistoryResponseDTO {
         val req = "${url}count=250&date=${date}"
         return urlReq(req, apiKey)

@@ -1,19 +1,27 @@
 package com.maple.herocalendarforbackend.service
 
+import com.auth0.jwt.JWT
+import com.maple.herocalendarforbackend.code.BaseResponseCode
 import com.maple.herocalendarforbackend.code.nexon.CubeType
 import com.maple.herocalendarforbackend.code.nexon.PotentialOption
+import com.maple.herocalendarforbackend.dto.response.APIKeyResponse
 import com.maple.herocalendarforbackend.entity.TCubeApiKey
 import com.maple.herocalendarforbackend.entity.TCubeHistory
 import com.maple.herocalendarforbackend.entity.TCubeHistoryBatch
+import com.maple.herocalendarforbackend.exception.BaseException
 import com.maple.herocalendarforbackend.repository.TCubeApiKeyRepository
 import com.maple.herocalendarforbackend.repository.TCubeHistoryBatchRepository
 import com.maple.herocalendarforbackend.repository.TCubeHistoryRepository
 import com.maple.herocalendarforbackend.util.NexonUtil
+import io.jsonwebtoken.Jwts
+import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties.Jwt
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.util.*
 
 @Suppress("MagicNumber")
 @Service
@@ -26,6 +34,26 @@ class CubeService(
 
     private val potentialOptionMap = PotentialOption.values().associateBy { it.value }
     private val cubeTypeMap = CubeType.values().associateBy { it.type }
+
+    fun getApiKey(loginUserId: String): APIKeyResponse? {
+        return tCubeApiKeyRepository.findByUserId(loginUserId)?.let {
+            APIKeyResponse(
+                apiKey = it.apiKey,
+                isValid = isValidToken(it),
+                createdAt = it.createdAt,
+                expiredAt = it.expiredAt
+            )
+        }
+    }
+
+    @Transactional
+    fun isValidToken(tCubeApiKey: TCubeApiKey): Boolean {
+        if (tCubeApiKey.expiredAt.isBefore(LocalDateTime.now())) {
+            tCubeApiKeyRepository.save(tCubeApiKey.copy(expired = true))
+            return false
+        }
+        return true
+    }
 
     fun registProcess(apiKey: String, loginUserId: String) {
         userService.findById(loginUserId)
@@ -49,18 +77,30 @@ class CubeService(
             batchDateList.add(it)
         }
 
-        saveKey(apiKey, loginUserId)
-        saveBatchKey(batchDateList, loginUserId)
+        saveKeyAndBatchKey(apiKey, loginUserId, batchDateList)
     }
 
     @Transactional
-    fun saveKey(apiKey: String, loginUserId: String) {
-        tCubeApiKeyRepository.save(TCubeApiKey(loginUserId, apiKey, false))
-    }
-
-    @Transactional
-    fun saveBatchKey(batchDateList: List<LocalDate>, loginUserId: String) {
-        tCubeHistoryBatchRepository.saveAllAndFlush(batchDateList.map { TCubeHistoryBatch.convert(loginUserId, it) })
+    fun saveKeyAndBatchKey(apiKey: String, loginUserId: String, batchDateList: List<LocalDate>) {
+        val nexonUtil = NexonUtil()
+        if (nexonUtil.isValidToken(apiKey)) {
+            val jwt = JWT.decode(apiKey)
+            tCubeApiKeyRepository.save(
+                TCubeApiKey(
+                    loginUserId,
+                    apiKey,
+                    false,
+                    LocalDateTime.ofInstant(jwt.issuedAtAsInstant, ZoneId.systemDefault()),
+                    LocalDateTime.ofInstant(jwt.expiresAtAsInstant, ZoneId.systemDefault())
+                )
+            )
+            tCubeHistoryBatchRepository.saveAllAndFlush(batchDateList.map {
+                TCubeHistoryBatch.convert(
+                    loginUserId,
+                    it
+                )
+            })
+        } else throw BaseException(BaseResponseCode.INVALID_TOKEN)
     }
 
     @Transactional

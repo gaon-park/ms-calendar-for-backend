@@ -51,6 +51,9 @@ dependencies {
 	implementation("org.springframework.cloud:spring-cloud-gcp-starter:1.2.8.RELEASE")
 	implementation("org.springframework.cloud:spring-cloud-gcp-storage:1.2.8.RELEASE")
 
+	// https://mvnrepository.com/artifact/com.auth0/java-jwt
+	implementation("com.auth0:java-jwt:4.3.0")
+
 	compileOnly("org.projectlombok:lombok")
 
 	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.2")
