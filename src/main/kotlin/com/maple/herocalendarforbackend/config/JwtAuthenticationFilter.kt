@@ -35,6 +35,7 @@ class JwtAuthenticationFilter(
             "/api/search/user/profile",
             "/api/search/schedule-invite-target",
             "/api/schedule",
+            "/api/schedule/other",
         )
     }
 

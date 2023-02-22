@@ -233,11 +233,11 @@ class CalendarController(
 
     @GetMapping("/other")
     fun getSchedulesOthers(
-        principal: Principal,
+        principal: Principal?,
         @RequestParam userId: String,
         @RequestParam from: LocalDate,
         @RequestParam to: LocalDate
     ): ResponseEntity<List<PersonalScheduleResponse>> {
-        return ResponseEntity.ok(scheduleService.findForOther(principal.name, userId, from, to))
+        return ResponseEntity.ok(scheduleService.findForOther(principal?.name, userId, from, to))
     }
 }
