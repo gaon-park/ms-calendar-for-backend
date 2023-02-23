@@ -45,12 +45,13 @@ class NexonUtil {
             conn.useCaches = false
             conn.setRequestProperty("Authorization", apiKey)
             val reader = BufferedReader(InputStreamReader(conn.inputStream, "UTF-8"))
+            logger.info("$req 응답 받았다!")
             val tmp = mapper.readValue(reader, CubeHistoryResponseDTO::class.java)
-            logger.info("$req 응답 받았다! JSON 맵핑 완료")
+            logger.info("$req JSON 맵핑 완료")
             return tmp
         } catch (e: java.lang.Exception) {
             logger.info("$req 에러났담..")
-            logger.info(e.cause.toString())
+            logger.info(e.stackTraceToString())
             throw BaseException(BaseResponseCode.DATA_ERROR)
         }
     }
