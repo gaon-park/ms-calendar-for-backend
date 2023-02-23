@@ -1,6 +1,7 @@
 package com.maple.herocalendarforbackend.util
 
-import com.fasterxml.jackson.module.kotlin.jsonMapper
+import com.fasterxml.jackson.databind.json.JsonMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.maple.herocalendarforbackend.code.BaseResponseCode
 import com.maple.herocalendarforbackend.dto.nexon.CubeHistoryResponseDTO
 import com.maple.herocalendarforbackend.exception.BaseException
@@ -15,7 +16,7 @@ class NexonUtil {
 
     private val logger = LoggerFactory.getLogger(NexonUtil::class.java)
 
-    private val mapper = jsonMapper().findAndRegisterModules()
+    private val mapper = JsonMapper.builder().addModule(JavaTimeModule()).build()
     fun isValidToken(apiKey: String): Boolean {
         val req = "${url}count=10&date=2022-11-25"
         return try {
