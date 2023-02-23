@@ -39,20 +39,20 @@ class NexonUtil {
 
     private fun urlReq(req: String, apiKey: String): CubeHistoryResponseDTO {
         try {
-            logger.info("$req 요청 준비")
+            logger.debug("$req 요청 준비")
             val nUrl = URL(req)
             val conn = nUrl.openConnection() as HttpURLConnection
             conn.requestMethod = "GET"
             conn.useCaches = false
             conn.setRequestProperty("Authorization", apiKey)
             val reader = BufferedReader(InputStreamReader(conn.inputStream, "UTF-8"))
-            logger.info("$req 응답 받았다!")
+            logger.debug("$req 응답 받았다!")
             val tmp = mapper.readValue(reader, CubeHistoryResponseDTO::class.java)
-            logger.info("$req JSON 맵핑 완료")
+            logger.debug("$req JSON 맵핑 완료")
             return tmp
         } catch (e: java.lang.Exception) {
-            logger.info("$req 에러났담..")
-            logger.info(e.stackTraceToString())
+            logger.debug("$req 에러났담..")
+            logger.debug(e.stackTraceToString())
             throw BaseException(BaseResponseCode.DATA_ERROR)
         }
     }
