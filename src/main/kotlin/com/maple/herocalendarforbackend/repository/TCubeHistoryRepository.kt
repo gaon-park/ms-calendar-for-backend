@@ -1,10 +1,13 @@
 package com.maple.herocalendarforbackend.repository
 
+import com.maple.herocalendarforbackend.entity.IWholeRecordDashboardDate
+import com.maple.herocalendarforbackend.entity.IWholeRecordDashboardMonth
 import com.maple.herocalendarforbackend.entity.TCubeHistory
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
+import java.time.LocalDate
 
 @Suppress("LongParameterList", "MaxLineLength")
 @Repository
@@ -23,7 +26,7 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, Long> {
     @Query(
         "select h.target_item\n" +
                 "from t_cube_history h\n" +
-                "where t.user_id = :userId\n" +
+                "where h.user_id = :userId\n" +
                 "group by h.target_item\n" +
                 "order by count(*) desc\n" +
                 "limit 10",
@@ -208,4 +211,74 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, Long> {
         @Param("optionValue2") optionValue2: Int,
         @Param("optionValue3") optionValue3: Int,
     ): List<TCubeHistory>
+
+    @Query(
+        "select \n" +
+                "\tyear(h.created_at) as year,\n" +
+                "\tmonth(h.created_at) as month, \n" +
+                "\th.cube_type as cubeType, \n" +
+                "\tcount(h.cube_type) as count\n" +
+                "from t_cube_history h\n" +
+                "where (h.cube_type = 'RED' or h.cube_type = 'BLACK' or h.cube_type = 'ADDITIONAL')\n" +
+                "and h.created_at >= :start and h.created_at <= :end\n" +
+                "group by cube_type, year(h.created_at), month(h.created_at)",
+        nativeQuery = true
+    )
+    fun findWholeRecordDashboardMonth(
+        @Param("start") start: LocalDate,
+        @Param("end") end: LocalDate
+    ): List<IWholeRecordDashboardMonth>
+
+    @Query(
+        "select \n" +
+                "\tdate(h.created_at) as date,\n" +
+                "\th.cube_type as cubeType, \n" +
+                "\tcount(h.cube_type) as count\n" +
+                "from t_cube_history h\n" +
+                "where (h.cube_type = 'RED' or h.cube_type = 'BLACK' or h.cube_type = 'ADDITIONAL')\n" +
+                "and h.created_at >= :start and h.created_at <= :end\n" +
+                "group by cube_type, date(h.created_at)",
+        nativeQuery = true
+    )
+    fun findWholeRecordDashboardDate(
+        @Param("start") start: LocalDate,
+        @Param("end") end: LocalDate
+    ): List<IWholeRecordDashboardDate>
+
+    @Query(
+        "select \n" +
+                "\tyear(h.created_at) as year,\n" +
+                "\tmonth(h.created_at) as month, \n" +
+                "\th.cube_type as cubeType, \n" +
+                "\tcount(h.cube_type) as count\n" +
+                "from t_cube_history h\n" +
+                "where (h.cube_type = 'RED' or h.cube_type = 'BLACK' or h.cube_type = 'ADDITIONAL')\n" +
+                "and h.created_at >= :start and h.created_at <= :end\n" +
+                "and h.user_id = :userId\n" +
+                "group by cube_type, year(h.created_at), month(h.created_at)",
+        nativeQuery = true
+    )
+    fun findWholeRecordDashboardMonthPersonal(
+        @Param("userId") userId: String,
+        @Param("start") start: LocalDate,
+        @Param("end") end: LocalDate
+    ): List<IWholeRecordDashboardMonth>
+
+    @Query(
+        "select \n" +
+                "\tdate(h.created_at) as date,\n" +
+                "\th.cube_type as cubeType, \n" +
+                "\tcount(h.cube_type) as count\n" +
+                "from t_cube_history h\n" +
+                "where (h.cube_type = 'RED' or h.cube_type = 'BLACK' or h.cube_type = 'ADDITIONAL')\n" +
+                "and h.created_at >= :start and h.created_at <= :end\n" +
+                "and h.user_id = :userId\n" +
+                "group by cube_type, date(h.created_at)",
+        nativeQuery = true
+    )
+    fun findWholeRecordDashboardDatePersonal(
+        @Param("userId") userId: String,
+        @Param("start") start: LocalDate,
+        @Param("end") end: LocalDate
+    ): List<IWholeRecordDashboardDate>
 }

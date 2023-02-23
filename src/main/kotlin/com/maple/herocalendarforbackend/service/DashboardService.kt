@@ -1,15 +1,110 @@
 package com.maple.herocalendarforbackend.service
 
+import com.maple.herocalendarforbackend.dto.response.CubeEventRecordResponse
 import com.maple.herocalendarforbackend.dto.response.CubeHistoryResponse
 import com.maple.herocalendarforbackend.dto.response.ItemDashboardResponse
+import com.maple.herocalendarforbackend.dto.response.WholeRecordDashboardResponse
 import com.maple.herocalendarforbackend.repository.TCubeHistoryRepository
 import org.springframework.stereotype.Service
+import java.time.LocalDate
+import java.time.Period
 
-@Suppress("LongParameterList", "ComplexMethod")
+@Suppress("LongParameterList", "ComplexMethod", "MagicNumber")
 @Service
 class DashboardService(
     private val tCubeHistoryRepository: TCubeHistoryRepository,
 ) {
+
+    fun getWholeRecordDashboardPersonal(
+        loginUserId: String,
+        startDate: LocalDate?,
+        endDate: LocalDate?
+    ): WholeRecordDashboardResponse {
+        val start = startDate ?: LocalDate.of(2022, 11, 25)
+        val end = endDate ?: LocalDate.now()
+        val period = Period.between(start, end)
+
+        val res = when {
+            period.months > 12 -> {
+                val tmp =
+                    tCubeHistoryRepository.findWholeRecordDashboardMonthPersonal(loginUserId, end.minusMonths(10), end)
+                        .groupBy { "${it.getYear()}/${it.getMonth()}" }
+                tmp.keys.mapNotNull {
+                    tmp[it]?.let { it1 -> CubeEventRecordResponse.convertMonth(it1) }
+                }
+            }
+            period.months == 12 -> {
+                val tmp = tCubeHistoryRepository.findWholeRecordDashboardMonthPersonal(loginUserId, start, end)
+                    .groupBy { "${it.getYear()}/${it.getMonth()}" }
+                tmp.keys.mapNotNull {
+                    tmp[it]?.let { it1 -> CubeEventRecordResponse.convertMonth(it1) }
+                }
+            }
+            else -> {
+                val tmp = tCubeHistoryRepository.findWholeRecordDashboardMonthPersonal(loginUserId, start, end)
+                    .groupBy { "${it.getYear()}/${it.getMonth()}" }
+                val list = tmp.keys.mapNotNull {
+                    tmp[it]?.let { it1 -> CubeEventRecordResponse.convertMonth(it1) }
+                }
+
+                val sub = tCubeHistoryRepository.findWholeRecordDashboardDatePersonal(loginUserId, start, end)
+                    .groupBy { it.getDate() }
+                val subList = sub.keys.mapNotNull {
+                    sub[it]?.let { it1 -> CubeEventRecordResponse.convertDate(it1) }
+                }
+
+                listOf(list, subList).flatten()
+            }
+        }.flatten()
+
+        return WholeRecordDashboardResponse(
+            categories = res.map { it.category }.toSet().toList(),
+            data = res
+        )
+    }
+
+    fun getWholeRecordDashboard(startDate: LocalDate?, endDate: LocalDate?): WholeRecordDashboardResponse {
+        val start = startDate ?: LocalDate.of(2022, 11, 25)
+        val end = endDate ?: LocalDate.now()
+        val period = Period.between(start, end)
+
+        val res = when {
+            period.months > 12 -> {
+                val tmp = tCubeHistoryRepository.findWholeRecordDashboardMonth(end.minusMonths(10), end)
+                    .groupBy { "${it.getYear()}/${it.getMonth()}" }
+                tmp.keys.mapNotNull {
+                    tmp[it]?.let { it1 -> CubeEventRecordResponse.convertMonth(it1) }
+                }
+            }
+            period.months == 12 -> {
+                val tmp = tCubeHistoryRepository.findWholeRecordDashboardMonth(start, end)
+                    .groupBy { "${it.getYear()}/${it.getMonth()}" }
+                tmp.keys.mapNotNull {
+                    tmp[it]?.let { it1 -> CubeEventRecordResponse.convertMonth(it1) }
+                }
+            }
+            else -> {
+                val tmp = tCubeHistoryRepository.findWholeRecordDashboardMonth(start, end)
+                    .groupBy { "${it.getYear()}/${it.getMonth()}" }
+                val list = tmp.keys.mapNotNull {
+                    tmp[it]?.let { it1 -> CubeEventRecordResponse.convertMonth(it1) }
+                }
+
+                val sub = tCubeHistoryRepository.findWholeRecordDashboardDate(start, end).groupBy { it.getDate() }
+                val subList = sub.keys.mapNotNull {
+                    sub[it]?.let { it1 -> CubeEventRecordResponse.convertDate(it1) }
+                }
+
+                listOf(list, subList).flatten()
+            }
+        }.flatten()
+
+        return WholeRecordDashboardResponse(
+            categories = res.map { it.category }.toSet().toList(),
+            data = res
+        )
+    }
+
     fun getItemDashboardPersonal(
         loginUserId: String,
         item: String?,

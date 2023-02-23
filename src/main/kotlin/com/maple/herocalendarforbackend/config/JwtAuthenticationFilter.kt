@@ -29,7 +29,8 @@ class JwtAuthenticationFilter(
             "/favicon.ico",
             "/api/oauth2/",
             "/api/reissue/token",
-            "/api/dashboard/for-item"
+            "/api/dashboard/for-item",
+            "/api/dashboard/whole-record"
         )
         val GET_BOTH_URL = listOf(
             "/api/search/user",
