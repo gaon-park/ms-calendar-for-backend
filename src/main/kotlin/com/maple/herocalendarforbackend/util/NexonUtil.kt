@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jsonMapper
 import com.maple.herocalendarforbackend.code.BaseResponseCode
 import com.maple.herocalendarforbackend.dto.nexon.CubeHistoryResponseDTO
 import com.maple.herocalendarforbackend.exception.BaseException
+import org.slf4j.LoggerFactory
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
@@ -11,6 +12,9 @@ import java.net.URL
 
 class NexonUtil {
     private val url = "https://public.api.nexon.com/openapi/maplestory/v1/cube-use-results?"
+
+    private val logger = LoggerFactory.getLogger(NexonUtil::class.java)
+
     private val mapper = jsonMapper().findAndRegisterModules()
     fun isValidToken(apiKey: String): Boolean {
         val req = "${url}count=10&date=2022-11-25"
@@ -34,14 +38,19 @@ class NexonUtil {
 
     private fun urlReq(req: String, apiKey: String): CubeHistoryResponseDTO {
         try {
+            logger.info("$req 요청 준비")
             val nUrl = URL(req)
             val conn = nUrl.openConnection() as HttpURLConnection
             conn.requestMethod = "GET"
             conn.useCaches = false
             conn.setRequestProperty("Authorization", apiKey)
             val reader = BufferedReader(InputStreamReader(conn.inputStream, "UTF-8"))
-            return mapper.readValue(reader, CubeHistoryResponseDTO::class.java)
-        } catch (_: java.lang.Exception) {
+            val tmp = mapper.readValue(reader, CubeHistoryResponseDTO::class.java)
+            logger.info("$req 응답 받았다! JSON 맵핑 완료")
+            return tmp
+        } catch (e: java.lang.Exception) {
+            logger.info("$req 에러났담..")
+            logger.info(e.cause.toString())
             throw BaseException(BaseResponseCode.DATA_ERROR)
         }
     }
