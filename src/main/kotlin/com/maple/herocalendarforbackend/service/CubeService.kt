@@ -115,17 +115,17 @@ class CubeService(
                 }
             )
         }
-        logger.info("첫장 데이터 수집 완!")
+        logger.info("$date 첫장 데이터 수집 완!")
         var nextCursor = data.nextCursor
         while (nextCursor.isNotEmpty()) {
-            logger.info("$nextCursor 장 데이터 수집!")
+            logger.info("$date $nextCursor 장 데이터 수집!")
             val inData = nexonUtil.whileProcess(nextCursor, apiKey)
             tCubeHistoryRepository.saveAll(
                 inData.cubeHistories.map { history ->
                     TCubeHistory.convert(loginUserId, history, cubeTypeMap, potentialOptionMap)
                 }
             )
-            logger.info("$nextCursor 장 데이터 수집 완!")
+            logger.info("$date $nextCursor 장 데이터 수집 완!")
             nextCursor = inData.nextCursor
         }
     }
