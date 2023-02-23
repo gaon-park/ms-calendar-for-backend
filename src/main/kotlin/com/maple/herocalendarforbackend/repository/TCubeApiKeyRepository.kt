@@ -19,4 +19,15 @@ interface TCubeApiKeyRepository : JpaRepository<TCubeApiKey, String> {
     fun findByUserId(
         @Param("userId") userId: String
     ): TCubeApiKey?
+
+    @Query(
+        "select *\n" +
+                "from t_cube_api_key c\n" +
+                "limit :offset, :limit",
+        nativeQuery = true
+    )
+    fun findByLimitOffset(
+        @Param("limit") limit: Int,
+        @Param("offset") offset: Long
+    ): List<TCubeApiKey>
 }
