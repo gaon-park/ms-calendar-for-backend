@@ -28,7 +28,8 @@ class JwtAuthenticationFilter(
             "/static/",
             "/favicon.ico",
             "/api/oauth2/",
-            "/api/reissue/token"
+            "/api/reissue/token",
+            "/api/dashboard/for-item"
         )
         val GET_BOTH_URL = listOf(
             "/api/search/user",

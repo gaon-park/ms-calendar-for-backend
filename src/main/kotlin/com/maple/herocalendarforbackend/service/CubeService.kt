@@ -13,9 +13,6 @@ import com.maple.herocalendarforbackend.repository.TCubeApiKeyRepository
 import com.maple.herocalendarforbackend.repository.TCubeHistoryBatchRepository
 import com.maple.herocalendarforbackend.repository.TCubeHistoryRepository
 import com.maple.herocalendarforbackend.util.NexonUtil
-import io.jsonwebtoken.Jwts
-import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties.Jwt
-import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
