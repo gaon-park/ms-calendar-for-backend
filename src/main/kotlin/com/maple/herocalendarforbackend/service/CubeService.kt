@@ -13,6 +13,7 @@ import com.maple.herocalendarforbackend.repository.TCubeApiKeyRepository
 import com.maple.herocalendarforbackend.repository.TCubeHistoryBatchRepository
 import com.maple.herocalendarforbackend.repository.TCubeHistoryRepository
 import com.maple.herocalendarforbackend.util.NexonUtil
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
@@ -28,6 +29,8 @@ class CubeService(
     private val tCubeHistoryRepository: TCubeHistoryRepository,
     private val tCubeHistoryBatchRepository: TCubeHistoryBatchRepository,
 ) {
+
+    private val logger = LoggerFactory.getLogger(CubeService::class.java)
 
     private val potentialOptionMap = PotentialOption.values().associateBy { it.value }
     private val cubeTypeMap = CubeType.values().associateBy { it.type }
@@ -91,7 +94,7 @@ class CubeService(
                     LocalDateTime.ofInstant(jwt.expiresAtAsInstant, ZoneId.systemDefault())
                 )
             )
-            tCubeHistoryBatchRepository.saveAllAndFlush(batchDateList.map {
+            tCubeHistoryBatchRepository.saveAll(batchDateList.map {
                 TCubeHistoryBatch.convert(
                     loginUserId,
                     it
@@ -102,6 +105,7 @@ class CubeService(
 
     @Transactional
     fun saveHistory(loginUserId: String, apiKey: String, date: LocalDate) {
+        logger.info("$date 데이터 수집!")
         val nexonUtil = NexonUtil()
         val data = nexonUtil.firstProcess(apiKey, date.toString())
         if (data.count != null && data.cubeHistories.isNotEmpty()) {
@@ -111,14 +115,17 @@ class CubeService(
                 }
             )
         }
+        logger.info("첫장 데이터 수집 완!")
         var nextCursor = data.nextCursor
         while (nextCursor.isNotEmpty()) {
+            logger.info("$nextCursor 장 데이터 수집!")
             val inData = nexonUtil.whileProcess(nextCursor, apiKey)
             tCubeHistoryRepository.saveAll(
                 inData.cubeHistories.map { history ->
                     TCubeHistory.convert(loginUserId, history, cubeTypeMap, potentialOptionMap)
                 }
             )
+            logger.info("$nextCursor 장 데이터 수집 완!")
             nextCursor = inData.nextCursor
         }
     }
