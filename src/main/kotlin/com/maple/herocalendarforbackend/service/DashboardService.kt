@@ -10,6 +10,40 @@ import org.springframework.stereotype.Service
 class DashboardService(
     private val tCubeHistoryRepository: TCubeHistoryRepository,
 ) {
+    fun getItemDashboardPersonal(
+        loginUserId: String,
+        item: String?,
+        cube: String?,
+        option1: String?,
+        option2: String?,
+        option3: String?,
+        optionValue1: Int?,
+        optionValue2: Int?,
+        optionValue3: Int?
+    ): ItemDashboardResponse {
+        val itemList = tCubeHistoryRepository.findItemFilterOptionPersonal(loginUserId)
+        val history =
+            if (haveCondition(item, cube, option1, option2, option3, optionValue1, optionValue2, optionValue3))
+                tCubeHistoryRepository.findHistoryByConditionPersonal(
+                    loginUserId,
+                    item ?: "",
+                    cube ?: "",
+                    option1 ?: "",
+                    option2 ?: "",
+                    option3 ?: "",
+                    optionValue1 ?: 0,
+                    optionValue2 ?: 0,
+                    optionValue3 ?: 0,
+                )
+            else tCubeHistoryRepository.findHistoryByItemInPersonal(loginUserId, itemList)
+        return ItemDashboardResponse(
+            itemList = itemList,
+            cubeHistories = history.map {
+                CubeHistoryResponse.convert(it)
+            }
+        )
+    }
+
     fun getItemDashboard(
         item: String?,
         cube: String?,

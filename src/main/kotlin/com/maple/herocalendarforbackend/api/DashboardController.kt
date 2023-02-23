@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.security.Principal
 
 @RestController
 @RequestMapping("/api/dashboard", produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -18,6 +19,26 @@ class DashboardController(
     @Suppress("LongParameterList")
     @GetMapping("/for-item")
     fun getDashboardInitData(
+        @RequestParam("item", required = false) item: String?,
+        @RequestParam("cube", required = false) cube: String?,
+        @RequestParam("option1", required = false) option1: String?,
+        @RequestParam("option2", required = false) option2: String?,
+        @RequestParam("option3", required = false) option3: String?,
+        @RequestParam("optionValue1", required = false) optionValue1: Int?,
+        @RequestParam("optionValue2", required = false) optionValue2: Int?,
+        @RequestParam("optionValue3", required = false) optionValue3: Int?,
+    ): ResponseEntity<ItemDashboardResponse> {
+        return ResponseEntity.ok(
+            dashboardService.getItemDashboard(
+                item, cube, option1, option2, option3, optionValue1, optionValue2, optionValue3
+            )
+        )
+    }
+
+    @Suppress("LongParameterList")
+    @GetMapping("/personal/for-item")
+    fun getDashboardInitDataPersonal(
+        principal: Principal,
         @RequestParam("item", required = false) item: String?,
         @RequestParam("cube", required = false) cube: String?,
         @RequestParam("option1", required = false) option1: String?,
