@@ -239,7 +239,8 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, ByteArray> {
                 "from t_cube_history h\n" +
                 "where (h.cube_type = 'RED' or h.cube_type = 'BLACK' or h.cube_type = 'ADDITIONAL')\n" +
                 "and h.created_at >= :start and h.created_at <= :end\n" +
-                "group by h.cube_type, year(h.created_at), month(h.created_at)",
+                "group by h.cube_type, year(h.created_at), month(h.created_at)\n" +
+                "order by year(h.created_at), month(h.created_at)",
         nativeQuery = true
     )
     fun findWholeRecordDashboardMonth(
@@ -255,7 +256,8 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, ByteArray> {
                 "from t_cube_history h\n" +
                 "where (h.cube_type = 'RED' or h.cube_type = 'BLACK' or h.cube_type = 'ADDITIONAL')\n" +
                 "and h.created_at >= :start and h.created_at <= :end\n" +
-                "group by cube_type, date(h.created_at)",
+                "group by cube_type, date(h.created_at)" +
+                "order by date(h.created_at)",
         nativeQuery = true
     )
     fun findWholeRecordDashboardDate(
@@ -273,7 +275,8 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, ByteArray> {
                 "where (h.cube_type = 'RED' or h.cube_type = 'BLACK' or h.cube_type = 'ADDITIONAL')\n" +
                 "and h.created_at >= :start and h.created_at <= :end\n" +
                 "and h.user_id = :userId\n" +
-                "group by cube_type, year(h.created_at), month(h.created_at)",
+                "group by cube_type, year(h.created_at), month(h.created_at)" +
+                "order by year(h.created_at), month(h.created_at)",
         nativeQuery = true
     )
     fun findWholeRecordDashboardMonthPersonal(
@@ -291,7 +294,8 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, ByteArray> {
                 "where (h.cube_type = 'RED' or h.cube_type = 'BLACK' or h.cube_type = 'ADDITIONAL')\n" +
                 "and h.created_at >= :start and h.created_at <= :end\n" +
                 "and h.user_id = :userId\n" +
-                "group by cube_type, date(h.created_at)",
+                "group by cube_type, date(h.created_at)" +
+                "order by date(h.created_at)",
         nativeQuery = true
     )
     fun findWholeRecordDashboardDatePersonal(

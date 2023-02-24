@@ -9,6 +9,7 @@ import com.maple.herocalendarforbackend.dto.response.WholeRecordDashboardRespons
 import com.maple.herocalendarforbackend.repository.TCubeApiKeyRepository
 import com.maple.herocalendarforbackend.repository.TCubeHistoryRepository
 import org.springframework.stereotype.Service
+import java.sql.Date
 import java.time.LocalDate
 import java.time.Period
 
@@ -38,35 +39,20 @@ class DashboardService(
         val period = Period.between(start, end)
 
         val res = when {
-            period.months > 12 -> {
+            period.months > 3 -> {
                 val tmp =
-                    tCubeHistoryRepository.findWholeRecordDashboardMonthPersonal(loginUserId, end.minusMonths(10), end)
+                    tCubeHistoryRepository.findWholeRecordDashboardMonthPersonal(loginUserId, start, end)
                         .groupBy { "${it.getYear()}/${it.getMonth()}" }
                 tmp.keys.mapNotNull {
                     tmp[it]?.let { it1 -> CubeEventRecordResponse.convertMonth(it1) }
                 }
             }
-            period.months == 12 -> {
-                val tmp = tCubeHistoryRepository.findWholeRecordDashboardMonthPersonal(loginUserId, start, end)
-                    .groupBy { "${it.getYear()}/${it.getMonth()}" }
-                tmp.keys.mapNotNull {
-                    tmp[it]?.let { it1 -> CubeEventRecordResponse.convertMonth(it1) }
-                }
-            }
             else -> {
-                val tmp = tCubeHistoryRepository.findWholeRecordDashboardMonthPersonal(loginUserId, start, end)
-                    .groupBy { "${it.getYear()}/${it.getMonth()}" }
-                val list = tmp.keys.mapNotNull {
-                    tmp[it]?.let { it1 -> CubeEventRecordResponse.convertMonth(it1) }
-                }
-
                 val sub = tCubeHistoryRepository.findWholeRecordDashboardDatePersonal(loginUserId, start, end)
                     .groupBy { it.getDate() }
-                val subList = sub.keys.mapNotNull {
+                sub.keys.mapNotNull {
                     sub[it]?.let { it1 -> CubeEventRecordResponse.convertDate(it1) }
                 }
-
-                listOf(list, subList).flatten()
             }
         }.flatten()
 
@@ -82,14 +68,7 @@ class DashboardService(
         val period = Period.between(start, end)
 
         val res = when {
-            period.months > 12 -> {
-                val tmp = tCubeHistoryRepository.findWholeRecordDashboardMonth(end.minusMonths(10), end)
-                    .groupBy { "${it.getYear()}/${it.getMonth()}" }
-                tmp.keys.mapNotNull {
-                    tmp[it]?.let { it1 -> CubeEventRecordResponse.convertMonth(it1) }
-                }
-            }
-            period.months == 12 -> {
+            period.months > 3 -> {
                 val tmp = tCubeHistoryRepository.findWholeRecordDashboardMonth(start, end)
                     .groupBy { "${it.getYear()}/${it.getMonth()}" }
                 tmp.keys.mapNotNull {
@@ -97,18 +76,10 @@ class DashboardService(
                 }
             }
             else -> {
-                val tmp = tCubeHistoryRepository.findWholeRecordDashboardMonth(start, end)
-                    .groupBy { "${it.getYear()}/${it.getMonth()}" }
-                val list = tmp.keys.mapNotNull {
-                    tmp[it]?.let { it1 -> CubeEventRecordResponse.convertMonth(it1) }
-                }
-
                 val sub = tCubeHistoryRepository.findWholeRecordDashboardDate(start, end).groupBy { it.getDate() }
-                val subList = sub.keys.mapNotNull {
+                sub.keys.mapNotNull {
                     sub[it]?.let { it1 -> CubeEventRecordResponse.convertDate(it1) }
                 }
-
-                listOf(list, subList).flatten()
             }
         }.flatten()
 
