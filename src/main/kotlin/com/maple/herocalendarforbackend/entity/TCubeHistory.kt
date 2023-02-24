@@ -144,7 +144,7 @@ data class TCubeHistory(
             }
 
             return TCubeHistory(
-                id = "${data.id}_${LocalDateTime.now()}",
+                id = data.id,
                 userId = userId,
                 cubeType = cubeTypeMap[data.cubeType],
                 itemUpgrade = data.itemUpgradeResult != "실패",

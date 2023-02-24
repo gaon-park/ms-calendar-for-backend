@@ -109,10 +109,12 @@ class CubeService(
         val nexonUtil = NexonUtil()
         val data = nexonUtil.firstProcess(apiKey, date.toString())
         if (data.count != null && data.cubeHistories.isNotEmpty()) {
+            val insert = data.cubeHistories.map {
+                TCubeHistory.convert(loginUserId, it, cubeTypeMap, potentialOptionMap)
+            }
+            val exist = tCubeHistoryRepository.findIdsByIdIn(insert.map { it.id })
             tCubeHistoryRepository.saveAll(
-                data.cubeHistories.map {
-                    TCubeHistory.convert(loginUserId, it, cubeTypeMap, potentialOptionMap)
-                }
+                insert.filter { !exist.contains(it.id) }
             )
         }
         logger.debug("$date 첫장 데이터 수집 완!")
@@ -120,10 +122,12 @@ class CubeService(
         while (nextCursor.isNotEmpty()) {
             logger.debug("$date $nextCursor 장 데이터 수집!")
             val inData = nexonUtil.whileProcess(nextCursor, apiKey)
+            val insert = inData.cubeHistories.map { history ->
+                TCubeHistory.convert(loginUserId, history, cubeTypeMap, potentialOptionMap)
+            }
+            val exist = tCubeHistoryRepository.findIdsByIdIn(insert.map { it.id })
             tCubeHistoryRepository.saveAll(
-                inData.cubeHistories.map { history ->
-                    TCubeHistory.convert(loginUserId, history, cubeTypeMap, potentialOptionMap)
-                }
+                insert.filter { !exist.contains(it.id) }
             )
             logger.debug("$date $nextCursor 장 데이터 수집 완!")
             nextCursor = inData.nextCursor

@@ -16,6 +16,16 @@ import java.time.LocalDate
 interface TCubeHistoryRepository : JpaRepository<TCubeHistory, Long> {
 
     @Query(
+        "select id\n" +
+                "from t_cube_history\n" +
+                "where id in :ids",
+        nativeQuery = true
+    )
+    fun findIdsByIdIn(
+        @Param("ids") ids: List<String>
+    ): List<String>
+
+    @Query(
         "select \n" +
                 "\th.cube_type as cubeType,\n" +
                 "\tcount(h.cube_type) as count\n" +
