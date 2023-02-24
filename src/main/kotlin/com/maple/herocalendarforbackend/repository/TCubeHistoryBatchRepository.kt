@@ -2,6 +2,7 @@ package com.maple.herocalendarforbackend.repository
 
 import com.maple.herocalendarforbackend.entity.TCubeHistoryBatch
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
@@ -31,4 +32,13 @@ interface TCubeHistoryBatchRepository : JpaRepository<TCubeHistoryBatch, TCubeHi
     fun findByUserIdInLast(
         @Param("userIds") userIds: List<String>,
     ): List<TCubeHistoryBatch>
+
+    @Query(
+        "delete from t_cube_history_batch b where b.user_id = :userId",
+        nativeQuery = true
+    )
+    @Modifying
+    fun deleteByAccount(
+        @Param("userId") userId: String,
+    )
 }

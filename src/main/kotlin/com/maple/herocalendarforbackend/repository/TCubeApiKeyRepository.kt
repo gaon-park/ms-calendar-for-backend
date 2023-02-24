@@ -2,6 +2,7 @@ package com.maple.herocalendarforbackend.repository
 
 import com.maple.herocalendarforbackend.entity.TCubeApiKey
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
@@ -30,4 +31,13 @@ interface TCubeApiKeyRepository : JpaRepository<TCubeApiKey, String> {
         @Param("limit") limit: Int,
         @Param("offset") offset: Long
     ): List<TCubeApiKey>
+
+    @Query(
+        "delete from t_cube_api_key c where c.user_id = :userId",
+        nativeQuery = true
+    )
+    @Modifying
+    fun deleteByAccount(
+        @Param("userId") userId: String
+    )
 }

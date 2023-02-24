@@ -29,6 +29,7 @@ class JwtAuthenticationFilter(
             "/favicon.ico",
             "/api/oauth2/",
             "/api/reissue/token",
+            "/api/dashboard/item-options",
             "/api/dashboard/for-item",
             "/api/dashboard/whole-record"
         )

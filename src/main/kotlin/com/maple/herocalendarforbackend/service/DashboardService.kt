@@ -2,7 +2,6 @@ package com.maple.herocalendarforbackend.service
 
 import com.maple.herocalendarforbackend.dto.response.CubeEventRecordResponse
 import com.maple.herocalendarforbackend.dto.response.CubeHistoryResponse
-import com.maple.herocalendarforbackend.dto.response.ItemDashboardResponse
 import com.maple.herocalendarforbackend.dto.response.WholeRecordDashboardResponse
 import com.maple.herocalendarforbackend.repository.TCubeHistoryRepository
 import org.springframework.stereotype.Service
@@ -105,6 +104,14 @@ class DashboardService(
         )
     }
 
+    fun getItemFilterOptionCommon(): List<String> {
+        return tCubeHistoryRepository.findItemFilterOptionCommon()
+    }
+
+    fun getItemFilterOptionPersonal(loginUserId: String): List<String> {
+        return tCubeHistoryRepository.findItemFilterOptionPersonal(loginUserId)
+    }
+
     fun getItemDashboardPersonal(
         loginUserId: String,
         item: String?,
@@ -115,8 +122,7 @@ class DashboardService(
         optionValue1: Int?,
         optionValue2: Int?,
         optionValue3: Int?
-    ): ItemDashboardResponse {
-        val itemList = tCubeHistoryRepository.findItemFilterOptionPersonal(loginUserId)
+    ): List<CubeHistoryResponse> {
         val history =
             if (haveCondition(item, cube, option1, option2, option3, optionValue1, optionValue2, optionValue3))
                 tCubeHistoryRepository.findHistoryByConditionPersonal(
@@ -130,13 +136,10 @@ class DashboardService(
                     optionValue2 ?: 0,
                     optionValue3 ?: 0,
                 )
-            else tCubeHistoryRepository.findHistoryByItemInPersonal(loginUserId, itemList)
-        return ItemDashboardResponse(
-            itemList = itemList,
-            cubeHistories = history.map {
-                CubeHistoryResponse.convert(it)
-            }
-        )
+            else tCubeHistoryRepository.findHistoryByPersonalOrderByCreatedAt(loginUserId)
+        return history.map {
+            CubeHistoryResponse.convert(it)
+        }
     }
 
     fun getItemDashboard(
@@ -148,8 +151,7 @@ class DashboardService(
         optionValue1: Int?,
         optionValue2: Int?,
         optionValue3: Int?
-    ): ItemDashboardResponse {
-        val itemList = tCubeHistoryRepository.findItemFilterOptionCommon()
+    ): List<CubeHistoryResponse> {
         val history =
             if (haveCondition(item, cube, option1, option2, option3, optionValue1, optionValue2, optionValue3))
                 tCubeHistoryRepository.findHistoryByCondition(
@@ -162,13 +164,10 @@ class DashboardService(
                     optionValue2 ?: 0,
                     optionValue3 ?: 0,
                 )
-            else tCubeHistoryRepository.findHistoryByItemIn(itemList)
-        return ItemDashboardResponse(
-            itemList = itemList,
-            cubeHistories = history.map {
-                CubeHistoryResponse.convert(it)
-            }
-        )
+            else tCubeHistoryRepository.findHistoryByPersonalOrderByCreatedAt()
+        return history.map {
+            CubeHistoryResponse.convert(it)
+        }
     }
 
     fun haveCondition(

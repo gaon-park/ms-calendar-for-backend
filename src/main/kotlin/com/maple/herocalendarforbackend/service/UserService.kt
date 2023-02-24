@@ -7,6 +7,9 @@ import com.maple.herocalendarforbackend.dto.response.IProfileResponse
 import com.maple.herocalendarforbackend.entity.TSchedule
 import com.maple.herocalendarforbackend.entity.TUser
 import com.maple.herocalendarforbackend.exception.BaseException
+import com.maple.herocalendarforbackend.repository.TCubeApiKeyRepository
+import com.maple.herocalendarforbackend.repository.TCubeHistoryBatchRepository
+import com.maple.herocalendarforbackend.repository.TCubeHistoryRepository
 import com.maple.herocalendarforbackend.repository.TFollowRepository
 import com.maple.herocalendarforbackend.repository.TJwtAuthRepository
 import com.maple.herocalendarforbackend.repository.TScheduleMemberRepository
@@ -27,6 +30,9 @@ class UserService(
     private val tJwtAuthRepository: TJwtAuthRepository,
     private val tScheduleRepository: TScheduleRepository,
     private val tScheduleMemberRepository: TScheduleMemberRepository,
+    private val tCubeApiKeyRepository: TCubeApiKeyRepository,
+    private val tCubeHistoryRepository: TCubeHistoryRepository,
+    private val tCubeHistoryBatchRepository: TCubeHistoryBatchRepository
 ) : UserDetailsService {
     private val profileBucketName = "ms-hero-profile"
 
@@ -139,6 +145,10 @@ class UserService(
         }
         tScheduleRepository.deleteAll(deleteSchedules)
         tScheduleRepository.saveAll(updatedSchedules)
+
+        tCubeApiKeyRepository.deleteByAccount(id)
+        tCubeHistoryRepository.deleteByAccount(id)
+        tCubeHistoryBatchRepository.deleteByAccount(id)
 
         tUserRepository.deleteById(id)
     }

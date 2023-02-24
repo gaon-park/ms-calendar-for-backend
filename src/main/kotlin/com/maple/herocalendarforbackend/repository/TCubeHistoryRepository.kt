@@ -4,6 +4,7 @@ import com.maple.herocalendarforbackend.entity.IWholeRecordDashboardDate
 import com.maple.herocalendarforbackend.entity.IWholeRecordDashboardMonth
 import com.maple.herocalendarforbackend.entity.TCubeHistory
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
@@ -17,8 +18,7 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, Long> {
         "select h.target_item\n" +
                 "from t_cube_history h\n" +
                 "group by h.target_item\n" +
-                "order by count(*) desc\n" +
-                "limit 10",
+                "order by count(*) desc",
         nativeQuery = true
     )
     fun findItemFilterOptionCommon(): List<String>
@@ -28,8 +28,7 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, Long> {
                 "from t_cube_history h\n" +
                 "where h.user_id = :userId\n" +
                 "group by h.target_item\n" +
-                "order by count(*) desc\n" +
-                "limit 10",
+                "order by count(*) desc",
         nativeQuery = true
     )
     fun findItemFilterOptionPersonal(
@@ -39,27 +38,22 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, Long> {
     @Query(
         "select *\n" +
                 "from t_cube_history h\n" +
-                "where h.target_item in :items\n" +
                 "order by h.created_at desc\n" +
                 "limit 1000",
         nativeQuery = true
     )
-    fun findHistoryByItemIn(
-        @Param("items") items: List<String>
-    ): List<TCubeHistory>
+    fun findHistoryByPersonalOrderByCreatedAt(): List<TCubeHistory>
 
     @Query(
         "select *\n" +
                 "from t_cube_history h\n" +
-                "where h.target_item in :items\n" +
-                "and h.user_id = :userId\n" +
+                "where h.user_id = :userId\n" +
                 "order by h.created_at desc\n" +
                 "limit 1000",
         nativeQuery = true
     )
-    fun findHistoryByItemInPersonal(
+    fun findHistoryByPersonalOrderByCreatedAt(
         @Param("userId") userId: String,
-        @Param("items") items: List<String>
     ): List<TCubeHistory>
 
     @Query(
@@ -281,4 +275,13 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, Long> {
         @Param("start") start: LocalDate,
         @Param("end") end: LocalDate
     ): List<IWholeRecordDashboardDate>
+
+    @Query(
+        "delete from t_cube_history h  where h.user_id = :userId",
+        nativeQuery = true
+    )
+    @Modifying
+    fun deleteByAccount(
+        @Param("userId") userId: String,
+    )
 }

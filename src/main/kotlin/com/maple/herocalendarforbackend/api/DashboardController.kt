@@ -1,6 +1,6 @@
 package com.maple.herocalendarforbackend.api
 
-import com.maple.herocalendarforbackend.dto.response.ItemDashboardResponse
+import com.maple.herocalendarforbackend.dto.response.CubeHistoryResponse
 import com.maple.herocalendarforbackend.dto.response.WholeRecordDashboardResponse
 import com.maple.herocalendarforbackend.service.DashboardService
 import org.springframework.format.annotation.DateTimeFormat
@@ -20,6 +20,18 @@ class DashboardController(
     private val dashboardService: DashboardService
 ) {
 
+    @GetMapping("/item-options")
+    fun getItemFilterOptionsCommon(): List<String> {
+        return dashboardService.getItemFilterOptionCommon()
+    }
+
+    @GetMapping("/personal/item-options")
+    fun getItemFilterOptionsPersonal(
+        principal: Principal
+    ): List<String> {
+        return dashboardService.getItemFilterOptionPersonal(principal.name)
+    }
+
     @Suppress("LongParameterList")
     @GetMapping("/for-item")
     fun getDashboardData(
@@ -31,7 +43,7 @@ class DashboardController(
         @RequestParam("optionValue1", required = false) optionValue1: Int?,
         @RequestParam("optionValue2", required = false) optionValue2: Int?,
         @RequestParam("optionValue3", required = false) optionValue3: Int?,
-    ): ResponseEntity<ItemDashboardResponse> {
+    ): ResponseEntity<List<CubeHistoryResponse>> {
         return ResponseEntity.ok(
             dashboardService.getItemDashboard(
                 item, cube, option1, option2, option3, optionValue1, optionValue2, optionValue3
@@ -51,7 +63,7 @@ class DashboardController(
         @RequestParam("optionValue1", required = false) optionValue1: Int?,
         @RequestParam("optionValue2", required = false) optionValue2: Int?,
         @RequestParam("optionValue3", required = false) optionValue3: Int?,
-    ): ResponseEntity<ItemDashboardResponse> {
+    ): ResponseEntity<List<CubeHistoryResponse>> {
         return ResponseEntity.ok(
             dashboardService.getItemDashboardPersonal(
                 principal.name, item, cube, option1, option2, option3, optionValue1, optionValue2, optionValue3
