@@ -1,6 +1,7 @@
 package com.maple.herocalendarforbackend.api
 
 import com.maple.herocalendarforbackend.dto.response.CubeHistoryResponse
+import com.maple.herocalendarforbackend.dto.response.CubeOverviewResponse
 import com.maple.herocalendarforbackend.dto.response.WholeRecordDashboardResponse
 import com.maple.herocalendarforbackend.service.DashboardService
 import org.springframework.format.annotation.DateTimeFormat
@@ -12,13 +13,24 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.security.Principal
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 @RestController
 @RequestMapping("/api/dashboard", produces = [MediaType.APPLICATION_JSON_VALUE])
 class DashboardController(
     private val dashboardService: DashboardService
 ) {
+
+    @GetMapping("/cube-overview")
+    fun getCubeCountCommon(): ResponseEntity<CubeOverviewResponse> {
+        return ResponseEntity.ok(dashboardService.getCubeOverview(null))
+    }
+
+    @GetMapping("/personal/cube-overview")
+    fun getCubeCountPersonal(
+        principal: Principal
+    ): ResponseEntity<CubeOverviewResponse> {
+        return ResponseEntity.ok(dashboardService.getCubeOverview(principal.name))
+    }
 
     @GetMapping("/item-options")
     fun getItemFilterOptionsCommon(): List<String> {

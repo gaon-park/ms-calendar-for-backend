@@ -1,8 +1,12 @@
 package com.maple.herocalendarforbackend.service
 
+import com.maple.herocalendarforbackend.dto.response.CubeCount
 import com.maple.herocalendarforbackend.dto.response.CubeEventRecordResponse
 import com.maple.herocalendarforbackend.dto.response.CubeHistoryResponse
+import com.maple.herocalendarforbackend.dto.response.CubeItemCount
+import com.maple.herocalendarforbackend.dto.response.CubeOverviewResponse
 import com.maple.herocalendarforbackend.dto.response.WholeRecordDashboardResponse
+import com.maple.herocalendarforbackend.repository.TCubeApiKeyRepository
 import com.maple.herocalendarforbackend.repository.TCubeHistoryRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -12,7 +16,44 @@ import java.time.Period
 @Service
 class DashboardService(
     private val tCubeHistoryRepository: TCubeHistoryRepository,
+    private val tCubeApiKeyRepository: TCubeApiKeyRepository,
 ) {
+
+    fun getCubeItemTop10(loginUserId: String?): List<CubeItemCount> {
+        return if (loginUserId != null) {
+            val cubeItemCountMap =
+                tCubeHistoryRepository.findCubeTypeCountForTopTenItemPersonal(
+                    loginUserId, tCubeHistoryRepository.findTopTenItemPersonal(loginUserId)
+                ).groupBy { it.getTargetItem() }
+            cubeItemCountMap.keys.map {
+                CubeItemCount(
+                    it,
+                    CubeCount.convertFromItemCount(cubeItemCountMap[it]!!)
+                )
+            }
+        } else {
+            val cubeItemCountMap =
+                tCubeHistoryRepository.findCubeTypeCountForTopTenItemCommon(
+                    tCubeHistoryRepository.findTopTenItemCommon()
+                ).groupBy { it.getTargetItem() }
+            cubeItemCountMap.keys.map {
+                CubeItemCount(
+                    it,
+                    CubeCount.convertFromItemCount(cubeItemCountMap[it]!!)
+                )
+            }
+        }
+    }
+
+    fun getCubeOverview(loginUserId: String?): CubeOverviewResponse {
+        val cubeCounts = if (loginUserId != null) tCubeHistoryRepository.findCubeTypeCountPersonal(loginUserId)
+        else tCubeHistoryRepository.findCubeTypeCountCommon()
+        return CubeOverviewResponse(
+            registeredApiKeyCount = if (loginUserId != null) null else tCubeApiKeyRepository.count(),
+            counts = CubeCount.convert(cubeCounts),
+            topTenItems = getCubeItemTop10(loginUserId)
+        )
+    }
 
     fun getWholeRecordDashboardPersonal(
         loginUserId: String,

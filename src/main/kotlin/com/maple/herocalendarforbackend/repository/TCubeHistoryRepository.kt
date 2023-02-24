@@ -1,5 +1,7 @@
 package com.maple.herocalendarforbackend.repository
 
+import com.maple.herocalendarforbackend.entity.ICubeTypeCount
+import com.maple.herocalendarforbackend.entity.ICubeTypeItemCount
 import com.maple.herocalendarforbackend.entity.IWholeRecordDashboardDate
 import com.maple.herocalendarforbackend.entity.IWholeRecordDashboardMonth
 import com.maple.herocalendarforbackend.entity.TCubeHistory
@@ -10,9 +12,85 @@ import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 import java.time.LocalDate
 
-@Suppress("LongParameterList", "MaxLineLength")
+@Suppress("LongParameterList", "MaxLineLength", "TooManyFunctions")
 @Repository
 interface TCubeHistoryRepository : JpaRepository<TCubeHistory, Long> {
+
+    @Query(
+        "select h.target_item\n" +
+                "from t_cube_history h\n" +
+                "group by h.target_item\n" +
+                "order by count(*) desc\n" +
+                "limit 10",
+        nativeQuery = true
+    )
+    fun findTopTenItemCommon(): List<String>
+
+    @Query(
+        "select h.target_item\n" +
+                "from t_cube_history h\n" +
+                "where h.user_id = :userId\n" +
+                "group by h.target_item\n" +
+                "order by count(*) desc\n" +
+                "limit 10",
+        nativeQuery = true
+    )
+    fun findTopTenItemPersonal(
+        @Param("userId") userId: String,
+    ): List<String>
+
+    @Query(
+        "select \n" +
+                "\th.target_item as targetItem,\n" +
+                "\th.cube_type as cubeType,\n" +
+                "\tcount(h.cube_type) as count\n" +
+                "from t_cube_history h\n" +
+                "where h.target_item in :items\n" +
+                "group by h.target_item, h.cube_type",
+        nativeQuery = true
+    )
+    fun findCubeTypeCountForTopTenItemCommon(
+        @Param("items") items: List<String>,
+    ): List<ICubeTypeItemCount>
+
+    @Query(
+        "select \n" +
+                "\th.target_item as targetItem,\n" +
+                "\th.cube_type as cubeType,\n" +
+                "\tcount(h.cube_type) as count\n" +
+                "from t_cube_history h\n" +
+                "where h.target_item in :items\n" +
+                "and h.user_id = :userId\n" +
+                "group by h.target_item, h.cube_type",
+        nativeQuery = true
+    )
+    fun findCubeTypeCountForTopTenItemPersonal(
+        @Param("userId") userId: String,
+        @Param("items") items: List<String>,
+    ): List<ICubeTypeItemCount>
+
+    @Query(
+        "select \n" +
+                "\th.cube_type as cubeType,\n" +
+                "\tcount(h.cube_type) as count\n" +
+                "from t_cube_history h\n" +
+                "group by h.cube_type",
+        nativeQuery = true
+    )
+    fun findCubeTypeCountCommon(): List<ICubeTypeCount>
+
+    @Query(
+        "select \n" +
+                "\th.cube_type as cubeType,\n" +
+                "\tcount(h.cube_type) as count\n" +
+                "from t_cube_history h\n" +
+                "where h.user_id = :userId\n" +
+                "group by h.cube_type",
+        nativeQuery = true
+    )
+    fun findCubeTypeCountPersonal(
+        @Param("userId") userId: String,
+    ): List<ICubeTypeCount>
 
     @Query(
         "select h.target_item\n" +
