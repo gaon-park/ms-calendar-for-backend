@@ -13,17 +13,7 @@ import java.time.LocalDate
 
 @Suppress("LongParameterList", "MaxLineLength", "TooManyFunctions")
 @Repository
-interface TCubeHistoryRepository : JpaRepository<TCubeHistory, Long> {
-
-    @Query(
-        "select id\n" +
-                "from t_cube_history\n" +
-                "where id in :ids",
-        nativeQuery = true
-    )
-    fun findIdsByIdIn(
-        @Param("ids") ids: List<String>
-    ): List<String>
+interface TCubeHistoryRepository : JpaRepository<TCubeHistory, ByteArray> {
 
     @Query(
         "select \n" +

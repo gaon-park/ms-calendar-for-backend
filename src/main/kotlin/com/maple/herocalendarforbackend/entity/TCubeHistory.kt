@@ -14,7 +14,7 @@ import java.time.LocalDateTime
 @Table(name = "t_cube_history")
 data class TCubeHistory(
     @Id
-    val id: String,
+    val id: ByteArray,
     val userId: String,
     @Enumerated(value = EnumType.STRING)
     val cubeType: CubeType?,
@@ -144,7 +144,7 @@ data class TCubeHistory(
             }
 
             return TCubeHistory(
-                id = data.id,
+                id = data.id.toByteArray(),
                 userId = userId,
                 cubeType = cubeTypeMap[data.cubeType],
                 itemUpgrade = data.itemUpgradeResult != "실패",
@@ -189,5 +189,20 @@ data class TCubeHistory(
                 createdAt = data.createDate
             )
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as TCubeHistory
+
+        if (!id.contentEquals(other.id)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return id.contentHashCode()
     }
 }

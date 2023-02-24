@@ -52,7 +52,7 @@ data class CubeHistoryResponse(
                 }
 
             return CubeHistoryResponse(
-                id = data.id,
+                id = data.id.toString(),
                 targetItem = data.targetItem,
                 cubeType = data.cubeType,
                 beforeOption1 = beforeOptions[0],
