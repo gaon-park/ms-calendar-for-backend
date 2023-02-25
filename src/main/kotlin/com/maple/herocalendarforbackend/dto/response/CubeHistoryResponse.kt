@@ -61,7 +61,7 @@ data class CubeHistoryResponse(
                 afterOption1 = afterOptions[0],
                 afterOption2 = afterOptions[1],
                 afterOption3 = afterOptions[2],
-                potentialOptionGrade = data.potentialOptionGrade,
+                potentialOptionGrade = if (data.cubeType == CubeType.ADDITIONAL) data.additionalPotentialOptionGrade else data.potentialOptionGrade,
                 itemUpgrade = data.itemUpgrade
             )
         }
