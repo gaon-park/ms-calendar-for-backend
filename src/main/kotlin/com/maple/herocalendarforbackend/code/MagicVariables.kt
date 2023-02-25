@@ -15,7 +15,7 @@ object MagicVariables {
 
     const val MAX_LENGTH_OF_USER_COLUMN = 15
 
-    const val MAX_SEARCH_LIMIT: Long = 100
+    const val MAX_SEARCH_LIMIT: Long = 1000
 
     const val AUTHORIZATION_REFRESH_JWT = "X-AUTH-REFRESH-TOKEN"
 

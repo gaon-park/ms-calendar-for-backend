@@ -1,5 +1,6 @@
 package com.maple.herocalendarforbackend.repository
 
+import com.maple.herocalendarforbackend.code.MagicVariables.MAX_SEARCH_LIMIT
 import com.maple.herocalendarforbackend.entity.ICubeTypeCount
 import com.maple.herocalendarforbackend.entity.IWholeRecordDashboardDate
 import com.maple.herocalendarforbackend.entity.IWholeRecordDashboardMonth
@@ -63,7 +64,7 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, ByteArray> {
         "select *\n" +
                 "from t_cube_history h\n" +
                 "order by h.created_at desc\n" +
-                "limit 1000",
+                "limit $MAX_SEARCH_LIMIT",
         nativeQuery = true
     )
     fun findHistoryByPersonalOrderByCreatedAt(): List<TCubeHistory>
@@ -73,7 +74,7 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, ByteArray> {
                 "from t_cube_history h\n" +
                 "where h.user_id = :userId\n" +
                 "order by h.created_at desc\n" +
-                "limit 1000",
+                "limit $MAX_SEARCH_LIMIT",
         nativeQuery = true
     )
     fun findHistoryByPersonalOrderByCreatedAt(
@@ -140,7 +141,7 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, ByteArray> {
                 "\t)\n" +
                 "), true)\n" +
                 "order by h.created_at desc\n" +
-                "limit 1000",
+                "limit $MAX_SEARCH_LIMIT",
         nativeQuery = true
     )
     fun findHistoryByCondition(
@@ -215,7 +216,7 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, ByteArray> {
                 "), true)\n" +
                 "and h.user_id = :userId\n" +
                 "order by h.created_at desc\n" +
-                "limit 1000",
+                "limit $MAX_SEARCH_LIMIT",
         nativeQuery = true
     )
     fun findHistoryByConditionPersonal(
