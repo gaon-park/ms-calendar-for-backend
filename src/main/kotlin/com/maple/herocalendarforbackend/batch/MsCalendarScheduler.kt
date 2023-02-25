@@ -60,7 +60,7 @@ class MsCalendarScheduler(
         val trigger = TriggerBuilder.newTrigger()
             .withSchedule(
                 CronScheduleBuilder
-                    .cronSchedule("0 14 5 * * ?")
+                    .cronSchedule("0 18 5 * * ?")
             )
             .build()
 
