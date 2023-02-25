@@ -22,7 +22,7 @@ class SecurityConfig(
 
     override fun addCorsMappings(registry: CorsRegistry) {
         registry.addMapping("/**")
-            .allowedOrigins("http://127.0.0.1:3000", "http://10.178.0.4", "https://ms-hero.kr")
+            .allowedOrigins("http://127.0.0.1:3000", "https://10.178.0.4", "https://10.178.0.4", "https://ms-hero.kr")
             .allowCredentials(true)
             .allowedMethods("GET", "POST", "PUT", "OPTIONS", "DELETE", "PATCH")
     }
