@@ -21,7 +21,7 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, ByteArray> {
                 "from t_cube_history\n" +
                 "where item_upgrade = 1\n" +
                 "and date(created_at) >= :start and date(created_at) <= :end\n" +
-                "and if(cube_type != '에디셔널 큐브', potential_option_grade = '레전드리', 에디셔널 큐브_potential_option_grade = '레전드리')" +
+                "and if(cube_type != '에디셔널 큐브', potential_option_grade = '레전드리', additional_potential_option_grade = '레전드리')" +
                 "and if(:loginUserId != '', user_id = :loginUserId, user_id != '')" +
                 "and if(:item != '', target_item = :item, target_item != '')\n" +
                 "group by cube_type",
@@ -38,10 +38,10 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, ByteArray> {
         "select cube_type as cubeType, count(*) as count\n" +
                 "from t_cube_history\n" +
                 "where ((\n" +
-                "\titem_upgrade = 1 and if (cube_type != '에디셔널 큐브', potential_option_grade = '레전드리', 에디셔널 큐브_potential_option_grade = '레전드리')\n" +
+                "\titem_upgrade = 1 and if (cube_type != '에디셔널 큐브', potential_option_grade = '레전드리', additional_potential_option_grade = '레전드리')\n" +
                 ") \n" +
                 "or (\n" +
-                "\titem_upgrade = 0 and if (cube_type != '에디셔널 큐브', potential_option_grade = '유니크', 에디셔널 큐브_potential_option_grade = '유니크')\n" +
+                "\titem_upgrade = 0 and if (cube_type != '에디셔널 큐브', potential_option_grade = '유니크', additional_potential_option_grade = '유니크')\n" +
                 "))\n" +
                 "and date(created_at) >= :start and date(created_at) <= :end\n" +
                 "and if(:loginUserId != '', user_id = :loginUserId, user_id != '')\n" +
@@ -101,17 +101,17 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, ByteArray> {
                 "and if(:option1 != '', if(\n" +
                 "\th.cube_type != '에디셔널 큐브',\n" +
                 "\th.after_option1 = :option1,\n" +
-                "\th.after_에디셔널 큐브_option1 = :option1\n" +
+                "\th.after_additional_option1 = :option1\n" +
                 "), true)\n" +
                 "and if(:option2 != '', if(\n" +
                 "\th.cube_type != '에디셔널 큐브',\n" +
                 "\th.after_option2 = :option2,\n" +
-                "\th.after_에디셔널 큐브_option2 = :option2\n" +
+                "\th.after_additional_option2 = :option2\n" +
                 "), true)\n" +
                 "and if(:option3 != '', if(\n" +
                 "\th.cube_type != '에디셔널 큐브',\n" +
                 "\th.after_option3 = :option3,\n" +
-                "\th.after_에디셔널 큐브_option3 = :option3\n" +
+                "\th.after_additional_option3 = :option3\n" +
                 "), true)\n" +
                 "and if(:optionValue1 != 0, if(\n" +
                 "\th.cube_type != '에디셔널 큐브',\n" +
@@ -121,8 +121,8 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, ByteArray> {
                 "\t\tfalse\n" +
                 "\t),\n" +
                 "\tif (\n" +
-                "\t\th.after_에디셔널 큐브_option_value1 regexp '[\$\\%]',\n" +
-                "\t\tcast(regexp_replace(h.after_에디셔널 큐브_option_value1, '[\$\\%]', '') as signed) >= :optionValue1,\n" +
+                "\t\th.after_additional_option_value1 regexp '[\$\\%]',\n" +
+                "\t\tcast(regexp_replace(h.after_additional_option_value1, '[\$\\%]', '') as signed) >= :optionValue1,\n" +
                 "\t\tfalse\n" +
                 "\t)\n" +
                 "), true)\n" +
@@ -134,8 +134,8 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, ByteArray> {
                 "\t\tfalse\n" +
                 "\t),\n" +
                 "\tif (\n" +
-                "\t\th.after_에디셔널 큐브_option_value2 regexp '[\$\\%]',\n" +
-                "\t\tcast(regexp_replace(h.after_에디셔널 큐브_option_value2, '[\$\\%]', '') as signed) >= :optionValue2,\n" +
+                "\t\th.after_additional_option_value2 regexp '[\$\\%]',\n" +
+                "\t\tcast(regexp_replace(h.after_additional_option_value2, '[\$\\%]', '') as signed) >= :optionValue2,\n" +
                 "\t\tfalse\n" +
                 "\t)\n" +
                 "), true)\n" +
@@ -147,8 +147,8 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, ByteArray> {
                 "\t\tfalse\n" +
                 "\t),\n" +
                 "\tif (\n" +
-                "\t\th.after_에디셔널 큐브_option_value3 regexp '[\$\\%]',\n" +
-                "\t\tcast(regexp_replace(h.after_에디셔널 큐브_option_value3, '[\$\\%]', '') as signed) >= :optionValue3,\n" +
+                "\t\th.after_additional_option_value3 regexp '[\$\\%]',\n" +
+                "\t\tcast(regexp_replace(h.after_additional_option_value3, '[\$\\%]', '') as signed) >= :optionValue3,\n" +
                 "\t\tfalse\n" +
                 "\t)\n" +
                 "), true)\n" +
