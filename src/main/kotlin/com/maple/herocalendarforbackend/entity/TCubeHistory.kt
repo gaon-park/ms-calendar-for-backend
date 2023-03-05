@@ -152,7 +152,7 @@ data class TCubeHistory(
                 itemLevel = data.itemLevel,
                 targetItem = data.targetItem,
                 potentialOptionGrade = potentialOptionMap[data.potentialOptionGrade],
-                additionalPotentialOptionGrade = potentialOptionMap[data.potentialOptionGrade],
+                additionalPotentialOptionGrade = potentialOptionMap[data.additionalPotentialOptionGrade],
 
                 beforeOption1 = beforeOptions.getOrNull(0),
                 beforeOption2 = beforeOptions.getOrNull(1),
