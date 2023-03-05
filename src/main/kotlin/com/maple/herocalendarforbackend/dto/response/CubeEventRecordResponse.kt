@@ -16,13 +16,13 @@ data class CubeEventRecordResponse(
             val category = "${data[0].getYear()}/${data[0].getMonth()}"
 
             // red, black, additional 3
-            val red = data.firstOrNull { it.getCubeType() == "RED" }
-            val black = data.firstOrNull { it.getCubeType() == "BLACK" }
-            val additional = data.firstOrNull { it.getCubeType() == "ADDITIONAL" }
+            val red = data.firstOrNull { it.getCubeType() == "레드 큐브" }
+            val black = data.firstOrNull { it.getCubeType() == "블랙 큐브" }
+            val additional = data.firstOrNull { it.getCubeType() == "에디셔널 큐브" }
 
-            val redR = CubeEventRecordResponse(category, "RED", red?.getCount() ?: 0)
-            val blackR = CubeEventRecordResponse(category, "BLACK", black?.getCount() ?: 0)
-            val additionalR = CubeEventRecordResponse(category, "ADDITIONAL", additional?.getCount() ?: 0)
+            val redR = CubeEventRecordResponse(category, "레드 큐브", red?.getCount() ?: 0)
+            val blackR = CubeEventRecordResponse(category, "블랙 큐브", black?.getCount() ?: 0)
+            val additionalR = CubeEventRecordResponse(category, "에디셔널 큐브", additional?.getCount() ?: 0)
 
             return listOf(redR, blackR, additionalR)
         }
@@ -31,13 +31,13 @@ data class CubeEventRecordResponse(
             val category = data[0].getDate().format(DateTimeFormatter.ofPattern("yyyy/MM/dd")) ?: ""
 
             // red, black, additional 3
-            val red = data.firstOrNull { it.getCubeType() == "RED" }
-            val black = data.firstOrNull { it.getCubeType() == "BLACK" }
-            val additional = data.firstOrNull { it.getCubeType() == "ADDITIONAL" }
+            val red = data.firstOrNull { it.getCubeType() == "레드 큐브" }
+            val black = data.firstOrNull { it.getCubeType() == "블랙 큐브" }
+            val additional = data.firstOrNull { it.getCubeType() == "에디셔널 큐브" }
 
-            val redR = CubeEventRecordResponse(category, "RED", red?.getCount() ?: 0)
-            val blackR = CubeEventRecordResponse(category, "BLACK", black?.getCount() ?: 0)
-            val additionalR = CubeEventRecordResponse(category, "ADDITIONAL", additional?.getCount() ?: 0)
+            val redR = CubeEventRecordResponse(category, "레드 큐브", red?.getCount() ?: 0)
+            val blackR = CubeEventRecordResponse(category, "블랙 큐브", black?.getCount() ?: 0)
+            val additionalR = CubeEventRecordResponse(category, "에디셔널 큐브", additional?.getCount() ?: 0)
 
             return listOf(redR, blackR, additionalR)
         }
