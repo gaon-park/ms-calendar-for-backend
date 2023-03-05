@@ -37,12 +37,12 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, ByteArray> {
     @Query(
         "select cube_type as cubeType, count(*) as count\n" +
                 "from t_cube_history\n" +
-                "where (\n" +
+                "where ((\n" +
                 "\titem_upgrade = 1 and if (cube_type != 'ADDITIONAL', potential_option_grade = 'LEGENDARY', additional_potential_option_grade = 'LEGENDARY')\n" +
                 ") \n" +
                 "or (\n" +
                 "\titem_upgrade = 0 and if (cube_type != 'ADDITIONAL', potential_option_grade = 'UNIQUE', additional_potential_option_grade = 'UNIQUE')\n" +
-                ")\n" +
+                "))\n" +
                 "and date(created_at) >= :start and date(created_at) <= :end\n" +
                 "and if(:loginUserId != '', user_id = :loginUserId, user_id != '')\n" +
                 "and if(:item != '', target_item = :item, target_item != '')\n" +
