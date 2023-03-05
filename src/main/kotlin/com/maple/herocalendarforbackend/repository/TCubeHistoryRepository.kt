@@ -60,42 +60,23 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, ByteArray> {
                 "\th.cube_type as cubeType,\n" +
                 "\tcount(h.cube_type) as count\n" +
                 "from t_cube_history h\n" +
+                "where if(:userId != '', h.user_id = :userId, user_id != '')\n" +
                 "group by h.cube_type",
         nativeQuery = true
     )
-    fun findCubeTypeCountCommon(): List<ICubeTypeCount>
-
-    @Query(
-        "select \n" +
-                "\th.cube_type as cubeType,\n" +
-                "\tcount(h.cube_type) as count\n" +
-                "from t_cube_history h\n" +
-                "where h.user_id = :userId\n" +
-                "group by h.cube_type",
-        nativeQuery = true
-    )
-    fun findCubeTypeCountPersonal(
+    fun findCubeTypeCount(
         @Param("userId") userId: String,
     ): List<ICubeTypeCount>
 
     @Query(
         "select h.target_item\n" +
                 "from t_cube_history h\n" +
-                "group by h.target_item\n" +
-                "order by count(*) desc",
-        nativeQuery = true
-    )
-    fun findItemFilterOptionCommon(): List<String>
-
-    @Query(
-        "select h.target_item\n" +
-                "from t_cube_history h\n" +
                 "where h.user_id = :userId\n" +
                 "group by h.target_item\n" +
                 "order by count(*) desc",
         nativeQuery = true
     )
-    fun findItemFilterOptionPersonal(
+    fun findItemFilterOption(
         @Param("userId") userId: String,
     ): List<String>
 
@@ -107,7 +88,7 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, ByteArray> {
                 "limit $MAX_SEARCH_LIMIT",
         nativeQuery = true
     )
-    fun findHistoryByPersonalOrderByCreatedAt(
+    fun findHistoryOrderByCreatedAt(
         @Param("userId") userId: String,
     ): List<TCubeHistory>
 
@@ -175,7 +156,7 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, ByteArray> {
                 "limit $MAX_SEARCH_LIMIT",
         nativeQuery = true
     )
-    fun findHistoryByConditionPersonal(
+    fun findHistoryByCondition(
         @Param("userId") userId: String,
         @Param("item") item: String,
         @Param("cube") cube: String,
@@ -196,47 +177,12 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, ByteArray> {
                 "from t_cube_history h\n" +
                 "where (h.cube_type = 'RED' or h.cube_type = 'BLACK' or h.cube_type = 'ADDITIONAL')\n" +
                 "and h.created_at >= :start and h.created_at <= :end\n" +
+                "and if(:userId != '', h.user_id = :userId, user_id != '')\n" +
                 "group by h.cube_type, year(h.created_at), month(h.created_at)\n" +
                 "order by year(h.created_at), month(h.created_at)",
         nativeQuery = true
     )
     fun findWholeRecordDashboardMonth(
-        @Param("start") start: LocalDate,
-        @Param("end") end: LocalDate
-    ): List<IWholeRecordDashboardMonth>
-
-    @Query(
-        "select \n" +
-                "\tdate(h.created_at) as date,\n" +
-                "\th.cube_type as cubeType, \n" +
-                "\tcount(h.cube_type) as count\n" +
-                "from t_cube_history h\n" +
-                "where (h.cube_type = 'RED' or h.cube_type = 'BLACK' or h.cube_type = 'ADDITIONAL')\n" +
-                "and date(h.created_at) >= :start and date(h.created_at) <= :end\n" +
-                "group by cube_type, date(h.created_at)" +
-                "order by date(h.created_at)",
-        nativeQuery = true
-    )
-    fun findWholeRecordDashboardDate(
-        @Param("start") start: LocalDate,
-        @Param("end") end: LocalDate
-    ): List<IWholeRecordDashboardDate>
-
-    @Query(
-        "select \n" +
-                "\tyear(h.created_at) as year,\n" +
-                "\tmonth(h.created_at) as month, \n" +
-                "\th.cube_type as cubeType, \n" +
-                "\tcount(h.cube_type) as count\n" +
-                "from t_cube_history h\n" +
-                "where (h.cube_type = 'RED' or h.cube_type = 'BLACK' or h.cube_type = 'ADDITIONAL')\n" +
-                "and date(h.created_at) >= :start and date(h.created_at) <= :end\n" +
-                "and h.user_id = :userId\n" +
-                "group by cube_type, year(h.created_at), month(h.created_at)" +
-                "order by year(h.created_at), month(h.created_at)",
-        nativeQuery = true
-    )
-    fun findWholeRecordDashboardMonthPersonal(
         @Param("userId") userId: String,
         @Param("start") start: LocalDate,
         @Param("end") end: LocalDate
@@ -250,12 +196,12 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, ByteArray> {
                 "from t_cube_history h\n" +
                 "where (h.cube_type = 'RED' or h.cube_type = 'BLACK' or h.cube_type = 'ADDITIONAL')\n" +
                 "and date(h.created_at) >= :start and date(h.created_at) <= :end\n" +
-                "and h.user_id = :userId\n" +
+                "and if(:userId != '', h.user_id = :userId, user_id != '')\n" +
                 "group by cube_type, date(h.created_at)" +
                 "order by date(h.created_at)",
         nativeQuery = true
     )
-    fun findWholeRecordDashboardDatePersonal(
+    fun findWholeRecordDashboardDate(
         @Param("userId") userId: String,
         @Param("start") start: LocalDate,
         @Param("end") end: LocalDate

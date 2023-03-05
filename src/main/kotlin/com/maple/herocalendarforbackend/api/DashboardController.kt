@@ -51,16 +51,11 @@ class DashboardController(
         return ResponseEntity.ok(dashboardService.getCubeOverview(principal.name))
     }
 
-    @GetMapping("/item-options")
-    fun getItemFilterOptionsCommon(): List<String> {
-        return dashboardService.getItemFilterOptionCommon()
-    }
-
     @GetMapping("/personal/item-options")
     fun getItemFilterOptionsPersonal(
         principal: Principal
     ): List<String> {
-        return dashboardService.getItemFilterOptionPersonal(principal.name)
+        return dashboardService.getItemFilterOption(principal.name)
     }
 
     @Suppress("LongParameterList")
@@ -77,7 +72,7 @@ class DashboardController(
         @RequestParam("optionValue3", required = false) optionValue3: Int?,
     ): ResponseEntity<List<CubeHistoryResponse>> {
         return ResponseEntity.ok(
-            dashboardService.getItemDashboardPersonal(
+            dashboardService.itemHistorySearch(
                 principal.name, item, cube, option1, option2, option3, optionValue1, optionValue2, optionValue3
             )
         )
@@ -89,7 +84,7 @@ class DashboardController(
         @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("endDate", required = false) endDate: LocalDate?,
     ): ResponseEntity<WholeRecordDashboardResponse> {
         return ResponseEntity.ok(
-            dashboardService.getWholeRecordDashboard(startDate, endDate)
+            dashboardService.getWholeRecordDashboard(null, startDate, endDate)
         )
     }
 
@@ -101,7 +96,7 @@ class DashboardController(
         @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("endDate", required = false) endDate: LocalDate?,
     ): ResponseEntity<WholeRecordDashboardResponse> {
         return ResponseEntity.ok(
-            dashboardService.getWholeRecordDashboardPersonal(principal.name, startDate, endDate)
+            dashboardService.getWholeRecordDashboard(principal.name, startDate, endDate)
         )
     }
 }

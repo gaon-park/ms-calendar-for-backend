@@ -54,16 +54,15 @@ class DashboardService(
     }
 
     fun getCubeOverview(loginUserId: String?): CubeOverviewResponse {
-        val cubeCounts = if (loginUserId != null) tCubeHistoryRepository.findCubeTypeCountPersonal(loginUserId)
-        else tCubeHistoryRepository.findCubeTypeCountCommon()
+        val cubeCounts = tCubeHistoryRepository.findCubeTypeCount(loginUserId ?: "")
         return CubeOverviewResponse(
             registeredApiKeyCount = if (loginUserId != null) null else tCubeApiKeyRepository.count(),
             counts = CubeCount.convert(cubeCounts),
         )
     }
 
-    fun getWholeRecordDashboardPersonal(
-        loginUserId: String,
+    fun getWholeRecordDashboard(
+        loginUserId: String?,
         startDate: LocalDate?,
         endDate: LocalDate?
     ): WholeRecordDashboardResponse {
@@ -74,14 +73,14 @@ class DashboardService(
         val res = when {
             period.months > 3 -> {
                 val tmp =
-                    tCubeHistoryRepository.findWholeRecordDashboardMonthPersonal(loginUserId, start, end)
+                    tCubeHistoryRepository.findWholeRecordDashboardMonth(loginUserId ?: "", start, end)
                         .groupBy { "${it.getYear()}/${it.getMonth()}" }
                 tmp.keys.mapNotNull {
                     tmp[it]?.let { it1 -> CubeEventRecordResponse.convertMonth(it1) }
                 }
             }
             else -> {
-                val sub = tCubeHistoryRepository.findWholeRecordDashboardDatePersonal(loginUserId, start, end)
+                val sub = tCubeHistoryRepository.findWholeRecordDashboardDate(loginUserId ?: "", start, end)
                     .groupBy { it.getDate() }
                 sub.keys.mapNotNull {
                     sub[it]?.let { it1 -> CubeEventRecordResponse.convertDate(it1) }
@@ -95,42 +94,11 @@ class DashboardService(
         )
     }
 
-    fun getWholeRecordDashboard(startDate: LocalDate?, endDate: LocalDate?): WholeRecordDashboardResponse {
-        val start = startDate ?: LocalDate.of(2022, 11, 25)
-        val end = endDate ?: LocalDate.now()
-        val period = Period.between(start, end)
-
-        val res = when {
-            period.months > 3 -> {
-                val tmp = tCubeHistoryRepository.findWholeRecordDashboardMonth(start, end)
-                    .groupBy { "${it.getYear()}/${it.getMonth()}" }
-                tmp.keys.mapNotNull {
-                    tmp[it]?.let { it1 -> CubeEventRecordResponse.convertMonth(it1) }
-                }
-            }
-            else -> {
-                val sub = tCubeHistoryRepository.findWholeRecordDashboardDate(start, end).groupBy { it.getDate() }
-                sub.keys.mapNotNull {
-                    sub[it]?.let { it1 -> CubeEventRecordResponse.convertDate(it1) }
-                }
-            }
-        }.flatten()
-
-        return WholeRecordDashboardResponse(
-            categories = res.map { it.category }.toSet().toList(),
-            data = res
-        )
+    fun getItemFilterOption(loginUserId: String): List<String> {
+        return tCubeHistoryRepository.findItemFilterOption(loginUserId)
     }
 
-    fun getItemFilterOptionCommon(): List<String> {
-        return tCubeHistoryRepository.findItemFilterOptionCommon()
-    }
-
-    fun getItemFilterOptionPersonal(loginUserId: String): List<String> {
-        return tCubeHistoryRepository.findItemFilterOptionPersonal(loginUserId)
-    }
-
-    fun getItemDashboardPersonal(
+    fun itemHistorySearch(
         loginUserId: String,
         item: String?,
         cube: String?,
@@ -143,7 +111,7 @@ class DashboardService(
     ): List<CubeHistoryResponse> {
         val history =
             if (haveCondition(item, cube, option1, option2, option3, optionValue1, optionValue2, optionValue3))
-                tCubeHistoryRepository.findHistoryByConditionPersonal(
+                tCubeHistoryRepository.findHistoryByCondition(
                     loginUserId,
                     item ?: "",
                     cube ?: "",
@@ -154,7 +122,7 @@ class DashboardService(
                     optionValue2 ?: 0,
                     optionValue3 ?: 0,
                 )
-            else tCubeHistoryRepository.findHistoryByPersonalOrderByCreatedAt(loginUserId)
+            else tCubeHistoryRepository.findHistoryOrderByCreatedAt(loginUserId)
         return history.map {
             CubeHistoryResponse.convert(it)
         }
