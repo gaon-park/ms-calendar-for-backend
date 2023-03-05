@@ -21,6 +21,7 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, ByteArray> {
                 "from t_cube_history\n" +
                 "where item_upgrade = 1\n" +
                 "and date(created_at) >= :start and date(created_at) <= :end\n" +
+                "and if(cube_type != 'ADDITIONAL', potential_option_grade = 'LEGENDARY', additional_potential_option_grade = 'LEGENDARY')" +
                 "and if(:loginUserId != '', user_id = :loginUserId, user_id != '')" +
                 "and if(:item != '', target_item = :item, target_item != '')\n" +
                 "group by cube_type",
