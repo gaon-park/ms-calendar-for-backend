@@ -2,6 +2,7 @@ package com.maple.herocalendarforbackend.api
 
 import com.maple.herocalendarforbackend.dto.response.CubeHistoryResponse
 import com.maple.herocalendarforbackend.dto.response.CubeOverviewResponse
+import com.maple.herocalendarforbackend.dto.response.GradeUpDashboard
 import com.maple.herocalendarforbackend.dto.response.WholeRecordDashboardResponse
 import com.maple.herocalendarforbackend.service.DashboardService
 import org.springframework.format.annotation.DateTimeFormat
@@ -19,6 +20,24 @@ import java.time.LocalDate
 class DashboardController(
     private val dashboardService: DashboardService
 ) {
+
+    @GetMapping("/personal/grade-up")
+    fun getGradeUpPersonal(
+        principal: Principal,
+        @RequestParam("item", required = false) item: String?,
+        @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("startDate", required = false) startDate: LocalDate?,
+        @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("endDate", required = false) endDate: LocalDate?,
+    ): ResponseEntity<GradeUpDashboard> {
+        return ResponseEntity.ok(dashboardService.getGradeUpDashboard(principal.name, item, startDate, endDate))
+    }
+
+    @GetMapping("/grade-up")
+    fun getGradeUpCommon(
+        @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("startDate", required = false) startDate: LocalDate?,
+        @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("endDate", required = false) endDate: LocalDate?,
+    ): ResponseEntity<GradeUpDashboard> {
+        return ResponseEntity.ok(dashboardService.getGradeUpDashboard(null, null, startDate, endDate))
+    }
 
     @GetMapping("/cube-overview")
     fun getCubeCountCommon(): ResponseEntity<CubeOverviewResponse> {
@@ -42,25 +61,6 @@ class DashboardController(
         principal: Principal
     ): List<String> {
         return dashboardService.getItemFilterOptionPersonal(principal.name)
-    }
-
-    @Suppress("LongParameterList")
-    @GetMapping("/for-item")
-    fun getDashboardData(
-        @RequestParam("item", required = false) item: String?,
-        @RequestParam("cube", required = false) cube: String?,
-        @RequestParam("option1", required = false) option1: String?,
-        @RequestParam("option2", required = false) option2: String?,
-        @RequestParam("option3", required = false) option3: String?,
-        @RequestParam("optionValue1", required = false) optionValue1: Int?,
-        @RequestParam("optionValue2", required = false) optionValue2: Int?,
-        @RequestParam("optionValue3", required = false) optionValue3: Int?,
-    ): ResponseEntity<List<CubeHistoryResponse>> {
-        return ResponseEntity.ok(
-            dashboardService.getItemDashboard(
-                item, cube, option1, option2, option3, optionValue1, optionValue2, optionValue3
-            )
-        )
     }
 
     @Suppress("LongParameterList")

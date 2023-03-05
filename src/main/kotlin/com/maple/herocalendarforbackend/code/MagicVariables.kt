@@ -20,4 +20,8 @@ object MagicVariables {
     const val AUTHORIZATION_REFRESH_JWT = "X-AUTH-REFRESH-TOKEN"
 
     const val GCS_BASE_URL = "https://storage.googleapis.com/ms-hero-profile/"
+
+    const val RED_LEGENDARY_GRADE_UP = 0.3000
+    const val BLACK_LEGENDARY_GRADE_UP = 1.2000
+    const val ADDITIONAL_LEGENDARY_GRADE_UP = 0.6000
 }

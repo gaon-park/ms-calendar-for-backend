@@ -30,9 +30,9 @@ class JwtAuthenticationFilter(
             "/api/oauth2/",
             "/api/reissue/token",
             "/api/dashboard/item-options",
-            "/api/dashboard/for-item",
             "/api/dashboard/whole-record",
-            "/api/dashboard/cube-overview"
+            "/api/dashboard/cube-overview",
+            "/api/dashboard/grade-up"
         )
         val GET_BOTH_URL = listOf(
             "/api/search/user",
