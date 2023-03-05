@@ -67,12 +67,15 @@ class CubeService(
                 )
             )
         ) now.toLocalDate() else now.minusDays(1).toLocalDate()
-        startDate.datesUntil(today).parallel().forEach {
-            saveHistory(loginUserId, apiKey, it)
-            batchDateList.add(it)
-        }
+        val nexonUtil = NexonUtil()
+        if (nexonUtil.isValidToken(apiKey)) {
+            startDate.datesUntil(today).parallel().forEach {
+                saveHistory(loginUserId, apiKey, it)
+                batchDateList.add(it)
+            }
 
-        saveKeyAndBatchKey(apiKey, loginUserId, batchDateList)
+            saveKeyAndBatchKey(apiKey, loginUserId, batchDateList)
+        }
     }
 
     @Transactional
