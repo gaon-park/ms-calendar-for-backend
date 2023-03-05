@@ -48,6 +48,7 @@ class CubeService(
 
     @Transactional
     fun tmpBatch() {
+        var index = 0
         tCubeApiKeyRepository.findAll().map { key ->
             val startDate = LocalDate.of(2022, 11, 25)
             val batchDateList = mutableListOf<LocalDate>()
@@ -66,7 +67,8 @@ class CubeService(
                 saveHistory(key.userId, key.apiKey, it)
                 batchDateList.add(it)
             }
-            logger.info("${key.userId} 종료")
+            logger.info("$index 종료")
+            index += 1
         }
     }
 
@@ -129,7 +131,7 @@ class CubeService(
 
     @Transactional
     fun saveHistory(loginUserId: String, apiKey: String, date: LocalDate) {
-        logger.debug("$date 데이터 수집!")
+        logger.info("$date 데이터 수집!")
         val nexonUtil = NexonUtil()
         val data = nexonUtil.firstProcess(apiKey, date.toString())
         if (data.count != null && data.cubeHistories.isNotEmpty()) {
@@ -139,7 +141,7 @@ class CubeService(
                 }
             )
         }
-        logger.debug("$date 첫장 데이터 수집 완!")
+        logger.info("$date 첫장 데이터 수집 완!")
         var nextCursor = data.nextCursor
         while (nextCursor.isNotEmpty()) {
             logger.debug("$date $nextCursor 장 데이터 수집!")
@@ -149,7 +151,7 @@ class CubeService(
                     TCubeHistory.convert(loginUserId, history, cubeTypeMap, potentialOptionMap)
                 }
             )
-            logger.debug("$date $nextCursor 장 데이터 수집 완!")
+            logger.info("$date $nextCursor 장 데이터 수집 완!")
             nextCursor = inData.nextCursor
         }
     }
