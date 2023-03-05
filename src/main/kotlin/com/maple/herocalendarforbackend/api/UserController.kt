@@ -37,7 +37,7 @@ class UserController(
     private val cubeService: CubeService
 ) {
 
-    @PostMapping("/onlyAdmin/tmp/function")
+    @GetMapping("/onlyAdmin/tmp/function")
     fun tmpBatch() {
         cubeService.tmpBatch()
     }
