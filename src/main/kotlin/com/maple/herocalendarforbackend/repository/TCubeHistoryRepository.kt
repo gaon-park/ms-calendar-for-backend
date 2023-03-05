@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 
 @Suppress("LongParameterList", "MaxLineLength", "TooManyFunctions")
@@ -209,10 +210,11 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, ByteArray> {
     ): List<IWholeRecordDashboardDate>
 
     @Query(
-        "delete from t_cube_history h  where h.user_id = :userId",
+        "delete from t_cube_history h where h.user_id = :userId",
         nativeQuery = true
     )
     @Modifying
+    @Transactional
     fun deleteByAccount(
         @Param("userId") userId: String,
     )

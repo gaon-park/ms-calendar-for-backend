@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
+import org.springframework.transaction.annotation.Transactional
 
 @Suppress("EmptyClassBlock")
 @Repository
@@ -37,6 +38,7 @@ interface TCubeApiKeyRepository : JpaRepository<TCubeApiKey, String> {
         nativeQuery = true
     )
     @Modifying
+    @Transactional
     fun deleteByAccount(
         @Param("userId") userId: String
     )
