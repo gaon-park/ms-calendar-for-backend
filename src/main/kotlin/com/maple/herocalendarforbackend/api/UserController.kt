@@ -38,13 +38,6 @@ class UserController(
     private val cubeService: CubeService
 ) {
 
-    @GetMapping("/onlyAdmin/tmp/function")
-    fun tmpBatch(
-        @RequestParam(name = "userId") userId: String,
-    ) {
-        cubeService.tmpBatch(userId)
-    }
-
     @GetMapping("/api-key")
     fun getApiKey(
         principal: Principal,
