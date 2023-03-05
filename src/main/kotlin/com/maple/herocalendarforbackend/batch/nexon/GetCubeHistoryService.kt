@@ -102,23 +102,31 @@ class GetCubeHistoryService(
     @Transactional
     fun saveHistory(userId: String, apiKey: String, date: LocalDate) {
         val nexonUtil = NexonUtil()
-        val data = nexonUtil.firstProcess(apiKey, date.toString())
-        if (data.count != null && data.cubeHistories.isNotEmpty()) {
-            tCubeHistoryRepository.saveAll(
-                data.cubeHistories.map {
-                    TCubeHistory.convert(userId, it)
-                }
-            )
-        }
-        var nextCursor = data.nextCursor
-        while (nextCursor.isNotEmpty()) {
-            val inData = nexonUtil.whileProcess(nextCursor, apiKey)
-            tCubeHistoryRepository.saveAll(
-                inData.cubeHistories.map { history ->
-                    TCubeHistory.convert(userId, history)
-                }
-            )
-            nextCursor = inData.nextCursor
+        try {
+            logger.info("$userId 디비 저장")
+            val data = nexonUtil.firstProcess(apiKey, date.toString())
+            if (data.count != null && data.cubeHistories.isNotEmpty()) {
+                tCubeHistoryRepository.saveAll(
+                    data.cubeHistories.map {
+                        TCubeHistory.convert(userId, it)
+                    }
+                )
+            }
+            var nextCursor = data.nextCursor
+            while (nextCursor.isNotEmpty()) {
+                val inData = nexonUtil.whileProcess(nextCursor, apiKey)
+                tCubeHistoryRepository.saveAll(
+                    inData.cubeHistories.map { history ->
+                        TCubeHistory.convert(userId, history)
+                    }
+                )
+                nextCursor = inData.nextCursor
+            }
+            logger.info("$userId 디비 저장 완!")
+        } catch (_: BaseException) {
+            tCubeHistoryRepository.deleteByAccount(userId)
+            tCubeHistoryBatchRepository.deleteByAccount(userId)
+            tCubeApiKeyRepository.deleteByAccount(userId)
         }
     }
 }

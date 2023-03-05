@@ -100,28 +100,35 @@ class CubeService(
 
     @Transactional
     fun saveHistory(loginUserId: String, apiKey: String, date: LocalDate) {
-        logger.info("$loginUserId] $date 데이터 수집!")
         val nexonUtil = NexonUtil()
-        val data = nexonUtil.firstProcess(apiKey, date.toString())
-        if (data.count != null && data.cubeHistories.isNotEmpty()) {
-            tCubeHistoryRepository.saveAll(
-                data.cubeHistories.map {
-                    TCubeHistory.convert(loginUserId, it)
-                }
-            )
+        try {
+            logger.info("$loginUserId] $date 데이터 수집!")
+            val data = nexonUtil.firstProcess(apiKey, date.toString())
+            if (data.count != null && data.cubeHistories.isNotEmpty()) {
+                tCubeHistoryRepository.saveAll(
+                    data.cubeHistories.map {
+                        TCubeHistory.convert(loginUserId, it)
+                    }
+                )
+            }
+            logger.info("$date 첫장 데이터 수집 완!")
+            var nextCursor = data.nextCursor
+            while (nextCursor.isNotEmpty()) {
+                logger.debug("$date $nextCursor 장 데이터 수집!")
+                val inData = nexonUtil.whileProcess(nextCursor, apiKey)
+                tCubeHistoryRepository.saveAll(
+                    inData.cubeHistories.map { history ->
+                        TCubeHistory.convert(loginUserId, history)
+                    }
+                )
+                logger.info("$date $nextCursor 장 데이터 수집 완!")
+                nextCursor = inData.nextCursor
+            }
         }
-        logger.info("$date 첫장 데이터 수집 완!")
-        var nextCursor = data.nextCursor
-        while (nextCursor.isNotEmpty()) {
-            logger.debug("$date $nextCursor 장 데이터 수집!")
-            val inData = nexonUtil.whileProcess(nextCursor, apiKey)
-            tCubeHistoryRepository.saveAll(
-                inData.cubeHistories.map { history ->
-                    TCubeHistory.convert(loginUserId, history)
-                }
-            )
-            logger.info("$date $nextCursor 장 데이터 수집 완!")
-            nextCursor = inData.nextCursor
+        catch(_: BaseException) {
+            tCubeHistoryRepository.deleteByAccount(loginUserId)
+            tCubeHistoryBatchRepository.deleteByAccount(loginUserId)
+            tCubeApiKeyRepository.deleteByAccount(loginUserId)
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.maple.herocalendarforbackend.util
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.maple.herocalendarforbackend.code.BaseResponseCode
@@ -17,6 +18,8 @@ class NexonUtil {
     private val logger = LoggerFactory.getLogger(NexonUtil::class.java)
 
     private val mapper = JsonMapper.builder().addModule(JavaTimeModule()).build()
+        .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+
     fun isValidToken(apiKey: String): Boolean {
         val req = "${url}count=10&date=2022-11-25"
         return try {
@@ -39,19 +42,19 @@ class NexonUtil {
 
     private fun urlReq(req: String, apiKey: String): CubeHistoryResponseDTO {
         try {
-            logger.debug("$req 요청 준비")
+            logger.info("$req 요청 준비")
             val nUrl = URL(req)
             val conn = nUrl.openConnection() as HttpURLConnection
             conn.requestMethod = "GET"
             conn.useCaches = false
             conn.setRequestProperty("Authorization", apiKey)
             val reader = BufferedReader(InputStreamReader(conn.inputStream, "UTF-8"))
-            logger.debug("$req 응답 받았다!")
+            logger.info("$req 응답 받았다!")
             val tmp = mapper.readValue(reader, CubeHistoryResponseDTO::class.java)
-            logger.debug("$req JSON 맵핑 완료")
+            logger.info("$req JSON 맵핑 완료")
             return tmp
         } catch (e: java.lang.Exception) {
-            logger.debug("$req 에러났담..")
+            logger.info("$req 에러났담..[apiKey: $apiKey]")
             logger.debug(e.stackTraceToString())
             throw BaseException(BaseResponseCode.DATA_ERROR)
         }
