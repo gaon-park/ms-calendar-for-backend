@@ -47,9 +47,8 @@ class CubeService(
     }
 
     @Transactional
-    fun tmpBatch() {
-        var index = 0
-        tCubeApiKeyRepository.findAll().map { key ->
+    fun tmpBatch(userId: String) {
+        tCubeApiKeyRepository.findByUserId(userId)?.let{ key ->
             val startDate = LocalDate.of(2022, 11, 25)
             val batchDateList = mutableListOf<LocalDate>()
             val now = LocalDateTime.now()
@@ -67,8 +66,7 @@ class CubeService(
                 saveHistory(key.userId, key.apiKey, it)
                 batchDateList.add(it)
             }
-            logger.info("$index 종료")
-            index += 1
+            logger.info("$userId 종료")
         }
     }
 
