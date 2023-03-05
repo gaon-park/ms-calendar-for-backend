@@ -16,12 +16,12 @@ data class CubeCount(
     companion object {
         fun convert(cubeCounts: List<ICubeTypeCount>) = CubeCount(
             allCount = cubeCounts.sumOf { it.getCount() },
-            susangCount = cubeCounts.firstOrNull { it.getCubeType() == "SUSANG" }?.getCount() ?: 0,
-            jangyinCount = cubeCounts.firstOrNull { it.getCubeType() == "JANGYIN" }?.getCount() ?: 0,
-            myungjangCount = cubeCounts.firstOrNull { it.getCubeType() == "MYUNGJANG" }?.getCount() ?: 0,
-            redCount = cubeCounts.firstOrNull { it.getCubeType() == "RED" }?.getCount() ?: 0,
-            blackCount = cubeCounts.firstOrNull { it.getCubeType() == "BLACK" }?.getCount() ?: 0,
-            additionalCount = cubeCounts.firstOrNull { it.getCubeType() == "ADDITIONAL" }?.getCount() ?: 0
+            susangCount = cubeCounts.firstOrNull { it.getCubeType() == "수상한 큐브" }?.getCount() ?: 0,
+            jangyinCount = cubeCounts.firstOrNull { it.getCubeType() == "장인의 큐브" }?.getCount() ?: 0,
+            myungjangCount = cubeCounts.firstOrNull { it.getCubeType() == "명장의 큐브" }?.getCount() ?: 0,
+            redCount = cubeCounts.firstOrNull { it.getCubeType() == "레드 큐브" }?.getCount() ?: 0,
+            blackCount = cubeCounts.firstOrNull { it.getCubeType() == "블랙 큐브" }?.getCount() ?: 0,
+            additionalCount = cubeCounts.firstOrNull { it.getCubeType() == "에디셔널 큐브" }?.getCount() ?: 0
         )
     }
 }

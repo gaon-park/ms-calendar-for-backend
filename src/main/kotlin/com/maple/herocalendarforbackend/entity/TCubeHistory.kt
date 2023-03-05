@@ -1,11 +1,7 @@
 package com.maple.herocalendarforbackend.entity
 
-import com.maple.herocalendarforbackend.code.nexon.CubeType
-import com.maple.herocalendarforbackend.code.nexon.PotentialOption
 import com.maple.herocalendarforbackend.dto.nexon.CubeHistoryDTO
 import jakarta.persistence.Entity
-import jakarta.persistence.EnumType
-import jakarta.persistence.Enumerated
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import java.time.LocalDateTime
@@ -16,16 +12,13 @@ data class TCubeHistory(
     @Id
     val id: ByteArray,
     val userId: String,
-    @Enumerated(value = EnumType.STRING)
-    val cubeType: CubeType?,
+    val cubeType: String,
     val itemUpgrade: Boolean,
     val miracleFlg: Boolean,
     val itemLevel: Int,
     val targetItem: String,
-    @Enumerated(value = EnumType.STRING)
-    val potentialOptionGrade: PotentialOption?,
-    @Enumerated(value = EnumType.STRING)
-    val additionalPotentialOptionGrade: PotentialOption?,
+    val potentialOptionGrade: String,
+    val additionalPotentialOptionGrade: String,
 
     val beforeOption1: String?,
     val beforeOption2: String?,
@@ -65,8 +58,6 @@ data class TCubeHistory(
         @Suppress("LongMethod")
         fun convert(
             userId: String, data: CubeHistoryDTO,
-            cubeTypeMap: Map<String, CubeType>,
-            potentialOptionMap: Map<String, PotentialOption>
         ): TCubeHistory {
             var beforeOptions: List<String?> = listOf(null, null, null)
             var beforeOptionValues: List<String?> = listOf(null, null, null)
@@ -77,7 +68,7 @@ data class TCubeHistory(
             var afterAdditionalOptions: List<String?> = listOf(null, null, null)
             var afterAdditionalOptionValues: List<String?> = listOf(null, null, null)
 
-            if (cubeTypeMap[data.cubeType] != CubeType.ADDITIONAL) {
+            if (data.cubeType != "에디셔널 큐브") {
                 val bOptions = listOf(
                     data.beforePotentialOptions.getOrNull(0)?.value?.split(":"),
                     data.beforePotentialOptions.getOrNull(1)?.value?.split(":"),
@@ -146,13 +137,13 @@ data class TCubeHistory(
             return TCubeHistory(
                 id = data.id.toByteArray(),
                 userId = userId,
-                cubeType = cubeTypeMap[data.cubeType],
+                cubeType = data.cubeType,
                 itemUpgrade = data.itemUpgradeResult != "실패",
                 miracleFlg = data.miracleTimeFlag != "이벤트 적용되지 않음",
                 itemLevel = data.itemLevel,
                 targetItem = data.targetItem,
-                potentialOptionGrade = potentialOptionMap[data.potentialOptionGrade],
-                additionalPotentialOptionGrade = potentialOptionMap[data.additionalPotentialOptionGrade],
+                potentialOptionGrade = data.potentialOptionGrade,
+                additionalPotentialOptionGrade = data.additionalPotentialOptionGrade,
 
                 beforeOption1 = beforeOptions.getOrNull(0),
                 beforeOption2 = beforeOptions.getOrNull(1),

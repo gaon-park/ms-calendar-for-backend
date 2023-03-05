@@ -1,7 +1,5 @@
 package com.maple.herocalendarforbackend.dto.response
 
-import com.maple.herocalendarforbackend.code.nexon.CubeType
-import com.maple.herocalendarforbackend.code.nexon.PotentialOption
 import com.maple.herocalendarforbackend.entity.TCubeHistory
 import lombok.Builder
 
@@ -10,20 +8,20 @@ import lombok.Builder
 data class CubeHistoryResponse(
     val id: String,
     val targetItem: String,
-    val cubeType: CubeType?,
+    val cubeType: String,
     val beforeOption1: String,
     val beforeOption2: String,
     val beforeOption3: String,
     val afterOption1: String,
     val afterOption2: String,
     val afterOption3: String,
-    val potentialOptionGrade: PotentialOption?,
+    val potentialOptionGrade: String,
     val itemUpgrade: Boolean,
 ) {
     companion object {
         fun convert(data: TCubeHistory): CubeHistoryResponse {
             val beforeOptions =
-                if (data.cubeType != CubeType.ADDITIONAL) {
+                if (data.cubeType != "에디셔널 큐브") {
                     listOf(
                         data.beforeOption1 + if (data.beforeOptionValue1 != null) " : " + data.beforeOptionValue1 else "",
                         data.beforeOption2 + if (data.beforeOptionValue2 != null) " : " + data.beforeOptionValue2 else "",
@@ -37,7 +35,7 @@ data class CubeHistoryResponse(
                     )
                 }
             val afterOptions =
-                if (data.cubeType != CubeType.ADDITIONAL) {
+                if (data.cubeType != "에디셔널 큐브") {
                     listOf(
                         data.afterOption1 + if (data.afterOptionValue1 != null) " : " + data.afterOptionValue1 else "",
                         data.afterOption2 + if (data.afterOptionValue2 != null) " : " + data.afterOptionValue2 else "",
@@ -61,7 +59,7 @@ data class CubeHistoryResponse(
                 afterOption1 = afterOptions[0],
                 afterOption2 = afterOptions[1],
                 afterOption3 = afterOptions[2],
-                potentialOptionGrade = if (data.cubeType == CubeType.ADDITIONAL) data.additionalPotentialOptionGrade else data.potentialOptionGrade,
+                potentialOptionGrade = if (data.cubeType == "에디셔널 큐브") data.additionalPotentialOptionGrade else data.potentialOptionGrade,
                 itemUpgrade = data.itemUpgrade
             )
         }

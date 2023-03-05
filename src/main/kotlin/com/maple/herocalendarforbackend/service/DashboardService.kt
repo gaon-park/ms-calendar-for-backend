@@ -35,13 +35,13 @@ class DashboardService(
         val allCount = tCubeHistoryRepository.findAllCubeCountForItemUpgrade(loginUserId ?: "", item ?: "", start, end)
         val gradeUpCount = tCubeHistoryRepository.findItemUpgradeCount(loginUserId ?: "", item ?: "", start, end)
 
-        val redAll = allCount.firstOrNull { it.getCubeType() == "RED" }?.getCount() ?: 0
-        val blackAll = allCount.firstOrNull { it.getCubeType() == "BLACK" }?.getCount() ?: 0
-        val additionalAll = allCount.firstOrNull { it.getCubeType() == "ADDITIONAL" }?.getCount() ?: 0
+        val redAll = allCount.firstOrNull { it.getCubeType() == "레드 큐브" }?.getCount() ?: 0
+        val blackAll = allCount.firstOrNull { it.getCubeType() == "블랙 큐브" }?.getCount() ?: 0
+        val additionalAll = allCount.firstOrNull { it.getCubeType() == "에디셔널 큐브" }?.getCount() ?: 0
 
-        val redUp = gradeUpCount.firstOrNull { it.getCubeType() == "RED" }?.getCount() ?: 0
-        val blackUp = gradeUpCount.firstOrNull { it.getCubeType() == "BLACK" }?.getCount() ?: 0
-        val additionalUp = gradeUpCount.firstOrNull { it.getCubeType() == "ADDITIONAL" }?.getCount() ?: 0
+        val redUp = gradeUpCount.firstOrNull { it.getCubeType() == "레드 큐브" }?.getCount() ?: 0
+        val blackUp = gradeUpCount.firstOrNull { it.getCubeType() == "블랙 큐브" }?.getCount() ?: 0
+        val additionalUp = gradeUpCount.firstOrNull { it.getCubeType() == "에디셔널 큐브" }?.getCount() ?: 0
 
         return GradeUpDashboard(
             actualRed = if (redAll != 0L && redUp != 0L) (redUp.toDouble()

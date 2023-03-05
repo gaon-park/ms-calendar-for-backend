@@ -2,8 +2,6 @@ package com.maple.herocalendarforbackend.batch.nexon
 
 import com.auth0.jwt.JWT
 import com.maple.herocalendarforbackend.code.BaseResponseCode
-import com.maple.herocalendarforbackend.code.nexon.CubeType
-import com.maple.herocalendarforbackend.code.nexon.PotentialOption
 import com.maple.herocalendarforbackend.entity.TCubeApiKey
 import com.maple.herocalendarforbackend.entity.TCubeHistory
 import com.maple.herocalendarforbackend.entity.TCubeHistoryBatch
@@ -19,41 +17,58 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 
-@Suppress("NestedBlockDepth", "MagicNumber")
+@Suppress("NestedBlockDepth", "MagicNumber", "MaxLineLength")
 @Service
 class GetCubeHistoryService(
     private val tCubeApiKeyRepository: TCubeApiKeyRepository,
     private val tCubeHistoryRepository: TCubeHistoryRepository,
     private val tCubeHistoryBatchRepository: TCubeHistoryBatchRepository
 ) {
-    private val potentialOptionMap = PotentialOption.values().associateBy { it.value }
-    private val cubeTypeMap = CubeType.values().associateBy { it.type }
 
     private val logger = LoggerFactory.getLogger(GetCubeHistoryService::class.java)
 
     fun process() {
         logger.info("Nexon CubeHistory API 처리 시작")
-        val count = tCubeApiKeyRepository.count()
-        val limit = 1000
-        val today = LocalDate.now()
-        var offset = 0L
-        for (i in 0..count step 1000) {
-            offset += i
-            val apiKey = tCubeApiKeyRepository.findByLimitOffset(limit, offset).associateBy { it.userId }
-            val batchDate =
-                tCubeHistoryBatchRepository.findByUserIdInLast(apiKey.keys.toList()).associateBy { it.batchKey.userId }
-            batchDate.keys.map { userId ->
-                val batchDateList = mutableListOf<LocalDate>()
-                batchDate[userId]?.let { tCubeHistoryBatch ->
-                    val startDate = tCubeHistoryBatch.batchKey.batchDate
-                    apiKey[tCubeHistoryBatch.batchKey.userId]?.let { tCubeApiKey ->
-                        startDate.datesUntil(today).parallel().forEach { date ->
-                            saveHistory(userId, tCubeApiKey.apiKey, date)
-                            batchDateList.add(date.plusDays(1))
-                        }
-                        saveKeyAndBatchKey(tCubeApiKey.apiKey, userId, batchDateList)
-                    }
-                }
+//        val count = tCubeApiKeyRepository.count()
+//        val limit = 1000
+//        val today = LocalDate.now()
+//        var offset = 0L
+//        for (i in 0..count step 1000) {
+//            offset += i
+//            val apiKey = tCubeApiKeyRepository.findByLimitOffset(limit, offset).associateBy { it.userId }
+//            val batchDate =
+//                tCubeHistoryBatchRepository.findByUserIdInLast(apiKey.keys.toList()).associateBy { it.batchKey.userId }
+//            batchDate.keys.map { userId ->
+//                val batchDateList = mutableListOf<LocalDate>()
+//                batchDate[userId]?.let { tCubeHistoryBatch ->
+//                    val startDate = tCubeHistoryBatch.batchKey.batchDate
+//                    apiKey[tCubeHistoryBatch.batchKey.userId]?.let { tCubeApiKey ->
+//                        startDate.datesUntil(today).parallel().forEach { date ->
+//                            saveHistory(userId, tCubeApiKey.apiKey, date)
+//                            batchDateList.add(date.plusDays(1))
+//                        }
+//                        saveKeyAndBatchKey(tCubeApiKey.apiKey, userId, batchDateList)
+//                    }
+//                }
+//            }
+//        }
+
+        tCubeApiKeyRepository.findAll().map { key ->
+            val startDate = LocalDate.of(2022, 11, 25)
+            val now = LocalDateTime.now()
+            val today = if (now.isAfter(
+                    LocalDateTime.of(
+                        now.year,
+                        now.month,
+                        now.dayOfMonth,
+                        4,
+                        0
+                    )
+                )
+            ) now.toLocalDate() else now.minusDays(1).toLocalDate()
+
+            startDate.datesUntil(today).parallel().forEach {
+                saveHistory(key.userId, key.apiKey, it)
             }
         }
 
@@ -91,7 +106,7 @@ class GetCubeHistoryService(
         if (data.count != null && data.cubeHistories.isNotEmpty()) {
             tCubeHistoryRepository.saveAll(
                 data.cubeHistories.map {
-                    TCubeHistory.convert(userId, it, cubeTypeMap, potentialOptionMap)
+                    TCubeHistory.convert(userId, it)
                 }
             )
         }
@@ -100,7 +115,7 @@ class GetCubeHistoryService(
             val inData = nexonUtil.whileProcess(nextCursor, apiKey)
             tCubeHistoryRepository.saveAll(
                 inData.cubeHistories.map { history ->
-                    TCubeHistory.convert(userId, history, cubeTypeMap, potentialOptionMap)
+                    TCubeHistory.convert(userId, history)
                 }
             )
             nextCursor = inData.nextCursor

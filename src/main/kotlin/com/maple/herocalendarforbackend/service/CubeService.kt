@@ -2,8 +2,6 @@ package com.maple.herocalendarforbackend.service
 
 import com.auth0.jwt.JWT
 import com.maple.herocalendarforbackend.code.BaseResponseCode
-import com.maple.herocalendarforbackend.code.nexon.CubeType
-import com.maple.herocalendarforbackend.code.nexon.PotentialOption
 import com.maple.herocalendarforbackend.dto.response.APIKeyResponse
 import com.maple.herocalendarforbackend.entity.TCubeApiKey
 import com.maple.herocalendarforbackend.entity.TCubeHistory
@@ -31,9 +29,6 @@ class CubeService(
 ) {
 
     private val logger = LoggerFactory.getLogger(CubeService::class.java)
-
-    private val potentialOptionMap = PotentialOption.values().associateBy { it.value }
-    private val cubeTypeMap = CubeType.values().associateBy { it.type }
 
     fun getApiKey(loginUserId: String): APIKeyResponse? {
         return tCubeApiKeyRepository.findByUserId(loginUserId)?.let {
@@ -111,7 +106,7 @@ class CubeService(
         if (data.count != null && data.cubeHistories.isNotEmpty()) {
             tCubeHistoryRepository.saveAll(
                 data.cubeHistories.map {
-                    TCubeHistory.convert(loginUserId, it, cubeTypeMap, potentialOptionMap)
+                    TCubeHistory.convert(loginUserId, it)
                 }
             )
         }
@@ -122,7 +117,7 @@ class CubeService(
             val inData = nexonUtil.whileProcess(nextCursor, apiKey)
             tCubeHistoryRepository.saveAll(
                 inData.cubeHistories.map { history ->
-                    TCubeHistory.convert(loginUserId, history, cubeTypeMap, potentialOptionMap)
+                    TCubeHistory.convert(loginUserId, history)
                 }
             )
             logger.info("$date $nextCursor 장 데이터 수집 완!")
