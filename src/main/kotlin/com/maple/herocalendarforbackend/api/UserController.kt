@@ -37,6 +37,11 @@ class UserController(
     private val cubeService: CubeService
 ) {
 
+    @PostMapping("/onlyAdmin/tmp/function")
+    fun tmpBatch() {
+        cubeService.tmpBatch()
+    }
+
     @GetMapping("/api-key")
     fun getApiKey(
         principal: Principal,

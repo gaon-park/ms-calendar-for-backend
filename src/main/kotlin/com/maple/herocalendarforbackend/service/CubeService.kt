@@ -47,6 +47,29 @@ class CubeService(
     }
 
     @Transactional
+    fun tmpBatch() {
+        tCubeApiKeyRepository.findAll().map { key ->
+            val startDate = LocalDate.of(2022, 11, 25)
+            val batchDateList = mutableListOf<LocalDate>()
+            val now = LocalDateTime.now()
+            val today = if (now.isAfter(
+                    LocalDateTime.of(
+                        now.year,
+                        now.month,
+                        now.dayOfMonth,
+                        4,
+                        0
+                    )
+                )
+            ) now.toLocalDate() else now.minusDays(1).toLocalDate()
+            startDate.datesUntil(today).parallel().forEach {
+                saveHistory(key.userId, key.apiKey, it)
+                batchDateList.add(it)
+            }
+        }
+    }
+
+    @Transactional
     fun isValidToken(tCubeApiKey: TCubeApiKey): Boolean {
         if (tCubeApiKey.expiredAt.isBefore(LocalDateTime.now())) {
             tCubeApiKeyRepository.save(tCubeApiKey.copy(expired = true))
