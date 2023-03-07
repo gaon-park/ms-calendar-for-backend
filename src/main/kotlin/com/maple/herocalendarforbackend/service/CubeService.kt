@@ -136,16 +136,21 @@ class CubeService(
                 val entities = inData.cubeHistories.map { history ->
                     TCubeHistory.convert(loginUserId, history)
                 }
-                cubeCountMap.putAll(
-                    entities.groupBy {
-                        TCubeCountHistory.FromNexonData(
-                            targetItem = it.targetItem,
-                            cubeType = it.cubeType,
-                            potentialOptionGrade = it.potentialOptionGrade,
-                            additionalPotentialOptionGrade = it.additionalPotentialOptionGrade
-                        )
+                val tmp = entities.groupBy {
+                    TCubeCountHistory.FromNexonData(
+                        targetItem = it.targetItem,
+                        cubeType = it.cubeType,
+                        potentialOptionGrade = it.potentialOptionGrade,
+                        additionalPotentialOptionGrade = it.additionalPotentialOptionGrade
+                    )
+                }
+                tmp.keys.map {
+                    if (cubeCountMap.containsKey(it)) {
+                        cubeCountMap[it] = cubeCountMap[it]!!.plus(tmp[it]!!)
+                    } else {
+                        cubeCountMap[it] = tmp[it]!!
                     }
-                )
+                }
                 if (withHistorySave)
                     tCubeHistoryRepository.saveAll(entities)
                 nextCursor = inData.nextCursor
