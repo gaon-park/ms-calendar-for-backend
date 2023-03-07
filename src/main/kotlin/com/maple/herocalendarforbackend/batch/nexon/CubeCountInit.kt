@@ -2,6 +2,7 @@ package com.maple.herocalendarforbackend.batch.nexon
 
 import com.auth0.jwt.JWT
 import com.maple.herocalendarforbackend.code.BaseResponseCode
+import com.maple.herocalendarforbackend.code.MagicVariables
 import com.maple.herocalendarforbackend.entity.TCubeApiKey
 import com.maple.herocalendarforbackend.entity.TCubeCountHistory
 import com.maple.herocalendarforbackend.entity.TCubeHistory
@@ -167,5 +168,9 @@ class CubeCountInit(
                 registProcess(it.apiKey, it.userId)
             }
         }
+
+        tCubeHistoryRepository.deleteByCreatedAt(
+            LocalDate.now().minusMonths(MagicVariables.CAN_SEARCH_START_MINUS_MONTH).minusDays(1)
+        )
     }
 }

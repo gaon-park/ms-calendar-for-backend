@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
+@Suppress("MagicNumber")
 @Service
 class ExpiredCubeHistoryDeleteService(
     private val tCubeHistoryRepository: TCubeHistoryRepository,
@@ -16,7 +17,7 @@ class ExpiredCubeHistoryDeleteService(
     fun process() {
         logger.info("Expired CubeHistory Delete 처리 시작")
 
-        tCubeHistoryRepository.deleteByCreatedAt(LocalDate.now().minusMonths(CAN_SEARCH_START_MINUS_MONTH))
+        tCubeHistoryRepository.deleteByCreatedAt(LocalDate.now().minusMonths(CAN_SEARCH_START_MINUS_MONTH).minusDays(1))
 
         logger.info("Expired CubeHistory Delete 처리 종료")
     }
