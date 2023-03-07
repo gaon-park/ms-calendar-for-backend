@@ -21,8 +21,8 @@ class DashboardController(
     private val dashboardService: DashboardService
 ) {
 
-    @GetMapping("/personal/grade-up")
-    fun getGradeUpPersonal(
+    @GetMapping("/personal/grade-up/legendary")
+    fun getGradeUpPersonalLegendary(
         principal: Principal,
         @RequestParam("item", required = false) item: String?,
         @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("startDate", required = false) startDate: LocalDate?,
@@ -40,8 +40,27 @@ class DashboardController(
         )
     }
 
-    @GetMapping("/grade-up")
-    fun getGradeUpCommon(
+    @GetMapping("/personal/grade-up/unique")
+    fun getGradeUpPersonalUnique(
+        principal: Principal,
+        @RequestParam("item", required = false) item: String?,
+        @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("startDate", required = false) startDate: LocalDate?,
+        @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("endDate", required = false) endDate: LocalDate?,
+    ): ResponseEntity<GradeUpDashboard> {
+        return ResponseEntity.ok(
+            dashboardService.getGradeDashboardByGrade(
+                loginUserId = principal.name,
+                item = item,
+                startDate = startDate,
+                endDate = endDate,
+                grade = "에픽",
+                nextGrade = "유니크"
+            )
+        )
+    }
+
+    @GetMapping("/grade-up/legendary")
+    fun getGradeUpCommonLegendary(
         @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("startDate", required = false) startDate: LocalDate?,
         @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("endDate", required = false) endDate: LocalDate?,
     ): ResponseEntity<GradeUpDashboard> {
@@ -53,6 +72,23 @@ class DashboardController(
                 endDate = endDate,
                 grade = "유니크",
                 nextGrade = "레전드리"
+            )
+        )
+    }
+
+    @GetMapping("/grade-up/unique")
+    fun getGradeUpCommonUnique(
+        @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("startDate", required = false) startDate: LocalDate?,
+        @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("endDate", required = false) endDate: LocalDate?,
+    ): ResponseEntity<GradeUpDashboard> {
+        return ResponseEntity.ok(
+            dashboardService.getGradeDashboardByGrade(
+                loginUserId = null,
+                item = null,
+                startDate = startDate,
+                endDate = endDate,
+                grade = "에픽",
+                nextGrade = "유니크"
             )
         )
     }

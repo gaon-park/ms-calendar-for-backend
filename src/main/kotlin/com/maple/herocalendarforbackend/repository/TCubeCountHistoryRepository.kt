@@ -47,7 +47,7 @@ interface TCubeCountHistoryRepository : JpaRepository<TCubeCountHistory, Long> {
                 "\tcube_type as cubeType,\n" +
                 "\tsum(count) as count\n" +
                 "from t_cube_count_history\n" +
-                "where cube_type = '블랙 큐브' or cube_type = '레드 큐브' or cube_type = '에디셔널 큐브'\n" +
+                "where (cube_type = '블랙 큐브' or cube_type = '레드 큐브' or cube_type = '에디셔널 큐브')\n" +
                 "and date(created_at) >= :start and date(created_at) <= :end\n" +
                 "and if(:loginUserId != '', user_id = :loginUserId, user_id != '')\n" +
                 "group by cube_type, year(created_at), month(created_at)\n" +
@@ -66,8 +66,14 @@ interface TCubeCountHistoryRepository : JpaRepository<TCubeCountHistory, Long> {
                 "\tcube_type as cubeType,\n" +
                 "\tsum(count) as count\n" +
                 "from t_cube_count_history\n" +
-                "where cube_type = '블랙 큐브' or cube_type = '레드 큐브' or cube_type = '에디셔널 큐브'\n" +
-                "and date(created_at) >= :start and date(created_at) <= :end\n" +
+                "where (\n" +
+                "        cube_type = '블랙 큐브' \n" +
+                "        or cube_type = '레드 큐브' \n" +
+                "        or cube_type = '에디셔널 큐브' \n" +
+                "        )\n" +
+                "        and (\n" +
+                "        \tdate(created_at) >= :start and date(created_at) <= :end \n" +
+                "        )\n" +
                 "and if(:loginUserId != '', user_id = :loginUserId, user_id != '')\n" +
                 "group by cube_type, date(created_at)\n" +
                 "order by date(created_at)",

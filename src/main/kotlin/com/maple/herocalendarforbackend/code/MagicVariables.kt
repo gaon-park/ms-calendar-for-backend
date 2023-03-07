@@ -25,5 +25,9 @@ object MagicVariables {
     const val BLACK_LEGENDARY_GRADE_UP = 1.2000
     const val ADDITIONAL_LEGENDARY_GRADE_UP = 0.6000
 
+    const val RED_UNIQUE_GRADE_UP = 1.8000
+    const val BLACK_UNIQUE_GRADE_UP = 3.5000
+    const val ADDITIONAL_UNIQUE_GRADE_UP = 1.9608
+
     const val CAN_SEARCH_START_MINUS_MONTH = 3L
 }
