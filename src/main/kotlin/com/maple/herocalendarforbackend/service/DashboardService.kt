@@ -138,6 +138,14 @@ class DashboardService(
         return tCubeCountHistoryRepository.findItemFilterOption(loginUserId)
     }
 
+    fun getItemFilterOptionByCanSearchStartDate(loginUserId: String): List<String> {
+        return tCubeCountHistoryRepository.findItemFilterOptionByCanSearchStartDate(
+            loginUserId, LocalDate.now().minusMonths(
+                CAN_SEARCH_START_MINUS_MONTH
+            )
+        )
+    }
+
     fun itemHistorySearch(
         loginUserId: String,
         item: String?,

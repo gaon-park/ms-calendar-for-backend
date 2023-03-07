@@ -70,10 +70,17 @@ class DashboardController(
     }
 
     @GetMapping("/personal/item-options")
-    fun getItemFilterOptionsPersonal(
+    fun getItemFilterOptions(
         principal: Principal
     ): List<String> {
         return dashboardService.getItemFilterOption(principal.name)
+    }
+
+    @GetMapping("/personal/item-options/for-search")
+    fun getItemFilterOptionsForSearch(
+        principal: Principal
+    ): List<String> {
+        return dashboardService.getItemFilterOptionByCanSearchStartDate(principal.name)
     }
 
     @Suppress("LongParameterList")

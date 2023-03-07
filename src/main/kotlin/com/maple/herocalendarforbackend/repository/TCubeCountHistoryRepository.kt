@@ -27,6 +27,20 @@ interface TCubeCountHistoryRepository : JpaRepository<TCubeCountHistory, Long> {
     ): List<String>
 
     @Query(
+        "select target_item\n" +
+                "from t_cube_count_history\n" +
+                "where user_id = :loginUserId\n" +
+                "and created_at >= :canSearchStartDate\n" +
+                "group by target_item\n" +
+                "order by target_item",
+        nativeQuery = true
+    )
+    fun findItemFilterOptionByCanSearchStartDate(
+        @Param("loginUserId") loginUserId: String,
+        @Param("canSearchStartDate") canSearchStartDate: LocalDate
+    ): List<String>
+
+    @Query(
         "select \n" +
                 "\tyear(created_at) as year,\n" +
                 "\tmonth(created_at) as month,\n" +
