@@ -29,7 +29,7 @@ class DashboardService(
         startDate: LocalDate?,
         endDate: LocalDate?
     ): GradeUpDashboard {
-        val start = startDate ?: LocalDate.of(2022, 11, 25)
+        val start = startDate ?: LocalDate.now().minusMonths(3)
         val end = endDate ?: LocalDate.now()
 
         val allCount = tCubeHistoryRepository.findAllCubeCountForItemUpgrade(loginUserId ?: "", item ?: "", start, end)

@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 
-@Suppress("EmptyClassBlock")
 @Repository
 interface TCubeApiKeyRepository : JpaRepository<TCubeApiKey, String> {
 

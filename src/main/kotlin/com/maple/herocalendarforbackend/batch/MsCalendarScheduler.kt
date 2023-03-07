@@ -1,6 +1,7 @@
 package com.maple.herocalendarforbackend.batch
 
 import com.maple.herocalendarforbackend.batch.expiredDataDelete.ExpiredDataDeleteJob
+import com.maple.herocalendarforbackend.batch.nexon.ExpiredCubeHistoryDeleteJob
 import com.maple.herocalendarforbackend.batch.nexon.GetCubeHistoryJob
 import jakarta.annotation.PostConstruct
 import org.quartz.CronScheduleBuilder
@@ -18,6 +19,31 @@ class MsCalendarScheduler(
 ) {
     private val schedulerFactory: SchedulerFactory = StdSchedulerFactory()
     private val scheduler: Scheduler = schedulerFactory.scheduler
+
+    @PostConstruct
+    fun expiredCubeHistoryDataDeleteBat() {
+        scheduler.start()
+
+        val factoryBean = JobDetailFactoryBean()
+
+        factoryBean.setJobClass(ExpiredCubeHistoryDeleteJob::class.java)
+        factoryBean.setName("큐브 상세 데이터 삭제")
+        factoryBean.setDescription("3개월이 지난 큐브 상세 데이터를 삭제합니다")
+        factoryBean.setApplicationContext(applicationContext)
+        factoryBean.setApplicationContextJobDataKey("applicationContext")
+        factoryBean.afterPropertiesSet()
+
+        val job = factoryBean.`object`
+
+        val trigger = TriggerBuilder.newTrigger()
+            .withSchedule(
+                CronScheduleBuilder
+                    .cronSchedule("10 0 12 * * ?")
+            )
+            .build()
+
+        scheduler.scheduleJob(job, trigger)
+    }
 
     @PostConstruct
     fun expiredDataDeleteBat() {

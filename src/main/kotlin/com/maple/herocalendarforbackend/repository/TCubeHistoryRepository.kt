@@ -1,6 +1,7 @@
 package com.maple.herocalendarforbackend.repository
 
 import com.maple.herocalendarforbackend.code.MagicVariables.MAX_SEARCH_LIMIT
+import com.maple.herocalendarforbackend.entity.ICubeCountBatch
 import com.maple.herocalendarforbackend.entity.ICubeTypeCount
 import com.maple.herocalendarforbackend.entity.IWholeRecordDashboardDate
 import com.maple.herocalendarforbackend.entity.IWholeRecordDashboardMonth
@@ -218,4 +219,65 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, ByteArray> {
     fun deleteByAccount(
         @Param("userId") userId: String,
     )
+
+    @Query(
+        "delete from t_cube_history h\n" +
+                "where date(h.created_at) < :beforeDeleteDate",
+        nativeQuery = true
+    )
+    @Modifying
+    @Transactional
+    fun deleteByCreatedAt(
+        @Param("beforeDeleteDate") beforeDeleteDate: LocalDate
+    )
+
+    @Query(
+        "select \n" +
+                "\tuser_id as userId,\n" +
+                "\tdate(created_at) as createdAt,\n" +
+                "\tpotential_option_grade as potentialOptionGrade,\n" +
+                "\tadditional_potential_option_grade as additionalPotentialOptionGrade,\n" +
+                "\tcube_type as cubeType,\n" +
+                "\ttarget_item as targetItem,\n" +
+                "\tcount(cube_type) as count,\n" +
+                "\tsum(item_upgrade) as itemUpgradeCount\n" +
+                "from t_cube_history\n" +
+                "where user_id in :userIds\n" +
+                "group by \n" +
+                "\tuser_id,\n" +
+                "\tdate(created_at),\n" +
+                "\ttarget_item, \n" +
+                "\tcube_type, \n" +
+                "\tpotential_option_grade,\n" +
+                "\tadditional_potential_option_grade",
+        nativeQuery = true
+    )
+    fun findCubeCountForBatch(
+        @Param("userIds") userIds: List<String>
+    ): List<ICubeCountBatch>
+
+    @Query(
+        "select \n" +
+                "\tuser_id as userId,\n" +
+                "\tdate(created_at) as createdAt,\n" +
+                "\tpotential_option_grade as potentialOptionGrade,\n" +
+                "\tadditional_potential_option_grade as additionalPotentialOptionGrade,\n" +
+                "\tcube_type as cubeType,\n" +
+                "\ttarget_item as targetItem,\n" +
+                "\tcount(cube_type) as count,\n" +
+                "\tsum(item_upgrade) as itemUpgradeCount\n" +
+                "from t_cube_history\n" +
+                "where user_id = :userId\n" +
+                "group by \n" +
+                "\tuser_id,\n" +
+                "\tdate(created_at),\n" +
+                "\ttarget_item, \n" +
+                "\tcube_type, \n" +
+                "\tpotential_option_grade,\n" +
+                "\tadditional_potential_option_grade",
+        nativeQuery = true
+    )
+    fun findCubeCountForApiKeyRegist(
+        @Param("userId") userId: String
+    ): List<ICubeCountBatch>
 }

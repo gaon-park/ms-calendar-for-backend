@@ -4,10 +4,12 @@ import com.auth0.jwt.JWT
 import com.maple.herocalendarforbackend.code.BaseResponseCode
 import com.maple.herocalendarforbackend.dto.response.APIKeyResponse
 import com.maple.herocalendarforbackend.entity.TCubeApiKey
+import com.maple.herocalendarforbackend.entity.TCubeCountHistory
 import com.maple.herocalendarforbackend.entity.TCubeHistory
 import com.maple.herocalendarforbackend.entity.TCubeHistoryBatch
 import com.maple.herocalendarforbackend.exception.BaseException
 import com.maple.herocalendarforbackend.repository.TCubeApiKeyRepository
+import com.maple.herocalendarforbackend.repository.TCubeCountHistoryRepository
 import com.maple.herocalendarforbackend.repository.TCubeHistoryBatchRepository
 import com.maple.herocalendarforbackend.repository.TCubeHistoryRepository
 import com.maple.herocalendarforbackend.util.NexonUtil
@@ -26,6 +28,7 @@ class CubeService(
     private val tCubeApiKeyRepository: TCubeApiKeyRepository,
     private val tCubeHistoryRepository: TCubeHistoryRepository,
     private val tCubeHistoryBatchRepository: TCubeHistoryBatchRepository,
+    private val tCubeCountHistoryRepository: TCubeCountHistoryRepository,
 ) {
 
     private val logger = LoggerFactory.getLogger(CubeService::class.java)
@@ -68,9 +71,10 @@ class CubeService(
             )
         ) now.toLocalDate() else now.minusDays(1).toLocalDate()
         val nexonUtil = NexonUtil()
+        val saveHistoryFrom = now.minusMonths(3).toLocalDate()
         if (nexonUtil.isValidToken(apiKey)) {
             startDate.datesUntil(today).parallel().forEach {
-                saveHistory(loginUserId, apiKey, it)
+                saveHistory(loginUserId, apiKey, it, saveHistoryFrom)
                 batchDateList.add(it)
             }
 
@@ -102,36 +106,76 @@ class CubeService(
     }
 
     @Transactional
-    fun saveHistory(loginUserId: String, apiKey: String, date: LocalDate) {
+    fun saveHistory(loginUserId: String, apiKey: String, date: LocalDate, saveHistoryFrom: LocalDate) {
         val nexonUtil = NexonUtil()
+        val withHistorySave = date.isAfter(saveHistoryFrom) || date.isEqual(saveHistoryFrom)
         try {
             logger.info("$loginUserId] $date 데이터 수집!")
+            val cubeCountMap = mutableMapOf<TCubeCountHistory.FromNexonData, List<TCubeHistory>>()
             val data = nexonUtil.firstProcess(apiKey, date.toString())
             if (data.count != null && data.cubeHistories.isNotEmpty()) {
-                tCubeHistoryRepository.saveAll(
-                    data.cubeHistories.map {
-                        TCubeHistory.convert(loginUserId, it)
+                val entities = data.cubeHistories.map {
+                    TCubeHistory.convert(loginUserId, it)
+                }
+                cubeCountMap.putAll(
+                    entities.groupBy {
+                        TCubeCountHistory.FromNexonData(
+                            targetItem = it.targetItem,
+                            cubeType = it.cubeType,
+                            potentialOptionGrade = it.potentialOptionGrade,
+                            additionalPotentialOptionGrade = it.additionalPotentialOptionGrade
+                        )
                     }
                 )
+                if (withHistorySave)
+                    tCubeHistoryRepository.saveAll(entities)
             }
-            logger.info("$date 첫장 데이터 수집 완!")
             var nextCursor = data.nextCursor
             while (nextCursor.isNotEmpty()) {
-                logger.debug("$date $nextCursor 장 데이터 수집!")
                 val inData = nexonUtil.whileProcess(nextCursor, apiKey)
-                tCubeHistoryRepository.saveAll(
-                    inData.cubeHistories.map { history ->
-                        TCubeHistory.convert(loginUserId, history)
+                val entities = inData.cubeHistories.map { history ->
+                    TCubeHistory.convert(loginUserId, history)
+                }
+                cubeCountMap.putAll(
+                    entities.groupBy {
+                        TCubeCountHistory.FromNexonData(
+                            targetItem = it.targetItem,
+                            cubeType = it.cubeType,
+                            potentialOptionGrade = it.potentialOptionGrade,
+                            additionalPotentialOptionGrade = it.additionalPotentialOptionGrade
+                        )
                     }
                 )
-                logger.info("$date $nextCursor 장 데이터 수집 완!")
+                if (withHistorySave)
+                    tCubeHistoryRepository.saveAll(entities)
                 nextCursor = inData.nextCursor
             }
-        }
-        catch(_: BaseException) {
+            logger.info("$loginUserId] $date 데이터 수집, DB 저장 완!")
+            saveCubeCount(loginUserId, date, cubeCountMap)
+        } catch (_: BaseException) {
             tCubeHistoryRepository.deleteByAccount(loginUserId)
             tCubeHistoryBatchRepository.deleteByAccount(loginUserId)
             tCubeApiKeyRepository.deleteByAccount(loginUserId)
         }
+    }
+
+    @Transactional
+    fun saveCubeCount(
+        loginUserId: String,
+        date: LocalDate,
+        map: Map<TCubeCountHistory.FromNexonData, List<TCubeHistory>>
+    ) {
+        logger.info("$loginUserId] $date cubeCount DB 저장!")
+        val entities = map.keys.map {
+            TCubeCountHistory.convertFromNextData(
+                userId = loginUserId,
+                date = date,
+                cc = it,
+                count = map[it]!!.size,
+                upgradeCount = map[it]!!.count { o -> o.itemUpgrade }
+            )
+        }
+        tCubeCountHistoryRepository.saveAll(entities)
+        logger.info("$loginUserId] $date cubeCount DB 저장 완!")
     }
 }
