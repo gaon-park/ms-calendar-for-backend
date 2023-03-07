@@ -29,5 +29,5 @@ object MagicVariables {
     const val BLACK_UNIQUE_GRADE_UP = 3.5000
     const val ADDITIONAL_UNIQUE_GRADE_UP = 1.9608
 
-    const val CAN_SEARCH_START_MINUS_MONTH = 3L
+    const val CAN_SEARCH_START_MINUS_MONTH = 1L
 }

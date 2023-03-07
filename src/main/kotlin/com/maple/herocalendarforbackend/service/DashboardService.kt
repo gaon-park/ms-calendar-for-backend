@@ -112,7 +112,7 @@ class DashboardService(
         val period = Period.between(start, end)
 
         val res = when {
-            period.months > CAN_SEARCH_START_MINUS_MONTH -> {
+            period.months > 3 -> {
                 val tmp =
                     tCubeCountHistoryRepository.findWholeRecordDashboardMonth(loginUserId ?: "", start, end)
                         .groupBy { "${it.getYear()}/${it.getMonth()}" }
