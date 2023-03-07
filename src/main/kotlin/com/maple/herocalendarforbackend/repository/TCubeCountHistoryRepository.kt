@@ -1,6 +1,8 @@
 package com.maple.herocalendarforbackend.repository
 
 import com.maple.herocalendarforbackend.entity.ICubeTypeCount
+import com.maple.herocalendarforbackend.entity.IWholeRecordDashboardDate
+import com.maple.herocalendarforbackend.entity.IWholeRecordDashboardMonth
 import com.maple.herocalendarforbackend.entity.TCubeCountHistory
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
@@ -11,6 +13,45 @@ import java.time.LocalDate
 @Suppress("MaxLineLength")
 @Repository
 interface TCubeCountHistoryRepository : JpaRepository<TCubeCountHistory, Long> {
+
+    @Query(
+        "select \n" +
+                "\tyear(created_at) as year,\n" +
+                "\tmonth(created_at) as month,\n" +
+                "\tcube_type as cubeType,\n" +
+                "\tsum(count) as count\n" +
+                "from t_cube_count_history\n" +
+                "where cube_type = '블랙 큐브' or cube_type = '레드 큐브' or cube_type = '에디셔널 큐브'\n" +
+                "and date(created_at) >= :start and date(created_at) <= :end\n" +
+                "and if(:loginUserId != '', user_id = :loginUserId, user_id != '')\n" +
+                "group by cube_type, year(created_at), month(created_at)\n" +
+                "order by year(created_at), month(created_at)",
+        nativeQuery = true
+    )
+    fun findWholeRecordDashboardMonth(
+        @Param("loginUserId") loginUserId: String,
+        @Param("start") start: LocalDate,
+        @Param("end") end: LocalDate
+    ): List<IWholeRecordDashboardMonth>
+
+    @Query(
+        "select \n" +
+                "\tdate(created_at) as date,\n" +
+                "\tcube_type as cubeType,\n" +
+                "\tsum(count) as count\n" +
+                "from t_cube_count_history\n" +
+                "where cube_type = '블랙 큐브' or cube_type = '레드 큐브' or cube_type = '에디셔널 큐브'\n" +
+                "and date(created_at) >= :start and date(created_at) <= :end\n" +
+                "and if(:loginUserId != '', user_id = :loginUserId, user_id != '')\n" +
+                "group by cube_type, date(created_at)\n" +
+                "order by date(created_at)",
+        nativeQuery = true
+    )
+    fun findWholeRecordDashboardDate(
+        @Param("loginUserId") loginUserId: String,
+        @Param("start") start: LocalDate,
+        @Param("end") end: LocalDate
+    ): List<IWholeRecordDashboardDate>
 
     @Query(
         "select cube_type as cubeType,\n" +

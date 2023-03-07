@@ -106,21 +106,21 @@ class DashboardService(
         startDate: LocalDate?,
         endDate: LocalDate?
     ): WholeRecordDashboardResponse {
-        val start = startDate ?: LocalDate.of(2022, 11, 25)
+        val start = startDate ?: LocalDate.now().minusMonths(CAN_SEARCH_START_MINUS_MONTH)
         val end = endDate ?: LocalDate.now()
         val period = Period.between(start, end)
 
         val res = when {
-            period.months > 3 -> {
+            period.months > CAN_SEARCH_START_MINUS_MONTH -> {
                 val tmp =
-                    tCubeHistoryRepository.findWholeRecordDashboardMonth(loginUserId ?: "", start, end)
+                    tCubeCountHistoryRepository.findWholeRecordDashboardMonth(loginUserId ?: "", start, end)
                         .groupBy { "${it.getYear()}/${it.getMonth()}" }
                 tmp.keys.mapNotNull {
                     tmp[it]?.let { it1 -> CubeEventRecordResponse.convertMonth(it1) }
                 }
             }
             else -> {
-                val sub = tCubeHistoryRepository.findWholeRecordDashboardDate(loginUserId ?: "", start, end)
+                val sub = tCubeCountHistoryRepository.findWholeRecordDashboardDate(loginUserId ?: "", start, end)
                     .groupBy { it.getDate() }
                 sub.keys.mapNotNull {
                     sub[it]?.let { it1 -> CubeEventRecordResponse.convertDate(it1) }
