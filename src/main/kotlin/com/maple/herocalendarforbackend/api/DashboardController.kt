@@ -28,7 +28,16 @@ class DashboardController(
         @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("startDate", required = false) startDate: LocalDate?,
         @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("endDate", required = false) endDate: LocalDate?,
     ): ResponseEntity<GradeUpDashboard> {
-        return ResponseEntity.ok(dashboardService.getGradeUpDashboard(principal.name, item, startDate, endDate))
+        return ResponseEntity.ok(
+            dashboardService.getGradeDashboardByGrade(
+                loginUserId = principal.name,
+                item = item,
+                startDate = startDate,
+                endDate = endDate,
+                grade = "유니크",
+                nextGrade = "레전드리"
+            )
+        )
     }
 
     @GetMapping("/grade-up")
@@ -36,7 +45,16 @@ class DashboardController(
         @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("startDate", required = false) startDate: LocalDate?,
         @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("endDate", required = false) endDate: LocalDate?,
     ): ResponseEntity<GradeUpDashboard> {
-        return ResponseEntity.ok(dashboardService.getGradeUpDashboard(null, null, startDate, endDate))
+        return ResponseEntity.ok(
+            dashboardService.getGradeDashboardByGrade(
+                loginUserId = null,
+                item = null,
+                startDate = startDate,
+                endDate = endDate,
+                grade = "유니크",
+                nextGrade = "레전드리"
+            )
+        )
     }
 
     @GetMapping("/cube-overview")

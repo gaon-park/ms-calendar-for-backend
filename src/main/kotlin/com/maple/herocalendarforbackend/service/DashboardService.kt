@@ -1,5 +1,6 @@
 package com.maple.herocalendarforbackend.service
 
+import com.maple.herocalendarforbackend.code.MagicVariables.CAN_SEARCH_START_MINUS_MONTH
 import com.maple.herocalendarforbackend.dto.response.CubeCount
 import com.maple.herocalendarforbackend.dto.response.CubeEventRecordResponse
 import com.maple.herocalendarforbackend.dto.response.CubeHistoryResponse
@@ -7,7 +8,9 @@ import com.maple.herocalendarforbackend.dto.response.CubeItemData
 import com.maple.herocalendarforbackend.dto.response.CubeOverviewResponse
 import com.maple.herocalendarforbackend.dto.response.GradeUpDashboard
 import com.maple.herocalendarforbackend.dto.response.WholeRecordDashboardResponse
+import com.maple.herocalendarforbackend.entity.ICubeTypeCount
 import com.maple.herocalendarforbackend.repository.TCubeApiKeyRepository
+import com.maple.herocalendarforbackend.repository.TCubeCountHistoryRepository
 import com.maple.herocalendarforbackend.repository.TCubeHistoryRepository
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
@@ -21,27 +24,67 @@ import kotlin.math.roundToInt
 class DashboardService(
     private val tCubeHistoryRepository: TCubeHistoryRepository,
     private val tCubeApiKeyRepository: TCubeApiKeyRepository,
+    private val tCubeCountHistoryRepository: TCubeCountHistoryRepository,
 ) {
 
-    fun getGradeUpDashboard(
+    fun getAllCount(
+        gradeState: List<ICubeTypeCount>,
+        gradeUpgraded: List<ICubeTypeCount>,
+        nextGradeUpgraded: List<ICubeTypeCount>,
+        cubeType: String
+    ): Long {
+        val res = (gradeState.firstOrNull { it.getCubeType() == cubeType }?.getCount() ?: 0) -
+                (gradeUpgraded.firstOrNull { it.getCubeType() == cubeType }?.getCount() ?: 0) +
+                (nextGradeUpgraded.firstOrNull { it.getCubeType() == cubeType }?.getCount() ?: 0)
+
+        return if (res < 0) 0 else res
+    }
+
+    fun getUpgradedCount(
+        nextGradeUpgraded: List<ICubeTypeCount>,
+        cubeType: String
+    ): Long {
+        return nextGradeUpgraded.firstOrNull { it.getCubeType() == cubeType }?.getCount() ?: 0
+    }
+
+    fun getGradeDashboardByGrade(
         loginUserId: String?,
         item: String?,
         startDate: LocalDate?,
-        endDate: LocalDate?
+        endDate: LocalDate?,
+        grade: String,
+        nextGrade: String,
     ): GradeUpDashboard {
-        val start = startDate ?: LocalDate.now().minusMonths(3)
+        val start = startDate ?: LocalDate.now().minusMonths(CAN_SEARCH_START_MINUS_MONTH)
         val end = endDate ?: LocalDate.now()
+        val gradeState = tCubeCountHistoryRepository.findStateGradeCount(
+            loginUserId = loginUserId ?: "",
+            item = item ?: "",
+            start = start,
+            end = end,
+            gradeKor = grade
+        )
+        val gradeUpgraded = tCubeCountHistoryRepository.findUpgradeGradeCount(
+            loginUserId = loginUserId ?: "",
+            item = item ?: "",
+            start = start,
+            end = end,
+            gradeKor = grade
+        )
+        val nextGradeUpgraded = tCubeCountHistoryRepository.findUpgradeGradeCount(
+            loginUserId = loginUserId ?: "",
+            item = item ?: "",
+            start = start,
+            end = end,
+            gradeKor = nextGrade
+        )
 
-        val allCount = tCubeHistoryRepository.findAllCubeCountForItemUpgrade(loginUserId ?: "", item ?: "", start, end)
-        val gradeUpCount = tCubeHistoryRepository.findItemUpgradeCount(loginUserId ?: "", item ?: "", start, end)
-
-        val redAll = allCount.firstOrNull { it.getCubeType() == "레드 큐브" }?.getCount() ?: 0
-        val blackAll = allCount.firstOrNull { it.getCubeType() == "블랙 큐브" }?.getCount() ?: 0
-        val additionalAll = allCount.firstOrNull { it.getCubeType() == "에디셔널 큐브" }?.getCount() ?: 0
-
-        val redUp = gradeUpCount.firstOrNull { it.getCubeType() == "레드 큐브" }?.getCount() ?: 0
-        val blackUp = gradeUpCount.firstOrNull { it.getCubeType() == "블랙 큐브" }?.getCount() ?: 0
-        val additionalUp = gradeUpCount.firstOrNull { it.getCubeType() == "에디셔널 큐브" }?.getCount() ?: 0
+        val redAll = getAllCount(gradeState, gradeUpgraded, nextGradeUpgraded, "레드 큐브")
+        val redUp = getUpgradedCount(nextGradeUpgraded, "레드 큐브")
+        val blackAll = getAllCount(gradeState, gradeUpgraded, nextGradeUpgraded, "블랙 큐브")
+        val blackUp = getUpgradedCount(nextGradeUpgraded, "블랙 큐브")
+        val additionalAll = getAllCount(gradeState, gradeUpgraded, nextGradeUpgraded, "에디셔널 큐브")
+        val additionalUp = getUpgradedCount(nextGradeUpgraded, "에디셔널 큐브")
 
         return GradeUpDashboard(
             actualRed = if (redAll != 0L && redUp != 0L) (redUp.toDouble()
