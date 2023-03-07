@@ -15,6 +15,18 @@ import java.time.LocalDate
 interface TCubeCountHistoryRepository : JpaRepository<TCubeCountHistory, Long> {
 
     @Query(
+        "select target_item\n" +
+                "from t_cube_count_history\n" +
+                "where user_id = :loginUserId\n" +
+                "group by target_item\n" +
+                "order by target_item",
+        nativeQuery = true
+    )
+    fun findItemFilterOption(
+        @Param("loginUserId") loginUserId: String,
+    ): List<String>
+
+    @Query(
         "select \n" +
                 "\tyear(created_at) as year,\n" +
                 "\tmonth(created_at) as month,\n" +

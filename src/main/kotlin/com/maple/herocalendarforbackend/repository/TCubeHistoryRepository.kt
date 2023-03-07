@@ -2,9 +2,6 @@ package com.maple.herocalendarforbackend.repository
 
 import com.maple.herocalendarforbackend.code.MagicVariables.MAX_SEARCH_LIMIT
 import com.maple.herocalendarforbackend.entity.ICubeCountBatch
-import com.maple.herocalendarforbackend.entity.ICubeTypeCount
-import com.maple.herocalendarforbackend.entity.IWholeRecordDashboardDate
-import com.maple.herocalendarforbackend.entity.IWholeRecordDashboardMonth
 import com.maple.herocalendarforbackend.entity.TCubeHistory
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
@@ -17,71 +14,6 @@ import java.time.LocalDate
 @Suppress("LongParameterList", "MaxLineLength", "TooManyFunctions")
 @Repository
 interface TCubeHistoryRepository : JpaRepository<TCubeHistory, ByteArray> {
-
-    @Query(
-        "select cube_type as cubeType, count(*) as count\n" +
-                "from t_cube_history\n" +
-                "where item_upgrade = 1\n" +
-                "and date(created_at) >= :start and date(created_at) <= :end\n" +
-                "and if(cube_type != '에디셔널 큐브', potential_option_grade = '레전드리', additional_potential_option_grade = '레전드리')" +
-                "and if(:loginUserId != '', user_id = :loginUserId, user_id != '')" +
-                "and if(:item != '', target_item = :item, target_item != '')\n" +
-                "group by cube_type",
-        nativeQuery = true
-    )
-    fun findItemUpgradeCount(
-        @Param("loginUserId") loginUserId: String,
-        @Param("item") item: String,
-        @Param("start") start: LocalDate,
-        @Param("end") end: LocalDate
-    ): List<ICubeTypeCount>
-
-    @Query(
-        "select cube_type as cubeType, count(*) as count\n" +
-                "from t_cube_history\n" +
-                "where ((\n" +
-                "\titem_upgrade = 1 and if (cube_type != '에디셔널 큐브', potential_option_grade = '레전드리', additional_potential_option_grade = '레전드리')\n" +
-                ") \n" +
-                "or (\n" +
-                "\titem_upgrade = 0 and if (cube_type != '에디셔널 큐브', potential_option_grade = '유니크', additional_potential_option_grade = '유니크')\n" +
-                "))\n" +
-                "and date(created_at) >= :start and date(created_at) <= :end\n" +
-                "and if(:loginUserId != '', user_id = :loginUserId, user_id != '')\n" +
-                "and if(:item != '', target_item = :item, target_item != '')\n" +
-                "group by cube_type",
-        nativeQuery = true
-    )
-    fun findAllCubeCountForItemUpgrade(
-        @Param("loginUserId") loginUserId: String,
-        @Param("item") item: String,
-        @Param("start") start: LocalDate,
-        @Param("end") end: LocalDate
-    ): List<ICubeTypeCount>
-
-    @Query(
-        "select \n" +
-                "\th.cube_type as cubeType,\n" +
-                "\tcount(h.cube_type) as count\n" +
-                "from t_cube_history h\n" +
-                "where if(:userId != '', h.user_id = :userId, user_id != '')\n" +
-                "group by h.cube_type",
-        nativeQuery = true
-    )
-    fun findCubeTypeCount(
-        @Param("userId") userId: String,
-    ): List<ICubeTypeCount>
-
-    @Query(
-        "select h.target_item\n" +
-                "from t_cube_history h\n" +
-                "where h.user_id = :userId\n" +
-                "group by h.target_item\n" +
-                "order by count(*) desc",
-        nativeQuery = true
-    )
-    fun findItemFilterOption(
-        @Param("userId") userId: String,
-    ): List<String>
 
     @Query(
         "select *\n" +
@@ -172,45 +104,6 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, ByteArray> {
     ): List<TCubeHistory>
 
     @Query(
-        "select \n" +
-                "\tyear(h.created_at) as year,\n" +
-                "\tmonth(h.created_at) as month, \n" +
-                "\th.cube_type as cubeType, \n" +
-                "\tcount(h.cube_type) as count\n" +
-                "from t_cube_history h\n" +
-                "where (h.cube_type = '레드 큐브' or h.cube_type = '블랙 큐브' or h.cube_type = '에디셔널 큐브')\n" +
-                "and h.created_at >= :start and h.created_at <= :end\n" +
-                "and if(:userId != '', h.user_id = :userId, user_id != '')\n" +
-                "group by h.cube_type, year(h.created_at), month(h.created_at)\n" +
-                "order by year(h.created_at), month(h.created_at)",
-        nativeQuery = true
-    )
-    fun findWholeRecordDashboardMonth(
-        @Param("userId") userId: String,
-        @Param("start") start: LocalDate,
-        @Param("end") end: LocalDate
-    ): List<IWholeRecordDashboardMonth>
-
-    @Query(
-        "select \n" +
-                "\tdate(h.created_at) as date,\n" +
-                "\th.cube_type as cubeType, \n" +
-                "\tcount(h.cube_type) as count\n" +
-                "from t_cube_history h\n" +
-                "where (h.cube_type = '레드 큐브' or h.cube_type = '블랙 큐브' or h.cube_type = '에디셔널 큐브')\n" +
-                "and date(h.created_at) >= :start and date(h.created_at) <= :end\n" +
-                "and if(:userId != '', h.user_id = :userId, user_id != '')\n" +
-                "group by cube_type, date(h.created_at)" +
-                "order by date(h.created_at)",
-        nativeQuery = true
-    )
-    fun findWholeRecordDashboardDate(
-        @Param("userId") userId: String,
-        @Param("start") start: LocalDate,
-        @Param("end") end: LocalDate
-    ): List<IWholeRecordDashboardDate>
-
-    @Query(
         "delete from t_cube_history h where h.user_id = :userId",
         nativeQuery = true
     )
@@ -254,30 +147,5 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, ByteArray> {
     )
     fun findCubeCountForBatch(
         @Param("userIds") userIds: List<String>
-    ): List<ICubeCountBatch>
-
-    @Query(
-        "select \n" +
-                "\tuser_id as userId,\n" +
-                "\tdate(created_at) as createdAt,\n" +
-                "\tpotential_option_grade as potentialOptionGrade,\n" +
-                "\tadditional_potential_option_grade as additionalPotentialOptionGrade,\n" +
-                "\tcube_type as cubeType,\n" +
-                "\ttarget_item as targetItem,\n" +
-                "\tcount(cube_type) as count,\n" +
-                "\tsum(item_upgrade) as itemUpgradeCount\n" +
-                "from t_cube_history\n" +
-                "where user_id = :userId\n" +
-                "group by \n" +
-                "\tuser_id,\n" +
-                "\tdate(created_at),\n" +
-                "\ttarget_item, \n" +
-                "\tcube_type, \n" +
-                "\tpotential_option_grade,\n" +
-                "\tadditional_potential_option_grade",
-        nativeQuery = true
-    )
-    fun findCubeCountForApiKeyRegist(
-        @Param("userId") userId: String
     ): List<ICubeCountBatch>
 }

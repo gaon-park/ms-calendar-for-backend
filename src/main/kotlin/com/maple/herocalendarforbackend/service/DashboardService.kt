@@ -135,7 +135,7 @@ class DashboardService(
     }
 
     fun getItemFilterOption(loginUserId: String): List<String> {
-        return tCubeHistoryRepository.findItemFilterOption(loginUserId)
+        return tCubeCountHistoryRepository.findItemFilterOption(loginUserId)
     }
 
     fun itemHistorySearch(
