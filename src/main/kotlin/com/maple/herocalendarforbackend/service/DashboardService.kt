@@ -4,7 +4,6 @@ import com.maple.herocalendarforbackend.code.MagicVariables.CAN_SEARCH_START_MIN
 import com.maple.herocalendarforbackend.dto.response.CubeCount
 import com.maple.herocalendarforbackend.dto.response.CubeEventRecordResponse
 import com.maple.herocalendarforbackend.dto.response.CubeHistoryResponse
-import com.maple.herocalendarforbackend.dto.response.CubeItemData
 import com.maple.herocalendarforbackend.dto.response.CubeOverviewResponse
 import com.maple.herocalendarforbackend.dto.response.GradeUpDashboard
 import com.maple.herocalendarforbackend.dto.response.WholeRecordDashboardResponse
@@ -13,8 +12,6 @@ import com.maple.herocalendarforbackend.repository.TCubeApiKeyRepository
 import com.maple.herocalendarforbackend.repository.TCubeCountHistoryRepository
 import com.maple.herocalendarforbackend.repository.TCubeHistoryRepository
 import org.springframework.stereotype.Service
-import java.math.BigDecimal
-import java.sql.Date
 import java.time.LocalDate
 import java.time.Period
 import kotlin.math.roundToInt
@@ -97,7 +94,7 @@ class DashboardService(
     }
 
     fun getCubeOverview(loginUserId: String?): CubeOverviewResponse {
-        val cubeCounts = tCubeHistoryRepository.findCubeTypeCount(loginUserId ?: "")
+        val cubeCounts = tCubeCountHistoryRepository.findAllCubeCount(loginUserId ?: "")
         return CubeOverviewResponse(
             registeredApiKeyCount = if (loginUserId != null) null else tCubeApiKeyRepository.count(),
             counts = CubeCount.convert(cubeCounts),

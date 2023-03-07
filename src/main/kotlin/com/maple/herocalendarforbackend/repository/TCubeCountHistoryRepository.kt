@@ -13,6 +13,18 @@ import java.time.LocalDate
 interface TCubeCountHistoryRepository : JpaRepository<TCubeCountHistory, Long> {
 
     @Query(
+        "select cube_type as cubeType,\n" +
+                "sum(count) as count\n" +
+                "from t_cube_count_history\n" +
+                "where if(:loginUserId != '', user_id = :loginUserId, user_id != '')\n" +
+                "group by cube_type",
+        nativeQuery = true
+    )
+    fun findAllCubeCount(
+        @Param("loginUserId") loginUserId: String
+    ): List<ICubeTypeCount>
+
+    @Query(
         "select \n" +
                 "\tcube_type as cubeType,\n" +
                 "\tsum(count) as count\n" +
