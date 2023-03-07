@@ -1,6 +1,7 @@
 package com.maple.herocalendarforbackend.repository
 
 import com.maple.herocalendarforbackend.entity.ICubeTypeCount
+import com.maple.herocalendarforbackend.entity.ITargetItemCount
 import com.maple.herocalendarforbackend.entity.IWholeRecordDashboardDate
 import com.maple.herocalendarforbackend.entity.IWholeRecordDashboardMonth
 import com.maple.herocalendarforbackend.entity.TCubeCountHistory
@@ -13,6 +14,26 @@ import java.time.LocalDate
 @Suppress("MaxLineLength")
 @Repository
 interface TCubeCountHistoryRepository : JpaRepository<TCubeCountHistory, Long> {
+
+    @Query(
+        "select \n" +
+                "\ttarget_item as targetItem, \n" +
+                "\tsum(count) as count\n" +
+                "from t_cube_count_history\n" +
+                "where if(:loginUserId != '', user_id = :loginUserId, user_id != '')\n" +
+                "and created_at >= :start and created_at <= :end\n" +
+                "and cube_type = :cubeType\n" +
+                "group by target_item\n" +
+                "order by sum(count) desc\n" +
+                "limit 5",
+        nativeQuery = true
+    )
+    fun findTopFiveItem(
+        @Param("loginUserId") loginUserId: String,
+        @Param("cubeType") cubeType: String,
+        @Param("start") start: LocalDate,
+        @Param("end") end: LocalDate
+    ): List<ITargetItemCount>
 
     @Query(
         "select target_item\n" +

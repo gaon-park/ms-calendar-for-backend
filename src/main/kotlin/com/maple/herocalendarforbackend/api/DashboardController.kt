@@ -3,6 +3,7 @@ package com.maple.herocalendarforbackend.api
 import com.maple.herocalendarforbackend.dto.response.CubeHistoryResponse
 import com.maple.herocalendarforbackend.dto.response.CubeOverviewResponse
 import com.maple.herocalendarforbackend.dto.response.GradeUpDashboard
+import com.maple.herocalendarforbackend.dto.response.ItemCount
 import com.maple.herocalendarforbackend.dto.response.WholeRecordDashboardResponse
 import com.maple.herocalendarforbackend.service.DashboardService
 import org.springframework.format.annotation.DateTimeFormat
@@ -21,6 +22,39 @@ import java.time.LocalDate
 class DashboardController(
     private val dashboardService: DashboardService
 ) {
+
+    @GetMapping("/top-five")
+    fun getRedTopFive(
+        @RequestParam("cubeType", required = true) cubeType: String,
+        @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("startDate", required = false) startDate: LocalDate?,
+        @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("endDate", required = false) endDate: LocalDate?,
+    ): ResponseEntity<List<ItemCount>> {
+        return ResponseEntity.ok(
+            dashboardService.getTopFiveItem(
+                loginUserId = null,
+                startDate = startDate,
+                endDate = endDate,
+                cubeType = cubeType
+            )
+        )
+    }
+
+    @GetMapping("/personal/top-five")
+    fun getRedTopFivePersonal(
+        principal: Principal,
+        @RequestParam("cubeType", required = true) cubeType: String,
+        @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("startDate", required = false) startDate: LocalDate?,
+        @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("endDate", required = false) endDate: LocalDate?,
+    ): ResponseEntity<List<ItemCount>> {
+        return ResponseEntity.ok(
+            dashboardService.getTopFiveItem(
+                loginUserId = principal.name,
+                startDate = startDate,
+                endDate = endDate,
+                cubeType = cubeType
+            )
+        )
+    }
 
     @GetMapping("/personal/grade-up/legendary")
     fun getGradeUpPersonalLegendary(

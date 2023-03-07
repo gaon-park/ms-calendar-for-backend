@@ -6,6 +6,7 @@ import com.maple.herocalendarforbackend.dto.response.CubeEventRecordResponse
 import com.maple.herocalendarforbackend.dto.response.CubeHistoryResponse
 import com.maple.herocalendarforbackend.dto.response.CubeOverviewResponse
 import com.maple.herocalendarforbackend.dto.response.GradeUpDashboard
+import com.maple.herocalendarforbackend.dto.response.ItemCount
 import com.maple.herocalendarforbackend.dto.response.WholeRecordDashboardResponse
 import com.maple.herocalendarforbackend.entity.ICubeTypeCount
 import com.maple.herocalendarforbackend.repository.TCubeApiKeyRepository
@@ -23,6 +24,27 @@ class DashboardService(
     private val tCubeApiKeyRepository: TCubeApiKeyRepository,
     private val tCubeCountHistoryRepository: TCubeCountHistoryRepository,
 ) {
+
+    fun getTopFiveItem(
+        loginUserId: String?,
+        startDate: LocalDate?,
+        endDate: LocalDate?,
+        cubeType: String,
+    ): List<ItemCount> {
+        val start = startDate ?: LocalDate.now().minusMonths(CAN_SEARCH_START_MINUS_MONTH)
+        val end = endDate ?: LocalDate.now()
+        return tCubeCountHistoryRepository.findTopFiveItem(
+            loginUserId = loginUserId ?: "",
+            start = start,
+            end = end,
+            cubeType = cubeType
+        ).map {
+            ItemCount(
+                item = it.getTargetItem(),
+                count = it.getCount()
+            )
+        }.sortedByDescending { o -> o.count }
+    }
 
     fun getAllCount(
         gradeState: List<ICubeTypeCount>,
