@@ -1,6 +1,7 @@
 package com.maple.herocalendarforbackend.service
 
 import com.maple.herocalendarforbackend.code.MagicVariables.CAN_SEARCH_START_MINUS_MONTH
+import com.maple.herocalendarforbackend.code.MagicVariables.MAX_SEARCH_LIMIT
 import com.maple.herocalendarforbackend.dto.response.CubeCount
 import com.maple.herocalendarforbackend.dto.response.CubeEventRecordResponse
 import com.maple.herocalendarforbackend.dto.response.CubeHistoryResponse
@@ -9,6 +10,7 @@ import com.maple.herocalendarforbackend.dto.response.GradeUpDashboard
 import com.maple.herocalendarforbackend.dto.response.ItemCount
 import com.maple.herocalendarforbackend.dto.response.WholeRecordDashboardResponse
 import com.maple.herocalendarforbackend.entity.ICubeTypeCount
+import com.maple.herocalendarforbackend.entity.TCubeHistory
 import com.maple.herocalendarforbackend.repository.TCubeApiKeyRepository
 import com.maple.herocalendarforbackend.repository.TCubeCountHistoryRepository
 import com.maple.herocalendarforbackend.repository.TCubeHistoryRepository
@@ -17,13 +19,15 @@ import java.time.LocalDate
 import java.time.Period
 import kotlin.math.roundToInt
 
-@Suppress("LongParameterList", "ComplexMethod", "MagicNumber")
+@Suppress("LongParameterList", "ComplexMethod", "MagicNumber", "TooManyFunctions")
 @Service
 class DashboardService(
     private val tCubeHistoryRepository: TCubeHistoryRepository,
     private val tCubeApiKeyRepository: TCubeApiKeyRepository,
     private val tCubeCountHistoryRepository: TCubeCountHistoryRepository,
 ) {
+
+    private val allStatCompareList = listOf("STR", "DEX", "INT", "LUK")
 
     fun getTopFiveItem(
         loginUserId: String?,
@@ -173,41 +177,117 @@ class DashboardService(
         loginUserId: String,
         item: String?,
         cube: String?,
-        option1: String?,
-        option2: String?,
-        option3: String?,
-        optionValue1: Int?,
-        optionValue2: Int?,
-        optionValue3: Int?
+        option1Param: String?,
+        option2Param: String?,
+        option3Param: String?,
+        optionValue1Param: Int?,
+        optionValue2Param: Int?,
+        optionValue3Param: Int?
     ): List<CubeHistoryResponse> {
+        val option1 = option1Param ?: ""
+        val option2 = option2Param ?: ""
+        val option3 = option3Param ?: ""
+        val optionValue1 = optionValue1Param ?: 0
+        val optionValue2 = optionValue2Param ?: 0
+        val optionValue3 = optionValue3Param ?: 0
         val history =
-            if (haveCondition(item, cube, option1, option2, option3, optionValue1, optionValue2, optionValue3))
-                tCubeHistoryRepository.findHistoryByCondition(
-                    loginUserId,
+            if (haveSQLCondition(item, cube, option1, option2, option3)) {
+                val tmp = tCubeHistoryRepository.findHistoryByOption(
+                    userId = loginUserId,
                     item ?: "",
                     cube ?: "",
-                    option1 ?: "",
-                    option2 ?: "",
-                    option3 ?: "",
-                    optionValue1 ?: 0,
-                    optionValue2 ?: 0,
-                    optionValue3 ?: 0,
-                )
-            else tCubeHistoryRepository.findHistoryOrderByCreatedAt(loginUserId)
+                    option1,
+                    option2,
+                    option3,
+                ).mapNotNull {
+                    if (sumMoreThanCompare(option1, optionValue1, it) &&
+                        sumMoreThanCompare(option2, optionValue2, it) &&
+                        sumMoreThanCompare(option3, optionValue3, it)
+                    ) {
+                        it
+                    } else null
+                }
+                tmp.subList(0, MAX_SEARCH_LIMIT.toInt().coerceAtMost(tmp.size))
+            } else tCubeHistoryRepository.findHistoryOrderByCreatedAt(loginUserId)
         return history.map {
             CubeHistoryResponse.convert(it)
         }
     }
 
-    fun haveCondition(
+    private fun sumMoreThanCompare(
+        compareOption: String,
+        compareOptionValue: Int,
+        history: TCubeHistory
+    ): Boolean {
+        var sum = 0;
+        if (history.cubeType == "에디셔널 큐브") {
+            if (compareOption == history.afterAdditionalOption1 || isAllStat(
+                    compareOption,
+                    history.afterAdditionalOption1 ?: ""
+                )
+            ) sum += toIntFromPercentValue(
+                history.afterAdditionalOptionValue1 ?: "0"
+            )
+            if (compareOption == history.afterAdditionalOption2 || isAllStat(
+                    compareOption,
+                    history.afterAdditionalOption2 ?: ""
+                )
+            ) sum += toIntFromPercentValue(
+                history.afterAdditionalOptionValue2 ?: "0"
+            )
+            if (compareOption == history.afterAdditionalOption3 || isAllStat(
+                    compareOption,
+                    history.afterAdditionalOption3 ?: ""
+                )
+            ) sum += toIntFromPercentValue(
+                history.afterAdditionalOptionValue3 ?: "0"
+            )
+        } else {
+            if (compareOption == history.afterOption1 || isAllStat(
+                    compareOption,
+                    history.afterOption1 ?: ""
+                )
+            ) sum += toIntFromPercentValue(
+                history.afterOptionValue1 ?: "0"
+            )
+            if (compareOption == history.afterOption2 || isAllStat(
+                    compareOption,
+                    history.afterOption2 ?: ""
+                )
+            ) sum += toIntFromPercentValue(
+                history.afterOptionValue2 ?: "0"
+            )
+            if (compareOption == history.afterOption3 || isAllStat(
+                    compareOption,
+                    history.afterOption3 ?: ""
+                )
+            ) sum += toIntFromPercentValue(
+                history.afterOptionValue3 ?: "0"
+            )
+        }
+
+        return sum >= compareOptionValue
+    }
+
+    private fun isAllStat(
+        compareOption: String,
+        historyOption: String
+    ): Boolean {
+        return allStatCompareList.any { it == compareOption } && historyOption == "올스탯"
+    }
+
+    private fun toIntFromPercentValue(
+        value: String
+    ): Int {
+        return Integer.valueOf(value.replace("%", "").replace(" ", ""))
+    }
+
+    private fun haveSQLCondition(
         item: String?,
         cube: String?,
         option1: String?,
         option2: String?,
         option3: String?,
-        optionValue1: Int?,
-        optionValue2: Int?,
-        optionValue3: Int?
     ): Boolean {
         return when {
             !item.isNullOrEmpty() -> true
@@ -215,9 +295,6 @@ class DashboardService(
             !option1.isNullOrEmpty() -> true
             !option2.isNullOrEmpty() -> true
             !option3.isNullOrEmpty() -> true
-            optionValue1 != null -> true
-            optionValue2 != null -> true
-            optionValue3 != null -> true
             else -> false
         }
     }
