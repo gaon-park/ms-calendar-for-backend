@@ -111,11 +111,14 @@ interface TCubeCountHistoryRepository : JpaRepository<TCubeCountHistory, Long> {
                 "sum(count) as count\n" +
                 "from t_cube_count_history\n" +
                 "where if(:loginUserId != '', user_id = :loginUserId, user_id != '')\n" +
+                "and date(created_at) >= :start and date(created_at) <= :end\n" +
                 "group by cube_type",
         nativeQuery = true
     )
     fun findAllCubeCount(
-        @Param("loginUserId") loginUserId: String
+        @Param("loginUserId") loginUserId: String,
+        @Param("start") start: LocalDate,
+        @Param("end") end: LocalDate,
     ): List<ICubeTypeCount>
 
     @Query(

@@ -120,8 +120,14 @@ class DashboardService(
         )
     }
 
-    fun getCubeOverview(loginUserId: String?): CubeOverviewResponse {
-        val cubeCounts = tCubeCountHistoryRepository.findAllCubeCount(loginUserId ?: "")
+    fun getCubeOverview(
+        loginUserId: String?,
+        startDate: LocalDate?,
+        endDate: LocalDate?
+    ): CubeOverviewResponse {
+        val start = startDate ?: LocalDate.of(2022, 11, 25)
+        val end = endDate ?: LocalDate.now()
+        val cubeCounts = tCubeCountHistoryRepository.findAllCubeCount(loginUserId ?: "", start, end)
         return CubeOverviewResponse(
             registeredApiKeyCount = if (loginUserId != null) null else tCubeApiKeyRepository.count(),
             counts = CubeCount.convert(cubeCounts),
@@ -219,7 +225,7 @@ class DashboardService(
         compareOptionValue: Int,
         history: TCubeHistory
     ): Boolean {
-        var sum = 0;
+        var sum = 0
         if (history.cubeType == "에디셔널 큐브") {
             if (compareOption == history.afterAdditionalOption1 || isAllStat(
                     compareOption,

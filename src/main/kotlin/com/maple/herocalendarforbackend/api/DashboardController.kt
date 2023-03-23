@@ -129,15 +129,20 @@ class DashboardController(
     }
 
     @GetMapping("/cube-overview")
-    fun getCubeCountCommon(): ResponseEntity<CubeOverviewResponse> {
-        return ResponseEntity.ok(dashboardService.getCubeOverview(null))
+    fun getCubeCountCommon(
+        @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("startDate", required = false) startDate: LocalDate?,
+        @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("endDate", required = false) endDate: LocalDate?,
+    ): ResponseEntity<CubeOverviewResponse> {
+        return ResponseEntity.ok(dashboardService.getCubeOverview(null, startDate, endDate))
     }
 
     @GetMapping("/personal/cube-overview")
     fun getCubeCountPersonal(
-        principal: Principal
+        principal: Principal,
+        @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("startDate", required = false) startDate: LocalDate?,
+        @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("endDate", required = false) endDate: LocalDate?,
     ): ResponseEntity<CubeOverviewResponse> {
-        return ResponseEntity.ok(dashboardService.getCubeOverview(principal.name))
+        return ResponseEntity.ok(dashboardService.getCubeOverview(principal.name, startDate, endDate))
     }
 
     @GetMapping("/personal/item-options")
@@ -183,7 +188,6 @@ class DashboardController(
             dashboardService.getWholeRecordDashboard(null, startDate, endDate)
         )
     }
-
 
     @GetMapping("/personal/whole-record")
     fun getWholeRecordDashboardDataPersonal(
