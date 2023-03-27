@@ -164,4 +164,15 @@ interface TCubeHistoryRepository : JpaRepository<TCubeHistory, ByteArray> {
     fun deleteByCreatedAt(
         @Param("beforeDeleteDate") beforeDeleteDate: LocalDate
     )
+
+    @Query(
+        "delete from t_cube_history h\n" +
+                "where date(h.created_at) = :createdAt",
+        nativeQuery = true
+    )
+    @Modifying
+    @Transactional
+    fun deleteByCreatedAtByBatch(
+        @Param("createdAt") createdAt: LocalDate
+    )
 }

@@ -110,7 +110,7 @@ class CubeService(
         val nexonUtil = NexonUtil()
         val withHistorySave = date.isAfter(saveHistoryFrom) || date.isEqual(saveHistoryFrom)
         try {
-            logger.info("$loginUserId] $date 데이터 수집!")
+            logger.debug("$loginUserId] $date 데이터 수집!")
             val cubeCountMap = mutableMapOf<TCubeCountHistory.FromNexonData, List<TCubeHistory>>()
             val data = nexonUtil.firstProcess(apiKey, date.toString())
             if (data.count != null && data.cubeHistories.isNotEmpty()) {
@@ -155,7 +155,7 @@ class CubeService(
                     tCubeHistoryRepository.saveAll(entities)
                 nextCursor = inData.nextCursor
             }
-            logger.info("$loginUserId] $date 데이터 수집, DB 저장 완!")
+            logger.debug("$loginUserId] $date 데이터 수집, DB 저장 완!")
             saveCubeCount(loginUserId, date, cubeCountMap)
         } catch (_: BaseException) {
             tCubeHistoryRepository.deleteByAccount(loginUserId)
@@ -170,7 +170,7 @@ class CubeService(
         date: LocalDate,
         map: Map<TCubeCountHistory.FromNexonData, List<TCubeHistory>>
     ) {
-        logger.info("$loginUserId] $date cubeCount DB 저장!")
+        logger.debug("$loginUserId] $date cubeCount DB 저장!")
         val entities = map.keys.map {
             TCubeCountHistory.convertFromNextData(
                 userId = loginUserId,
@@ -181,6 +181,6 @@ class CubeService(
             )
         }
         tCubeCountHistoryRepository.saveAll(entities)
-        logger.info("$loginUserId] $date cubeCount DB 저장 완!")
+        logger.debug("$loginUserId] $date cubeCount DB 저장 완!")
     }
 }

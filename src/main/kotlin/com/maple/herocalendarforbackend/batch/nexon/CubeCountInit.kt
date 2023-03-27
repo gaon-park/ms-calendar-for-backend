@@ -173,4 +173,21 @@ class CubeCountInit(
             LocalDate.now().minusMonths(MagicVariables.CAN_SEARCH_START_MINUS_MONTH).minusDays(1)
         )
     }
+
+    @PostConstruct
+    @Transactional
+    fun dataProblemSolve() {
+        // 2023-03-20 일자 배치 프로그램 실행 실패 rerun
+        val date = LocalDate.of(2023, 3, 20);
+        tCubeCountHistoryRepository.deleteByCreatedAtByBatch(date)
+        tCubeHistoryRepository.deleteByCreatedAtByBatch(date)
+
+        val nexonUtil = NexonUtil()
+        val saveHistoryFrom = LocalDate.now().minusMonths(3)
+        tCubeApiKeyRepository.findAll().map {
+            if (nexonUtil.isValidToken(it.apiKey)) {
+                saveHistory(it.userId, it.apiKey, date, saveHistoryFrom)
+            }
+        }
+    }
 }

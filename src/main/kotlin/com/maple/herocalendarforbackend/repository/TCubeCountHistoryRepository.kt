@@ -6,9 +6,11 @@ import com.maple.herocalendarforbackend.entity.IWholeRecordDashboardDate
 import com.maple.herocalendarforbackend.entity.IWholeRecordDashboardMonth
 import com.maple.herocalendarforbackend.entity.TCubeCountHistory
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 
 @Suppress("MaxLineLength")
@@ -162,4 +164,14 @@ interface TCubeCountHistoryRepository : JpaRepository<TCubeCountHistory, Long> {
         @Param("end") end: LocalDate,
         @Param("gradeKor") gradeKor: String,
     ): List<ICubeTypeCount>
+
+    @Query(
+        "delete from t_cube_count_history where created_at = :createdAt",
+        nativeQuery = true
+    )
+    @Modifying
+    @Transactional
+    fun deleteByCreatedAtByBatch(
+        @Param("createdAt") createdAt: LocalDate
+    )
 }
