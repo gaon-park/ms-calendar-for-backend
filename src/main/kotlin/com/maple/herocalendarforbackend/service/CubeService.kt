@@ -183,4 +183,19 @@ class CubeService(
         tCubeCountHistoryRepository.saveAll(entities)
         logger.debug("$loginUserId] $date cubeCount DB 저장 완!")
     }
+
+
+    @Transactional
+    fun dataProblemSolve(date: LocalDate) {
+        tCubeCountHistoryRepository.deleteByCreatedAtByBatch(date)
+        tCubeHistoryRepository.deleteByCreatedAtByBatch(date)
+
+        val nexonUtil = NexonUtil()
+        val saveHistoryFrom = LocalDate.now().minusMonths(3)
+        tCubeApiKeyRepository.findAll().map {
+            if (nexonUtil.isValidToken(it.apiKey)) {
+                saveHistory(it.userId, it.apiKey, date, saveHistoryFrom)
+            }
+        }
+    }
 }
