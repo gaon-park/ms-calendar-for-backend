@@ -190,11 +190,15 @@ class CubeService(
         tCubeCountHistoryRepository.deleteByCreatedAtByBatch(date)
         tCubeHistoryRepository.deleteByCreatedAtByBatch(date)
 
+        logger.info("기존 데이터 삭제 완료")
+
         val nexonUtil = NexonUtil()
         val saveHistoryFrom = LocalDate.now().minusMonths(3)
         tCubeApiKeyRepository.findAll().map {
             if (nexonUtil.isValidToken(it.apiKey)) {
+                logger.info("${it.userId} 데이터 재등록")
                 saveHistory(it.userId, it.apiKey, date, saveHistoryFrom)
+                logger.info("${it.userId} 데이터 재등록 완료")
             }
         }
     }
