@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController
 import java.security.Principal
 import java.time.LocalDate
 
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LongParameterList")
 @RestController
 @RequestMapping("/api/dashboard", produces = [MediaType.APPLICATION_JSON_VALUE])
 class DashboardController(

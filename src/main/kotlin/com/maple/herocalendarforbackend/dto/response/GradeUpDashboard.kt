@@ -1,59 +1,77 @@
 package com.maple.herocalendarforbackend.dto.response
 
+import com.maple.herocalendarforbackend.code.MagicVariables.ADDITIONAL_EPIC_GRADE_UP
 import com.maple.herocalendarforbackend.code.MagicVariables.ADDITIONAL_LEGENDARY_GRADE_UP
 import com.maple.herocalendarforbackend.code.MagicVariables.ADDITIONAL_UNIQUE_GRADE_UP
+import com.maple.herocalendarforbackend.code.MagicVariables.BLACK_EPIC_GRADE_UP
 import com.maple.herocalendarforbackend.code.MagicVariables.BLACK_LEGENDARY_GRADE_UP
 import com.maple.herocalendarforbackend.code.MagicVariables.BLACK_UNIQUE_GRADE_UP
+import com.maple.herocalendarforbackend.code.MagicVariables.JANGYIN_EPIC_GRADE_UP
+import com.maple.herocalendarforbackend.code.MagicVariables.JANGYIN_UNIQUE_GRADE_UP
+import com.maple.herocalendarforbackend.code.MagicVariables.MYUNGJANG_EPIC_GRADE_UP
+import com.maple.herocalendarforbackend.code.MagicVariables.MYUNGJANG_LEGENDARY_GRADE_UP
+import com.maple.herocalendarforbackend.code.MagicVariables.MYUNGJANG_UNIQUE_GRADE_UP
+import com.maple.herocalendarforbackend.code.MagicVariables.RED_EPIC_GRADE_UP
 import com.maple.herocalendarforbackend.code.MagicVariables.RED_LEGENDARY_GRADE_UP
 import com.maple.herocalendarforbackend.code.MagicVariables.RED_UNIQUE_GRADE_UP
+import com.maple.herocalendarforbackend.code.MagicVariables.SUSANG_EPIC_GRADE_UP
 import lombok.Builder
 
 @Builder
 data class GradeUpDashboard(
-    val actualRed: Double,
-    val actualBlack: Double,
-    val actualAdditional: Double,
+    val susang: GradeUp,
+    val jangyin: GradeUp,
 
-    val expectedRed: Double,
-    val expectedBlack: Double,
-    val expectedAdditional: Double,
+    val myungjang: GradeUp,
+    val red: GradeUp,
+    val black: GradeUp,
+    val additional: GradeUp,
 ) {
     companion object {
         fun convertLegendary(
+            actualMyungjang: Double,
             actualRed: Double,
             actualBlack: Double,
             actualAdditional: Double,
         ) = GradeUpDashboard(
-            actualRed, actualBlack, actualAdditional,
-            expectedRed = RED_LEGENDARY_GRADE_UP,
-            expectedBlack = BLACK_LEGENDARY_GRADE_UP,
-            expectedAdditional = ADDITIONAL_LEGENDARY_GRADE_UP
+            susang = GradeUp(0.0, 0.0),
+            jangyin = GradeUp(0.0, 0.0),
+            myungjang = GradeUp(actualMyungjang, MYUNGJANG_LEGENDARY_GRADE_UP),
+            red = GradeUp(actualRed, RED_LEGENDARY_GRADE_UP),
+            black = GradeUp(actualBlack, BLACK_LEGENDARY_GRADE_UP),
+            additional = GradeUp(actualAdditional, ADDITIONAL_LEGENDARY_GRADE_UP)
         )
 
         fun convertUnique(
+            actualJangyin: Double,
+            actualMyungjang: Double,
             actualRed: Double,
             actualBlack: Double,
             actualAdditional: Double,
         ) = GradeUpDashboard(
-            actualRed, actualBlack, actualAdditional,
-            expectedRed = RED_UNIQUE_GRADE_UP,
-            expectedBlack = BLACK_UNIQUE_GRADE_UP,
-            expectedAdditional = ADDITIONAL_UNIQUE_GRADE_UP
+            susang = GradeUp(0.0, 0.0),
+            jangyin = GradeUp(actualJangyin, JANGYIN_UNIQUE_GRADE_UP),
+            myungjang = GradeUp(actualMyungjang, MYUNGJANG_UNIQUE_GRADE_UP),
+            red = GradeUp(actualRed, RED_UNIQUE_GRADE_UP),
+            black = GradeUp(actualBlack, BLACK_UNIQUE_GRADE_UP),
+            additional = GradeUp(actualAdditional, ADDITIONAL_UNIQUE_GRADE_UP)
         )
 
-        fun convert(
+        @Suppress("LongParameterList")
+        fun convertEpic(
+            actualSusang: Double,
+            actualJangyin: Double,
+            actualMyungjang: Double,
             actualRed: Double,
             actualBlack: Double,
             actualAdditional: Double,
-            grade: String
         ) = GradeUpDashboard(
-            actualRed, actualBlack, actualAdditional,
-            expectedRed = if (grade == "레전드리") RED_LEGENDARY_GRADE_UP
-            else RED_UNIQUE_GRADE_UP,
-            expectedBlack = if (grade == "레전드리") BLACK_LEGENDARY_GRADE_UP
-            else BLACK_UNIQUE_GRADE_UP,
-            expectedAdditional = if (grade == "레전드리") ADDITIONAL_LEGENDARY_GRADE_UP
-            else ADDITIONAL_UNIQUE_GRADE_UP
+            susang = GradeUp(actualSusang, SUSANG_EPIC_GRADE_UP),
+            jangyin = GradeUp(actualJangyin, JANGYIN_EPIC_GRADE_UP),
+            myungjang = GradeUp(actualMyungjang, MYUNGJANG_EPIC_GRADE_UP),
+            red = GradeUp(actualRed, RED_EPIC_GRADE_UP),
+            black = GradeUp(actualBlack, BLACK_EPIC_GRADE_UP),
+            additional = GradeUp(actualAdditional, ADDITIONAL_EPIC_GRADE_UP)
         )
     }
 }
