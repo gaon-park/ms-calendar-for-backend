@@ -32,8 +32,7 @@ class JwtAuthenticationFilter(
             "/api/dashboard/item-options",
             "/api/dashboard/whole-record",
             "/api/dashboard/cube-overview",
-            "/api/dashboard/grade-up/legendary",
-            "/api/dashboard/grade-up/unique",
+            "/api/dashboard/grade-up",
             "/api/dashboard/top-five",
         )
         val GET_BOTH_URL = listOf(
