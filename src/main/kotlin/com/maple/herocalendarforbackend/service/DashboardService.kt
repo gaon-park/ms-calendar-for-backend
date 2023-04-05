@@ -109,15 +109,17 @@ class DashboardService(
         val additionalAll = getAllCount(gradeState, gradeUpgraded, nextGradeUpgraded, "에디셔널 큐브")
         val additionalUp = getUpgradedCount(nextGradeUpgraded, "에디셔널 큐브")
 
-        return GradeUpDashboard.convert(
-            actualRed = if (redAll != 0L && redUp != 0L) (redUp.toDouble()
-                .div(redAll) * 100000).roundToInt() / 1000.0 else 0.0,
-            actualBlack = if (blackAll != 0L && blackUp != 0L) (blackUp.toDouble()
-                .div(blackAll) * 100000).roundToInt() / 1000.0 else 0.0,
-            actualAdditional = if (additionalAll != 0L && additionalUp != 0L) (additionalUp.toDouble()
-                .div(additionalAll) * 100000).roundToInt() / 1000.0 else 0.0,
-            nextGrade
-        )
+        val actualRed = if (redAll != 0L && redUp != 0L) (redUp.toDouble()
+            .div(redAll) * 100000).roundToInt() / 1000.0 else 0.0
+        val actualBlack = if (blackAll != 0L && blackUp != 0L) (blackUp.toDouble()
+            .div(blackAll) * 100000).roundToInt() / 1000.0 else 0.0
+        val actualAdditional = if (additionalAll != 0L && additionalUp != 0L) (additionalUp.toDouble()
+            .div(additionalAll) * 100000).roundToInt() / 1000.0 else 0.0
+
+        return when (nextGrade) {
+            "레전드리" -> GradeUpDashboard.convertLegendary(actualRed, actualBlack, actualAdditional)
+            else -> GradeUpDashboard.convertUnique(actualRed, actualBlack, actualAdditional)
+        }
     }
 
     fun getCubeOverview(

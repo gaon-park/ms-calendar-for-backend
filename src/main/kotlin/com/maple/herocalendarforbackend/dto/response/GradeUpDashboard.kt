@@ -19,6 +19,28 @@ data class GradeUpDashboard(
     val expectedAdditional: Double,
 ) {
     companion object {
+        fun convertLegendary(
+            actualRed: Double,
+            actualBlack: Double,
+            actualAdditional: Double,
+        ) = GradeUpDashboard(
+            actualRed, actualBlack, actualAdditional,
+            expectedRed = RED_LEGENDARY_GRADE_UP,
+            expectedBlack = BLACK_LEGENDARY_GRADE_UP,
+            expectedAdditional = ADDITIONAL_LEGENDARY_GRADE_UP
+        )
+
+        fun convertUnique(
+            actualRed: Double,
+            actualBlack: Double,
+            actualAdditional: Double,
+        ) = GradeUpDashboard(
+            actualRed, actualBlack, actualAdditional,
+            expectedRed = RED_UNIQUE_GRADE_UP,
+            expectedBlack = BLACK_UNIQUE_GRADE_UP,
+            expectedAdditional = ADDITIONAL_UNIQUE_GRADE_UP
+        )
+
         fun convert(
             actualRed: Double,
             actualBlack: Double,

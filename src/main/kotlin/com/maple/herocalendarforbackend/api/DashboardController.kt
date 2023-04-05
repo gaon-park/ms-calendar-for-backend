@@ -56,12 +56,14 @@ class DashboardController(
         )
     }
 
-    @GetMapping("/personal/grade-up/legendary")
-    fun getGradeUpPersonalLegendary(
+    @GetMapping("/personal/grade-up")
+    fun getGradeUpPersonal(
         principal: Principal,
         @RequestParam("item", required = false) item: String?,
         @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("startDate", required = false) startDate: LocalDate?,
         @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("endDate", required = false) endDate: LocalDate?,
+        @RequestParam("nextGrade", required = true) grade: String,
+        @RequestParam("nextGrade", required = true) nextGrade: String,
     ): ResponseEntity<GradeUpDashboard> {
         return ResponseEntity.ok(
             dashboardService.getGradeDashboardByGrade(
@@ -69,35 +71,18 @@ class DashboardController(
                 item = item,
                 startDate = startDate,
                 endDate = endDate,
-                grade = "유니크",
-                nextGrade = "레전드리"
+                grade = grade,
+                nextGrade = nextGrade
             )
         )
     }
 
-    @GetMapping("/personal/grade-up/unique")
-    fun getGradeUpPersonalUnique(
-        principal: Principal,
-        @RequestParam("item", required = false) item: String?,
+    @GetMapping("/grade-up")
+    fun getGradeUpCommon(
         @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("startDate", required = false) startDate: LocalDate?,
         @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("endDate", required = false) endDate: LocalDate?,
-    ): ResponseEntity<GradeUpDashboard> {
-        return ResponseEntity.ok(
-            dashboardService.getGradeDashboardByGrade(
-                loginUserId = principal.name,
-                item = item,
-                startDate = startDate,
-                endDate = endDate,
-                grade = "에픽",
-                nextGrade = "유니크"
-            )
-        )
-    }
-
-    @GetMapping("/grade-up/legendary")
-    fun getGradeUpCommonLegendary(
-        @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("startDate", required = false) startDate: LocalDate?,
-        @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("endDate", required = false) endDate: LocalDate?,
+        @RequestParam("nextGrade", required = true) grade: String,
+        @RequestParam("nextGrade", required = true) nextGrade: String,
     ): ResponseEntity<GradeUpDashboard> {
         return ResponseEntity.ok(
             dashboardService.getGradeDashboardByGrade(
@@ -105,25 +90,8 @@ class DashboardController(
                 item = null,
                 startDate = startDate,
                 endDate = endDate,
-                grade = "유니크",
-                nextGrade = "레전드리"
-            )
-        )
-    }
-
-    @GetMapping("/grade-up/unique")
-    fun getGradeUpCommonUnique(
-        @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("startDate", required = false) startDate: LocalDate?,
-        @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("endDate", required = false) endDate: LocalDate?,
-    ): ResponseEntity<GradeUpDashboard> {
-        return ResponseEntity.ok(
-            dashboardService.getGradeDashboardByGrade(
-                loginUserId = null,
-                item = null,
-                startDate = startDate,
-                endDate = endDate,
-                grade = "에픽",
-                nextGrade = "유니크"
+                grade = grade,
+                nextGrade = nextGrade
             )
         )
     }
