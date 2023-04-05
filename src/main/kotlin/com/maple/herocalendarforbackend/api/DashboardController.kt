@@ -62,7 +62,7 @@ class DashboardController(
         @RequestParam("item", required = false) item: String?,
         @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("startDate", required = false) startDate: LocalDate?,
         @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("endDate", required = false) endDate: LocalDate?,
-        @RequestParam("nextGrade", required = true) grade: String,
+        @RequestParam("grade", required = true) grade: String,
         @RequestParam("nextGrade", required = true) nextGrade: String,
     ): ResponseEntity<GradeUpDashboard> {
         return ResponseEntity.ok(
@@ -81,7 +81,7 @@ class DashboardController(
     fun getGradeUpCommon(
         @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("startDate", required = false) startDate: LocalDate?,
         @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("endDate", required = false) endDate: LocalDate?,
-        @RequestParam("nextGrade", required = true) grade: String,
+        @RequestParam("grade", required = true) grade: String,
         @RequestParam("nextGrade", required = true) nextGrade: String,
     ): ResponseEntity<GradeUpDashboard> {
         return ResponseEntity.ok(
