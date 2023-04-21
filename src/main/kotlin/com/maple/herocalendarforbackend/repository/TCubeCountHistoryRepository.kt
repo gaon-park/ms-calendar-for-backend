@@ -129,7 +129,7 @@ interface TCubeCountHistoryRepository : JpaRepository<TCubeCountHistory, Long> {
                 "\tsum(count) as count\n" +
                 "from t_cube_count_history\n" +
                 "where \n" +
-                "if(cube_type != '에디셔널 큐브', potential_option_grade = :gradeKor, additional_potential_option_grade = :gradeKor)\n" +
+                "if(cube_type not like '%에디셔널 큐브', potential_option_grade = :gradeKor, additional_potential_option_grade = :gradeKor)\n" +
                 "and if(:loginUserId != '', user_id = :loginUserId, user_id != '')\n" +
                 "and if(:item != '', target_item = :item, target_item != '')\n" +
                 "and date(created_at) >= :start and date(created_at) <= :end\n" +
@@ -150,7 +150,7 @@ interface TCubeCountHistoryRepository : JpaRepository<TCubeCountHistory, Long> {
                 "\tsum(upgrade_count) as count\n" +
                 "from t_cube_count_history\n" +
                 "where \n" +
-                "(upgrade_count > 0 and if(cube_type != '에디셔널 큐브', potential_option_grade = :gradeKor, additional_potential_option_grade = :gradeKor))\n" +
+                "(upgrade_count > 0 and if(cube_type not like '%에디셔널 큐브', potential_option_grade = :gradeKor, additional_potential_option_grade = :gradeKor))\n" +
                 "and if(:loginUserId != '', user_id = :loginUserId, user_id != '')\n" +
                 "and if(:item != '', target_item = :item, target_item != '')\n" +
                 "and date(created_at) >= :start and date(created_at) <= :end\n" +

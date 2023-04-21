@@ -12,6 +12,7 @@ data class CubeCount(
     val redCount: Long,
     val blackCount: Long,
     val additionalCount: Long,
+    val susangAdditionalCount: Long,
 ) {
     companion object {
         fun convert(cubeCounts: List<ICubeTypeCount>) = CubeCount(
@@ -21,7 +22,8 @@ data class CubeCount(
             myungjangCount = cubeCounts.firstOrNull { it.getCubeType() == "명장의 큐브" }?.getCount() ?: 0,
             redCount = cubeCounts.firstOrNull { it.getCubeType() == "레드 큐브" }?.getCount() ?: 0,
             blackCount = cubeCounts.firstOrNull { it.getCubeType() == "블랙 큐브" }?.getCount() ?: 0,
-            additionalCount = cubeCounts.firstOrNull { it.getCubeType() == "에디셔널 큐브" }?.getCount() ?: 0
+            additionalCount = cubeCounts.firstOrNull { it.getCubeType() == "에디셔널 큐브" }?.getCount() ?: 0,
+            susangAdditionalCount = cubeCounts.firstOrNull { it.getCubeType() == "수상한 에디셔널 큐브" }?.getCount() ?: 0
         )
     }
 }
