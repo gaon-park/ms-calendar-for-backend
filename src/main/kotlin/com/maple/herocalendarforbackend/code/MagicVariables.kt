@@ -24,7 +24,7 @@ object MagicVariables {
     // 레전드리 등급업
     const val MYUNGJANG_LEGENDARY_GRADE_UP = 0.1996
     const val RED_LEGENDARY_GRADE_UP = 0.3000
-    const val BLACK_LEGENDARY_GRADE_UP = 1.2000
+    const val BLACK_LEGENDARY_GRADE_UP = 1.4000
     const val ADDITIONAL_LEGENDARY_GRADE_UP = 0.6000
 
     // 유니크 등급업
