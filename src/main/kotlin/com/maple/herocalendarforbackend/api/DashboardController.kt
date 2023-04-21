@@ -62,8 +62,7 @@ class DashboardController(
         @RequestParam("item", required = false) item: String?,
         @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("startDate", required = false) startDate: LocalDate?,
         @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("endDate", required = false) endDate: LocalDate?,
-        @RequestParam("grade", required = true) grade: String,
-        @RequestParam("nextGrade", required = true) nextGrade: String,
+        @RequestParam("cubeType", required = true) cubeType: String,
     ): ResponseEntity<GradeUpDashboard> {
         return ResponseEntity.ok(
             dashboardService.getGradeDashboardByGrade(
@@ -71,8 +70,7 @@ class DashboardController(
                 item = item,
                 startDate = startDate,
                 endDate = endDate,
-                grade = grade,
-                nextGrade = nextGrade
+                cubeType = cubeType
             )
         )
     }
@@ -81,8 +79,7 @@ class DashboardController(
     fun getGradeUpCommon(
         @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("startDate", required = false) startDate: LocalDate?,
         @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam("endDate", required = false) endDate: LocalDate?,
-        @RequestParam("grade", required = true) grade: String,
-        @RequestParam("nextGrade", required = true) nextGrade: String,
+        @RequestParam("cubeType", required = true) cubeType: String,
     ): ResponseEntity<GradeUpDashboard> {
         return ResponseEntity.ok(
             dashboardService.getGradeDashboardByGrade(
@@ -90,8 +87,7 @@ class DashboardController(
                 item = null,
                 startDate = startDate,
                 endDate = endDate,
-                grade = grade,
-                nextGrade = nextGrade
+                cubeType = cubeType
             )
         )
     }

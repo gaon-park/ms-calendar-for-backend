@@ -14,64 +14,113 @@ import com.maple.herocalendarforbackend.code.MagicVariables.MYUNGJANG_UNIQUE_GRA
 import com.maple.herocalendarforbackend.code.MagicVariables.RED_EPIC_GRADE_UP
 import com.maple.herocalendarforbackend.code.MagicVariables.RED_LEGENDARY_GRADE_UP
 import com.maple.herocalendarforbackend.code.MagicVariables.RED_UNIQUE_GRADE_UP
+import com.maple.herocalendarforbackend.code.MagicVariables.SUSANG_ADDITIONAL_EPIC_GRADE_UP
 import com.maple.herocalendarforbackend.code.MagicVariables.SUSANG_EPIC_GRADE_UP
+import com.maple.herocalendarforbackend.entity.IGradeUpCount
 import lombok.Builder
+import kotlin.math.roundToInt
 
 @Builder
 data class GradeUpDashboard(
-    val susang: GradeUp,
-    val jangyin: GradeUp,
-
-    val myungjang: GradeUp,
-    val red: GradeUp,
-    val black: GradeUp,
-    val additional: GradeUp,
+    val epic: GradeUp,
+    val unique: GradeUp,
+    val legendary: GradeUp
 ) {
     companion object {
-        fun convertLegendary(
-            actualMyungjang: Double,
-            actualRed: Double,
-            actualBlack: Double,
-            actualAdditional: Double,
-        ) = GradeUpDashboard(
-            susang = GradeUp(0.0, 0.0),
-            jangyin = GradeUp(0.0, 0.0),
-            myungjang = GradeUp(actualMyungjang, MYUNGJANG_LEGENDARY_GRADE_UP),
-            red = GradeUp(actualRed, RED_LEGENDARY_GRADE_UP),
-            black = GradeUp(actualBlack, BLACK_LEGENDARY_GRADE_UP),
-            additional = GradeUp(actualAdditional, ADDITIONAL_LEGENDARY_GRADE_UP)
-        )
+        private fun getGradeUpPercentage(beforeInfo: IGradeUpCount?, afterInfo: IGradeUpCount?): Double {
+            val upgradeCount = (afterInfo?.getUpgradeSumCount() ?: 0).toDouble()
+            val allCount = upgradeCount + (beforeInfo?.getSumCount()
+                ?: 0) - (beforeInfo?.getUpgradeSumCount() ?: 0)
 
-        fun convertUnique(
-            actualJangyin: Double,
-            actualMyungjang: Double,
-            actualRed: Double,
-            actualBlack: Double,
-            actualAdditional: Double,
-        ) = GradeUpDashboard(
-            susang = GradeUp(0.0, 0.0),
-            jangyin = GradeUp(actualJangyin, JANGYIN_UNIQUE_GRADE_UP),
-            myungjang = GradeUp(actualMyungjang, MYUNGJANG_UNIQUE_GRADE_UP),
-            red = GradeUp(actualRed, RED_UNIQUE_GRADE_UP),
-            black = GradeUp(actualBlack, BLACK_UNIQUE_GRADE_UP),
-            additional = GradeUp(actualAdditional, ADDITIONAL_UNIQUE_GRADE_UP)
-        )
+            return if (upgradeCount > 0)
+                (upgradeCount.div(allCount) * 100000).roundToInt() / 1000.0
+            else 0.0
+        }
 
-        @Suppress("LongParameterList")
-        fun convertEpic(
-            actualSusang: Double,
-            actualJangyin: Double,
-            actualMyungjang: Double,
-            actualRed: Double,
-            actualBlack: Double,
-            actualAdditional: Double,
-        ) = GradeUpDashboard(
-            susang = GradeUp(actualSusang, SUSANG_EPIC_GRADE_UP),
-            jangyin = GradeUp(actualJangyin, JANGYIN_EPIC_GRADE_UP),
-            myungjang = GradeUp(actualMyungjang, MYUNGJANG_EPIC_GRADE_UP),
-            red = GradeUp(actualRed, RED_EPIC_GRADE_UP),
-            black = GradeUp(actualBlack, BLACK_EPIC_GRADE_UP),
-            additional = GradeUp(actualAdditional, ADDITIONAL_EPIC_GRADE_UP)
-        )
+        fun convertSusang(data: List<IGradeUpCount>): GradeUpDashboard {
+            val rareInfo = data.firstOrNull { it.getGrade() == "레어" }
+            val epicInfo = data.firstOrNull { it.getGrade() == "에픽" }
+
+            return GradeUpDashboard(
+                epic = GradeUp(getGradeUpPercentage(rareInfo, epicInfo), SUSANG_EPIC_GRADE_UP),
+                unique = GradeUp(0.0, 0.0),
+                legendary = GradeUp(0.0, 0.0),
+            )
+        }
+
+        fun convertSusangAdditional(data: List<IGradeUpCount>): GradeUpDashboard {
+            val rareInfo = data.firstOrNull { it.getGrade() == "레어" }
+            val epicInfo = data.firstOrNull { it.getGrade() == "에픽" }
+
+            return GradeUpDashboard(
+                epic = GradeUp(getGradeUpPercentage(rareInfo, epicInfo), SUSANG_ADDITIONAL_EPIC_GRADE_UP),
+                unique = GradeUp(0.0, 0.0),
+                legendary = GradeUp(0.0, 0.0),
+            )
+        }
+
+        fun convertJangyin(data: List<IGradeUpCount>): GradeUpDashboard {
+            val rareInfo = data.firstOrNull { it.getGrade() == "레어" }
+            val epicInfo = data.firstOrNull { it.getGrade() == "에픽" }
+            val uniqueInfo = data.firstOrNull { it.getGrade() == "유니크" }
+
+            return GradeUpDashboard(
+                epic = GradeUp(getGradeUpPercentage(rareInfo, epicInfo), JANGYIN_EPIC_GRADE_UP),
+                unique = GradeUp(getGradeUpPercentage(epicInfo, uniqueInfo), JANGYIN_UNIQUE_GRADE_UP),
+                legendary = GradeUp(0.0, 0.0)
+            )
+        }
+
+        fun convertMyungjang(data: List<IGradeUpCount>): GradeUpDashboard {
+            val rareInfo = data.firstOrNull { it.getGrade() == "레어" }
+            val epicInfo = data.firstOrNull { it.getGrade() == "에픽" }
+            val uniqueInfo = data.firstOrNull { it.getGrade() == "유니크" }
+            val legendaryInfo = data.firstOrNull { it.getGrade() == "레전드리" }
+
+            return GradeUpDashboard(
+                epic = GradeUp(getGradeUpPercentage(rareInfo, epicInfo), MYUNGJANG_EPIC_GRADE_UP),
+                unique = GradeUp(getGradeUpPercentage(epicInfo, uniqueInfo), MYUNGJANG_UNIQUE_GRADE_UP),
+                legendary = GradeUp(getGradeUpPercentage(uniqueInfo, legendaryInfo), MYUNGJANG_LEGENDARY_GRADE_UP)
+            )
+        }
+
+        fun convertRed(data: List<IGradeUpCount>): GradeUpDashboard {
+            val rareInfo = data.firstOrNull { it.getGrade() == "레어" }
+            val epicInfo = data.firstOrNull { it.getGrade() == "에픽" }
+            val uniqueInfo = data.firstOrNull { it.getGrade() == "유니크" }
+            val legendaryInfo = data.firstOrNull { it.getGrade() == "레전드리" }
+
+            return GradeUpDashboard(
+                epic = GradeUp(getGradeUpPercentage(rareInfo, epicInfo), RED_EPIC_GRADE_UP),
+                unique = GradeUp(getGradeUpPercentage(epicInfo, uniqueInfo), RED_UNIQUE_GRADE_UP),
+                legendary = GradeUp(getGradeUpPercentage(uniqueInfo, legendaryInfo), RED_LEGENDARY_GRADE_UP)
+            )
+        }
+
+        fun convertBlack(data: List<IGradeUpCount>): GradeUpDashboard {
+            val rareInfo = data.firstOrNull { it.getGrade() == "레어" }
+            val epicInfo = data.firstOrNull { it.getGrade() == "에픽" }
+            val uniqueInfo = data.firstOrNull { it.getGrade() == "유니크" }
+            val legendaryInfo = data.firstOrNull { it.getGrade() == "레전드리" }
+
+            return GradeUpDashboard(
+                epic = GradeUp(getGradeUpPercentage(rareInfo, epicInfo), BLACK_EPIC_GRADE_UP),
+                unique = GradeUp(getGradeUpPercentage(epicInfo, uniqueInfo), BLACK_UNIQUE_GRADE_UP),
+                legendary = GradeUp(getGradeUpPercentage(uniqueInfo, legendaryInfo), BLACK_LEGENDARY_GRADE_UP)
+            )
+        }
+
+        fun convertAdditional(data: List<IGradeUpCount>): GradeUpDashboard {
+            val rareInfo = data.firstOrNull { it.getGrade() == "레어" }
+            val epicInfo = data.firstOrNull { it.getGrade() == "에픽" }
+            val uniqueInfo = data.firstOrNull { it.getGrade() == "유니크" }
+            val legendaryInfo = data.firstOrNull { it.getGrade() == "레전드리" }
+
+            return GradeUpDashboard(
+                epic = GradeUp(getGradeUpPercentage(rareInfo, epicInfo), ADDITIONAL_EPIC_GRADE_UP),
+                unique = GradeUp(getGradeUpPercentage(epicInfo, uniqueInfo), ADDITIONAL_UNIQUE_GRADE_UP),
+                legendary = GradeUp(getGradeUpPercentage(uniqueInfo, legendaryInfo), ADDITIONAL_LEGENDARY_GRADE_UP)
+            )
+        }
     }
 }

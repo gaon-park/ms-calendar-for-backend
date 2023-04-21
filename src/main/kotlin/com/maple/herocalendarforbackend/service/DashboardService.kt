@@ -1,5 +1,6 @@
 package com.maple.herocalendarforbackend.service
 
+import com.maple.herocalendarforbackend.code.BaseResponseCode
 import com.maple.herocalendarforbackend.code.MagicVariables.CAN_SEARCH_START_MINUS_MONTH
 import com.maple.herocalendarforbackend.code.MagicVariables.MAX_SEARCH_LIMIT
 import com.maple.herocalendarforbackend.dto.response.CubeCount
@@ -11,6 +12,7 @@ import com.maple.herocalendarforbackend.dto.response.ItemCount
 import com.maple.herocalendarforbackend.dto.response.WholeRecordDashboardResponse
 import com.maple.herocalendarforbackend.entity.ICubeTypeCount
 import com.maple.herocalendarforbackend.entity.TCubeHistory
+import com.maple.herocalendarforbackend.exception.BaseException
 import com.maple.herocalendarforbackend.repository.TCubeApiKeyRepository
 import com.maple.herocalendarforbackend.repository.TCubeCountHistoryRepository
 import com.maple.herocalendarforbackend.repository.TCubeHistoryRepository
@@ -76,83 +78,35 @@ class DashboardService(
         item: String?,
         startDate: LocalDate?,
         endDate: LocalDate?,
-        grade: String,
-        nextGrade: String,
+        cubeType: String
     ): GradeUpDashboard {
         val start = startDate ?: LocalDate.now().minusMonths(CAN_SEARCH_START_MINUS_MONTH)
         val end = endDate ?: LocalDate.now()
-        val gradeState = tCubeCountHistoryRepository.findStateGradeCount(
+
+        val data = if (cubeType.contains("에디셔널")) tCubeCountHistoryRepository.findGradeCountByCubeAdditional(
             loginUserId = loginUserId ?: "",
             item = item ?: "",
             start = start,
             end = end,
-            gradeKor = grade
+            cubeType = cubeType
         )
-        val gradeUpgraded = tCubeCountHistoryRepository.findUpgradeGradeCount(
+        else tCubeCountHistoryRepository.findGradeCountByCube(
             loginUserId = loginUserId ?: "",
             item = item ?: "",
             start = start,
             end = end,
-            gradeKor = grade
-        )
-        val nextGradeUpgraded = tCubeCountHistoryRepository.findUpgradeGradeCount(
-            loginUserId = loginUserId ?: "",
-            item = item ?: "",
-            start = start,
-            end = end,
-            gradeKor = nextGrade
+            cubeType = cubeType
         )
 
-        val susangAll =
-            if (nextGrade == "에픽") getAllCount(gradeState, gradeUpgraded, nextGradeUpgraded, "수상한 큐브") else 0L
-        val susangUp = if (nextGrade == "에픽") getUpgradedCount(nextGradeUpgraded, "수상한 큐브") else 0L
-
-        val jangyinAll =
-            if (nextGrade != "레전드리") getAllCount(gradeState, gradeUpgraded, nextGradeUpgraded, "장인의 큐브") else 0L
-        val jangyinUp = if (nextGrade != "레전드리") getUpgradedCount(nextGradeUpgraded, "장인의 큐브") else 0L
-
-        val myungjangAll = getAllCount(gradeState, gradeUpgraded, nextGradeUpgraded, "명장의 큐브")
-        val myungjangUp = getUpgradedCount(nextGradeUpgraded, "명장의 큐브")
-
-        val redAll = getAllCount(gradeState, gradeUpgraded, nextGradeUpgraded, "레드 큐브")
-        val redUp = getUpgradedCount(nextGradeUpgraded, "레드 큐브")
-
-        val blackAll = getAllCount(gradeState, gradeUpgraded, nextGradeUpgraded, "블랙 큐브")
-        val blackUp = getUpgradedCount(nextGradeUpgraded, "블랙 큐브")
-
-        val additionalAll = getAllCount(gradeState, gradeUpgraded, nextGradeUpgraded, "에디셔널 큐브")
-        val additionalUp = getUpgradedCount(nextGradeUpgraded, "에디셔널 큐브")
-
-        val actualSusang = if (susangAll != 0L && susangUp != 0L) (susangUp.toDouble()
-            .div(susangAll) * 100000).roundToInt() / 1000.0 else 0.0
-        val actualJangyin = if (jangyinAll != 0L && jangyinUp != 0L) (jangyinUp.toDouble()
-            .div(jangyinAll) * 100000).roundToInt() / 1000.0 else 0.0
-        val actualMyungjang = if (myungjangAll != 0L && myungjangUp != 0L) (myungjangUp.toDouble()
-            .div(myungjangAll) * 100000).roundToInt() / 1000.0 else 0.0
-        val actualRed = if (redAll != 0L && redUp != 0L) (redUp.toDouble()
-            .div(redAll) * 100000).roundToInt() / 1000.0 else 0.0
-        val actualBlack = if (blackAll != 0L && blackUp != 0L) (blackUp.toDouble()
-            .div(blackAll) * 100000).roundToInt() / 1000.0 else 0.0
-        val actualAdditional = if (additionalAll != 0L && additionalUp != 0L) (additionalUp.toDouble()
-            .div(additionalAll) * 100000).roundToInt() / 1000.0 else 0.0
-
-        return when (nextGrade) {
-            "레전드리" -> GradeUpDashboard.convertLegendary(actualMyungjang, actualRed, actualBlack, actualAdditional)
-            "유니크" -> GradeUpDashboard.convertUnique(
-                actualJangyin,
-                actualMyungjang,
-                actualRed,
-                actualBlack,
-                actualAdditional
-            )
-            else -> GradeUpDashboard.convertEpic(
-                actualSusang,
-                actualJangyin,
-                actualMyungjang,
-                actualRed,
-                actualBlack,
-                actualAdditional
-            )
+        return when (cubeType) {
+            "수상한 큐브" -> GradeUpDashboard.convertSusang(data)
+            "수상한 에디셔널 큐브" -> GradeUpDashboard.convertSusangAdditional(data)
+            "장인의 큐브" -> GradeUpDashboard.convertJangyin(data)
+            "명장의 큐브" -> GradeUpDashboard.convertMyungjang(data)
+            "레드 큐브" -> GradeUpDashboard.convertRed(data)
+            "블랙 큐브" -> GradeUpDashboard.convertBlack(data)
+            "에디셔널 큐브" -> GradeUpDashboard.convertAdditional(data)
+            else -> throw BaseException(BaseResponseCode.BAD_REQUEST)
         }
     }
 
