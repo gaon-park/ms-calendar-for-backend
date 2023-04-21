@@ -177,4 +177,14 @@ interface TCubeCountHistoryRepository : JpaRepository<TCubeCountHistory, Long> {
     fun deleteByCreatedAtByBatch(
         @Param("createdAt") createdAt: LocalDate
     )
+
+    @Query(
+        "delete from t_cube_count_history b where b.user_id = :userId",
+        nativeQuery = true
+    )
+    @Modifying
+    @Transactional
+    fun deleteByAccount(
+        @Param("userId") userId: String,
+    )
 }
