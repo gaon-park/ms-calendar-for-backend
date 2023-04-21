@@ -1,6 +1,7 @@
 package com.maple.herocalendarforbackend.util
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.maple.herocalendarforbackend.code.BaseResponseCode
@@ -19,6 +20,7 @@ class NexonUtil {
 
     private val mapper = JsonMapper.builder().addModule(JavaTimeModule()).build()
         .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
     fun isValidToken(apiKey: String): Boolean {
         val req = "${url}count=10&date=2022-11-25"
