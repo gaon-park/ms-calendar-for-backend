@@ -20,6 +20,7 @@ import com.maple.herocalendarforbackend.entity.IGradeUpCount
 import lombok.Builder
 import kotlin.math.roundToInt
 
+@Suppress("MagicNumber")
 @Builder
 data class GradeUpDashboard(
     val epic: GradeUp,
