@@ -1,0 +1,1495 @@
+openapi: 3.0.1
+info:
+  title: Hero Calendar API
+  description: Web Calendar Info
+  version: v0.0.1
+servers:
+  - url: /
+security:
+  - JWT_AUTH: []
+tags:
+  - name: Auth
+    description: 인증 관련 API
+  - name: Calendar CURD
+    description: Schedule작성、갱신、열람、삭제 관련 API
+  - name: User tools
+    description: Login User관련 API
+  - name: Search
+    description: 검색 관련(로그아웃 유저 접근 가능) API
+paths:
+  /api/user/profile:
+    get:
+      tags:
+        - User tools
+      summary: get user profile
+      description: 로그인 유저의 가입 정보 확인 API
+      operationId: getProfile
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IProfileResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+        - User tools
+      summary: put user profile
+      description: 로그인 유저의 가입 정보를 수정 API <br/>수정한 데이터만 송신
+      operationId: putProfile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IProfileResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/user/notifications/read-all:
+    put:
+      tags:
+        - User tools
+      summary: read all notification
+      operationId: readAllNotifications
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/user/notification/read:
+    put:
+      tags:
+        - User tools
+      summary: read one notification
+      operationId: readNotification
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/user/follower/delete:
+    put:
+      tags:
+        - Follow/Follower CURD
+      summary: delete from my follower
+      operationId: deleteFromByFollower
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FollowRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+  /api/user/follow/cancel:
+    put:
+      tags:
+        - Follow/Follower CURD
+      summary: follow cancel
+      operationId: followCancel
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FollowRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+  /api/user/follow/accept:
+    put:
+      tags:
+        - Follow/Follower CURD
+      summary: follow request accept
+      operationId: requestAccept
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FollowRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+  /api/schedule:
+    get:
+      tags:
+        - Calendar CURD
+      summary: get schedules
+      description: 기간 내의 모든 스케줄 취득 API
+      operationId: getSchedules
+      parameters:
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+        - Calendar CURD
+      summary: update schedule
+      description: Schedule 내용 갱신 API
+      operationId: putSchedule
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScheduleUpdateRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+        - Calendar CURD
+      summary: save schedule
+      description: 스케줄 작성 API
+      operationId: addSchedule
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScheduleAddRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/schedule/refuse:
+    put:
+      tags:
+        - Calendar CURD
+      summary: invite refuse
+      description: Schedule 초대 거절 API
+      operationId: scheduleRefuse
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScheduleRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/schedule/delete:
+    put:
+      tags:
+        - Calendar CURD
+      summary: delete schedule
+      description: '스케줄 삭제 API <br>- Requester가 Schedule Owner인 경우: ScheduleUpdateCode에 따라 스케줄 자체를 삭제<br>- Requester가 Schedule Participant인 경우: 개인을 해당 스케줄에서 삭제'
+      operationId: deleteSchedule
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScheduleDeleteRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/schedule/accept:
+    put:
+      tags:
+        - Calendar CURD
+      summary: invite accept
+      description: Schedule 초대 수락 API
+      operationId: scheduleAccept
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScheduleRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/user/follow:
+    get:
+      tags:
+        - Follow/Follower CURD
+      summary: find all follow
+      operationId: findFollows
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IProfile'
+    post:
+      tags:
+        - Follow/Follower CURD
+      summary: send follow request
+      operationId: followRequest
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FollowRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+  /api/user/api-key:
+    get:
+      tags:
+        - User tools
+      operationId: getApiKey
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIKeyResponse'
+    post:
+      tags:
+        - User tools
+      operationId: setApiKey
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/APIKeyRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+  /api/reissue/token:
+    post:
+      tags:
+        - Auth
+      summary: JWT 관련
+      description: access_token이 무효화된 경우、보존중인 refresh_token으로 access_token을 재발행 API
+      operationId: accessTokenReIssue
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/admin/batch/re-run:
+    post:
+      tags:
+        - admin-rest-controller
+      operationId: dataProblemSolve
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DateRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+  /api/user/notifications:
+    get:
+      tags:
+        - User tools
+      summary: get unconfirmed notification list
+      operationId: getNotifications
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/user/follower:
+    get:
+      tags:
+        - Follow/Follower CURD
+      summary: find all follower
+      operationId: findFollowers
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IProfile'
+  /api/search/user:
+    get:
+      tags:
+        - Search
+      summary: 유저 검색（검색 화면）
+      description: 유저 검색(부분 일치) API
+      operationId: findUser
+      parameters:
+        - name: keyword
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: world
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: job
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: jobDetail
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IProfile'
+      security: []
+  /api/search/user/profile:
+    get:
+      tags:
+        - Search
+      summary: 유저 검색（프로필 화면）
+      description: accountId로 유저 검색(완전 일치) API
+      operationId: getUserProfile
+      parameters:
+        - name: accountId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IProfileResponse'
+      security: []
+  /api/search/schedule-invite-target:
+    get:
+      tags:
+        - Search
+      operationId: findUserListForScheduleSearch
+      parameters:
+        - name: keyword
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SimpleUserResponse'
+      security: []
+  /api/schedule/other:
+    get:
+      tags:
+        - Calendar CURD
+      operationId: getSchedulesOthers
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PersonalScheduleResponse'
+  /api/oauth2/google:
+    get:
+      tags:
+        - Auth
+      summary: google oauth2 server에서 가져온 code값에서 로그인에 필요한 Refresh/AccessToken을 취득
+      operationId: googleLogin
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security: []
+  /api/dashboard/whole-record:
+    get:
+      tags:
+        - dashboard-controller
+      operationId: getWholeRecordDashboardData
+      parameters:
+        - name: startDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WholeRecordDashboardResponse'
+  /api/dashboard/top-five:
+    get:
+      tags:
+        - dashboard-controller
+      operationId: getRedTopFive
+      parameters:
+        - name: cubeType
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: startDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ItemCount'
+  /api/dashboard/personal/whole-record:
+    get:
+      tags:
+        - dashboard-controller
+      operationId: getWholeRecordDashboardDataPersonal
+      parameters:
+        - name: startDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WholeRecordDashboardResponse'
+  /api/dashboard/personal/top-five:
+    get:
+      tags:
+        - dashboard-controller
+      operationId: getRedTopFivePersonal
+      parameters:
+        - name: cubeType
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: startDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ItemCount'
+  /api/dashboard/personal/item-options:
+    get:
+      tags:
+        - dashboard-controller
+      operationId: getItemFilterOptions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /api/dashboard/personal/item-options/for-search:
+    get:
+      tags:
+        - dashboard-controller
+      operationId: getItemFilterOptionsForSearch
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /api/dashboard/personal/grade-up:
+    get:
+      tags:
+        - dashboard-controller
+      operationId: getGradeUpPersonal
+      parameters:
+        - name: item
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: startDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: cubeType
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GradeUpDashboard'
+  /api/dashboard/personal/for-item:
+    get:
+      tags:
+        - dashboard-controller
+      operationId: getDashboardDataPersonal
+      parameters:
+        - name: item
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: cube
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: option1
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: option2
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: option3
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: optionValue1
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: optionValue2
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: optionValue3
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CubeHistoryResponse'
+  /api/dashboard/personal/cube-overview:
+    get:
+      tags:
+        - dashboard-controller
+      operationId: getCubeCountPersonal
+      parameters:
+        - name: startDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CubeOverviewResponse'
+  /api/dashboard/grade-up:
+    get:
+      tags:
+        - dashboard-controller
+      operationId: getGradeUpCommon
+      parameters:
+        - name: startDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: cubeType
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GradeUpDashboard'
+  /api/dashboard/cube-overview:
+    get:
+      tags:
+        - dashboard-controller
+      operationId: getCubeCountCommon
+      parameters:
+        - name: startDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CubeOverviewResponse'
+  /api/user:
+    delete:
+      tags:
+        - User tools
+      summary: deactivate account
+      description: 退会 API
+      operationId: deleteUser
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+components:
+  schemas:
+    ProfileRequest:
+      required:
+        - accountId
+        - isPublic
+        - job
+        - jobDetail
+        - nickName
+        - notificationFlg
+        - world
+      type: object
+      properties:
+        nickName:
+          type: string
+        accountId:
+          type: string
+        isPublic:
+          type: boolean
+        avatarImg:
+          type: string
+        world:
+          type: string
+        job:
+          type: string
+        jobDetail:
+          type: string
+        notificationFlg:
+          type: boolean
+    IProfile:
+      required:
+        - accountId
+        - createdAt
+        - id
+        - isPublic
+        - job
+        - jobDetail
+        - nickName
+        - notificationFlg
+        - updatedAt
+        - world
+      type: object
+      properties:
+        id:
+          type: string
+        world:
+          type: string
+        job:
+          type: string
+        role:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time
+        heFollowMe:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        notificationFlg:
+          type: boolean
+        accountId:
+          type: string
+        avatarImg:
+          type: string
+        nickName:
+          type: string
+        isPublic:
+          type: boolean
+        iamFollowHim:
+          type: string
+        jobDetail:
+          type: string
+    IProfileResponse:
+      required:
+        - acceptedFollowCount
+        - acceptedFollowerCount
+        - follow
+        - follower
+        - profile
+      type: object
+      properties:
+        profile:
+          $ref: '#/components/schemas/IProfile'
+        follow:
+          type: array
+          items:
+            $ref: '#/components/schemas/IProfile'
+        follower:
+          type: array
+          items:
+            $ref: '#/components/schemas/IProfile'
+        acceptedFollowCount:
+          type: integer
+          format: int64
+        acceptedFollowerCount:
+          type: integer
+          format: int64
+    ErrorResponse:
+      required:
+        - code
+        - message
+        - status
+      type: object
+      properties:
+        status:
+          type: integer
+          format: int32
+        code:
+          type: string
+        message:
+          type: string
+    NotificationRequest:
+      required:
+        - id
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+    FollowRequest:
+      required:
+        - personalKey
+      type: object
+      properties:
+        personalKey:
+          type: string
+    ScheduleUpdateRequest:
+      required:
+        - allDay
+        - forOfficial
+        - isPublic
+        - scheduleId
+        - scheduleUpdateCode
+        - start
+        - title
+      type: object
+      properties:
+        scheduleId:
+          type: integer
+          format: int64
+        title:
+          type: string
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+        allDay:
+          type: boolean
+        memberIds:
+          type: array
+          items:
+            type: string
+        note:
+          type: string
+        isPublic:
+          type: boolean
+        scheduleUpdateCode:
+          type: string
+          enum:
+            - ONLY_THIS
+            - ALL
+            - THIS_AND_FUTURE
+        forOfficial:
+          type: boolean
+    ScheduleRequest:
+      required:
+        - scheduleId
+      type: object
+      properties:
+        scheduleId:
+          type: integer
+          format: int64
+    ScheduleDeleteRequest:
+      required:
+        - scheduleId
+        - scheduleUpdateCode
+      type: object
+      properties:
+        scheduleId:
+          type: integer
+          format: int64
+        scheduleUpdateCode:
+          type: string
+          enum:
+            - ONLY_THIS
+            - ALL
+            - THIS_AND_FUTURE
+        forOfficial:
+          type: boolean
+    APIKeyRequest:
+      required:
+        - apiKey
+      type: object
+      properties:
+        apiKey:
+          type: string
+    RepeatInfo:
+      required:
+        - end
+        - repeatCode
+      type: object
+      properties:
+        repeatCode:
+          type: string
+          enum:
+            - DAYS
+            - WEEKS
+            - MONTHS
+            - YEARS
+        end:
+          type: string
+          format: date
+    ScheduleAddRequest:
+      required:
+        - isPublic
+        - start
+        - title
+      type: object
+      properties:
+        title:
+          type: string
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+        repeatInfo:
+          $ref: '#/components/schemas/RepeatInfo'
+        allDay:
+          type: boolean
+        note:
+          type: string
+        memberIds:
+          maxItems: 50
+          minItems: 0
+          type: array
+          items:
+            type: string
+        isPublic:
+          type: boolean
+        forOfficial:
+          type: boolean
+    LoginResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+    DateRequest:
+      required:
+        - date
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+    NotificationResponse:
+      required:
+        - avatarText
+        - linkPath
+        - meta
+        - subTitle
+        - title
+      type: object
+      properties:
+        notificationId:
+          type: integer
+          format: int64
+        meta:
+          type: string
+        title:
+          type: string
+        subTitle:
+          type: string
+        avatarImg:
+          type: string
+        avatarText:
+          type: string
+        linkPath:
+          type: string
+    APIKeyResponse:
+      required:
+        - apiKey
+        - createdAt
+        - expiredAt
+        - isValid
+      type: object
+      properties:
+        apiKey:
+          type: string
+        isValid:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        expiredAt:
+          type: string
+          format: date-time
+    SimpleUserResponse:
+      required:
+        - accountId
+        - nickName
+      type: object
+      properties:
+        id:
+          type: string
+        accountId:
+          type: string
+        nickName:
+          type: string
+        avatarImg:
+          type: string
+    OfficialScheduleResponse:
+      required:
+        - allDay
+        - byAdmin
+        - scheduleId
+        - start
+        - title
+      type: object
+      properties:
+        scheduleId:
+          type: integer
+          format: int64
+        title:
+          type: string
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+        allDay:
+          type: boolean
+        note:
+          type: string
+        byAdmin:
+          type: boolean
+    PersonalScheduleResponse:
+      required:
+        - allDay
+        - isPublic
+        - members
+        - owner
+        - scheduleId
+        - start
+        - title
+      type: object
+      properties:
+        scheduleId:
+          type: integer
+          format: int64
+        title:
+          type: string
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+        allDay:
+          type: boolean
+        note:
+          type: string
+        owner:
+          $ref: '#/components/schemas/SimpleUserResponse'
+        isPublic:
+          type: boolean
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScheduleMemberResponse'
+    ScheduleMemberResponse:
+      required:
+        - acceptedStatus
+        - accountId
+        - nickName
+      type: object
+      properties:
+        id:
+          type: string
+        accountId:
+          type: string
+        nickName:
+          type: string
+        avatarImg:
+          type: string
+        acceptedStatus:
+          type: string
+          enum:
+            - WAITING
+            - REFUSED
+            - ACCEPTED
+    ScheduleResponse:
+      required:
+        - officials
+        - personals
+      type: object
+      properties:
+        officials:
+          type: array
+          items:
+            $ref: '#/components/schemas/OfficialScheduleResponse'
+        personals:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonalScheduleResponse'
+    CubeEventRecordResponse:
+      required:
+        - category
+        - count
+        - cubeType
+      type: object
+      properties:
+        category:
+          type: string
+        cubeType:
+          type: string
+        count:
+          type: integer
+          format: int32
+    WholeRecordDashboardResponse:
+      required:
+        - categories
+        - data
+      type: object
+      properties:
+        categories:
+          type: array
+          items:
+            type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CubeEventRecordResponse'
+    ItemCount:
+      required:
+        - count
+        - item
+      type: object
+      properties:
+        item:
+          type: string
+        count:
+          type: integer
+          format: int32
+    GradeUp:
+      required:
+        - actual
+        - expected
+      type: object
+      properties:
+        actual:
+          type: number
+          format: double
+        expected:
+          type: number
+          format: double
+    GradeUpDashboard:
+      required:
+        - epic
+        - legendary
+        - unique
+      type: object
+      properties:
+        epic:
+          $ref: '#/components/schemas/GradeUp'
+        unique:
+          $ref: '#/components/schemas/GradeUp'
+        legendary:
+          $ref: '#/components/schemas/GradeUp'
+    CubeHistoryResponse:
+      required:
+        - afterOption1
+        - afterOption2
+        - afterOption3
+        - beforeOption1
+        - beforeOption2
+        - beforeOption3
+        - cubeType
+        - id
+        - itemUpgrade
+        - potentialOptionGrade
+        - targetItem
+      type: object
+      properties:
+        id:
+          type: string
+        targetItem:
+          type: string
+        cubeType:
+          type: string
+        beforeOption1:
+          type: string
+        beforeOption2:
+          type: string
+        beforeOption3:
+          type: string
+        afterOption1:
+          type: string
+        afterOption2:
+          type: string
+        afterOption3:
+          type: string
+        potentialOptionGrade:
+          type: string
+        itemUpgrade:
+          type: boolean
+    CubeCount:
+      required:
+        - additionalCount
+        - allCount
+        - blackCount
+        - jangyinCount
+        - myungjangCount
+        - redCount
+        - susangAdditionalCount
+        - susangCount
+      type: object
+      properties:
+        allCount:
+          type: integer
+          format: int64
+        susangCount:
+          type: integer
+          format: int64
+        jangyinCount:
+          type: integer
+          format: int64
+        myungjangCount:
+          type: integer
+          format: int64
+        redCount:
+          type: integer
+          format: int64
+        blackCount:
+          type: integer
+          format: int64
+        additionalCount:
+          type: integer
+          format: int64
+        susangAdditionalCount:
+          type: integer
+          format: int64
+    CubeOverviewResponse:
+      required:
+        - counts
+      type: object
+      properties:
+        registeredApiKeyCount:
+          type: integer
+          format: int64
+        counts:
+          $ref: '#/components/schemas/CubeCount'
+  securitySchemes:
+    JWT_AUTH:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
