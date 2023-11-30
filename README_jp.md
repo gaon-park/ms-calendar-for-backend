@@ -25,7 +25,7 @@
 | Language  | - Kotlin<br/>- TypeScript                                         |
 | Framework | - SprintBoot<br/>- Next.js                                        |
 | DB        | - MySQL                                                           |
-| GCP       | - Compute Engine <br/>- IAM <br/>- Cloud Storage <br/>- VPC 네트워크  |
+| GCP       | - Compute Engine <br/>- IAM <br/>- Cloud Storage <br/>- VPC network|
 | Server    | - Nginx (Reverse Proxy)                                           |
 | Tools     | - Docker                                                          |
 
